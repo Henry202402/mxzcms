@@ -1,0 +1,47 @@
+{
+  "code": 0,
+  "msg": "",
+  "count": 19,
+  "data": [
+    {
+      "authorityId": 1,
+      "authorityName": "系统管理",
+      "menuUrl": null,
+      "checked": 0,
+      "isMenu": 0,
+      "parentId": -1
+    },
+    {
+      "authorityId": 2,
+      "authorityName": "用户管理",
+      "menuUrl": "system/user",
+      "checked": 0,
+      "isMenu": 0,
+      "parentId": 1
+    },
+    {
+      "authorityId": 4,
+      "authorityName": "添加用户",
+      "menuUrl": null,
+      "checked": 0,
+      "isMenu": 1,
+      "parentId": 2
+    },
+
+    {
+      "authorityId": 7,
+      "authorityName": "角色管理",
+      "menuUrl": "system/role",
+      "checked": 0,
+      "isMenu": 0,
+      "parentId": 1
+    },
+    {
+      "authorityId": 9,
+      "authorityName": "添加角色",
+      "menuUrl": "",
+      "isMenu": 1,
+      "parentId": 7
+    }
+  ]
+}

@@ -1,0 +1,197 @@
+.display-flex {
+    display: flex;
+}
+
+.text-decoration-none, .text-decoration-none:hover {
+    text-decoration: none;
+}
+
+.h-center {
+    text-align: center;
+}
+
+.readUserMessage {
+    padding: 4px 8px;
+    color: #fff;
+    font-size: 12px;
+    border-radius: 3px;
+    border: 1px solid #5cccf5;
+    background-color: #5cccf5;
+}
+
+.readAllUserMessage {
+    padding: 4px 8px;
+    color: #fff;
+    font-size: 12px;
+    border-radius: 3px;
+    border: 1px solid #4993ff;
+    background-color: #4993ff;
+}
+
+.deleteUserMessage {
+    padding: 4px 8px;
+    color: #fff;
+    font-size: 12px;
+    border-radius: 3px;
+    border: 1px solid #e14e46;
+    background-color: #e14e46;
+}
+
+.goBtn {
+    padding: 4px 13px;
+    color: #000;
+    font-size: 12px;
+    border-radius: 3px;
+    border: 1px solid #f2f2f2;
+    background-color: #f2f2f2;
+}
+
+.goIndexBtn {
+    padding: 4px 10px;
+    color: #000;
+    font-size: 12px;
+    border-radius: 3px;
+    border: 1px solid #f2f2f2;
+    background-color: #f2f2f2;
+}
+
+.one-page-meta-list li {
+    margin: 0 5px;
+}
+
+.paginationTop {
+    text-align: center;
+    padding: 10px 0;
+}
+
+.paginationTop ul.pagination {
+    display: flex;
+    list-style-type: none;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.paginationTop ul.pagination li {
+    padding: 2px 0;
+    margin: 0 2px;
+    border: 1px solid #f3f3f3;
+}
+
+.paginationTop ul.pagination li a, .paginationTop ul.pagination li span {
+    padding: 7px 12px;
+}
+
+.paginationTop ul.pagination li a {
+    text-decoration: none;
+}
+
+.paginationTop ul.pagination li a[rel="prev"],
+.paginationTop ul.pagination li.disabled span,
+.paginationTop ul.pagination li a[rel="next"] {
+    font-size: 30px;
+    line-height: 0;
+    position: relative;
+    top: 3px;
+}
+
+.h-line-2 {
+    overflow: hidden;
+    /*display: -webkit-box;*/
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+.h-line-1 {
+    overflow: hidden;
+    /*display: -webkit-box;*/
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+}
+
+.text-success {
+    color: #8bc34a;
+}
+
+.text-danger {
+    color: #ff4626;
+}
+
+.f-fz-20 {
+    font-size: 20px;
+}
+
+.text-align-right {
+    text-align: right;
+}
+
+.h-message-list-ul {
+    border: 1px solid #d2d2d2;
+    font-size: 15px;
+}
+
+.h-message-list-li {
+    border-bottom: 1px solid #d2d2d2;
+    padding: 5px 0;
+}
+
+.h-message-list-li-checkbox {
+    cursor: pointer;
+    width: 14px;
+    height: 14px;
+}
+
+.h-message-list-li-div {
+    display: flex;
+    padding: 5px 15px;
+}
+
+.h-w60 {
+    width: 60%;
+}
+
+.h-w25 {
+    width: 25%;
+}
+
+.h-w15 {
+    width: 15%;
+}
+
+.h-go-input-btn {
+    width: 45px;
+    height: 32px;
+    text-align: center;
+    position: relative;
+    top: 2px;
+}
+
+.h-message-detail-top {
+    border-bottom: 1px solid #d2d2d2;
+    padding-bottom: 10px;
+}
+
+.h-message-title {
+    font-size: 20px;
+    text-align: center;
+    margin: 10px 0;
+}
+
+.h-message-content {
+    background: #f9f9f9;
+    padding: 10px 15px;
+}
+
+.h-message-time {
+    text-align: right;
+    margin: 10px 0;
+    font-size: 13px;
+}
+
+.h-user-info-update-btn {
+    width: 150px;background: #fff;border: 1px solid #cbd3dd;border-left: none;
+}
+.h-user-info-update-btn a{
+    text-decoration: none;
+    color: inherit;
+}
