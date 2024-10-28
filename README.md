@@ -54,10 +54,11 @@
     强大的权限管理，用户可以根据自己的需求来设置权限。
 
 ### 安装说明
-1、clone git https://github.com/Henry202402/mxzcms.git
-2、composer install
-3、http://域名/install
-4、配置数据库，安装成功
+
+1. clone git https://github.com/Henry202402/mxzcms.git
+2. composer install
+3. http://域名/install
+4. 配置数据库，安装成功
 
 ### 更多信息：
 - [官方网站](https://www.mxzcms.com)
