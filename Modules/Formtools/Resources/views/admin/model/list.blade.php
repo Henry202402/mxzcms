@@ -36,9 +36,11 @@
                 <div class="">
                     <div class="table-responsive panel panel-default">
                         <div class="panel-heading">
-                            <a class="label bg-info pull-right m-t-xs"
+                            <a class="label pull-right m-t-xs" style="margin-top: -8px;"
                                href="{{url("admin/".$moduleName."/model?moduleName={$pageData['moduleName']}&action=Add&model=".$pageData['model'])}}">
-                                新增
+                                <button type="button" class="btn bg-info">
+                                    新增
+                                </button>
                             </a>
                             模型列表
                         </div>

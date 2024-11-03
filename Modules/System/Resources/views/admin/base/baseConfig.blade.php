@@ -368,9 +368,15 @@
                                             </label>
 
                                             <select name="default_language" class="form-control">
-                                                @foreach($languages["admin"] as $language)
-                                                    <option value="{{$language['shortcode']}}"
-                                                            @if(cacheGlobalSettingsByKey('default_language') ==$language['shortcode']) selected @endif>{{$language["name"]}}</option>
+                                                @foreach(\Modules\Main\Services\ServiceModel::getLangList() as $kl=>$vl)
+                                                    <option value="{{$kl}}"
+                                                            @if(session("admin_current_language")['shortcode'] == $kl)
+                                                                selected >{{$vl}}</option>
+                                                            @elseif(cacheGlobalSettingsByKey('default_language') == $kl)
+                                                                selected >{{$vl}}</option>
+                                                            @else
+                                                                         >{{$vl}}</option>
+                                                            @endif
                                                 @endforeach
                                             </select>
                                         </div>

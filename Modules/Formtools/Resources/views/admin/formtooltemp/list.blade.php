@@ -36,10 +36,12 @@
                     <div class="table-responsive panel panel-default">
                         <div class="panel-heading">
                             @foreach($pageData['listActions'] as $act)
-                                <a class="label  {{$act['cssClass']}}  pull-right m-t-xs"
-                                   style="margin-right: 10px;padding: 3px 8px;font-size: 12px;"
+                                <a class="label  pull-right m-t-xs"
+                                   style="margin-top: -9px"
                                    href="{{rtrim($act['actionUrl'].'?'.http_build_query(array_merge($act['param']?:[],[$f['actionby']=>toArray($d)[$f['actionby']]])),"?")}}">
-                                    {{$act['actionName']}}
+                                    <button type="button" class="btn {{$act['cssClass']}}">
+                                        {{$act['actionName']}}
+                                    </button>
                                 </a>
                             @endforeach
                             @if($pageData['leftListActions'])
@@ -49,7 +51,7 @@
                                            style="margin-right: 10px;padding: 3px 8px;font-size: 12px;"
                                            onclick="clickOperate('{{$left['actionUrl']}}','{{$left['confirm']}}','{{$left['isMoreSelect']}}')"
                                         >
-                                            {{$left['actionName']}}
+                                            {{$left['actionName']}}-------
                                         </a>
                                     @endforeach
                                     <br>

@@ -65,6 +65,7 @@
   }
 }
 .sidebar-content {
+    height: 100%;
   position: relative;
 }
 .sidebar-all-hidden .sidebar-main,
@@ -12723,7 +12724,7 @@ a.plupload_disabled:focus {
 *
 *  # Responsive extension
 *
-*  Optimise the table's layout for different screen sizes through the dynamic 
+*  Optimise the table's layout for different screen sizes through the dynamic
 *  insertion and removal of columns from the table
 *
 *  Version: 1.0

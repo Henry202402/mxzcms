@@ -101,7 +101,7 @@ class ModelController extends ModulesController {
                 if (count($temp) == 2) $data_source_field_mappings[$temp[0]] = $temp[1];
             }
 
-            $list = [];
+            $list = $curldatas['other'];
 
         } else {
             $data = Common::query()->from("module_formtools_{$model['identification']}")->where('id', $id)->first();

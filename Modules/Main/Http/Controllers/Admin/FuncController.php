@@ -3,8 +3,10 @@
 namespace Modules\Main\Http\Controllers\Admin;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Modules\Formtools\Models\FormModel;
+use Modules\Main\Models\Modules;
 use Modules\ModulesController as Controller;
 
 class FuncController extends Controller {
@@ -16,7 +18,15 @@ class FuncController extends Controller {
         $local_modules = $content = getDirContent(MODULE_PATH) ?: [];
 
         //获取已安装的module
-        $modules_install_datas = \cache()->get(\Mxzcms\Modules\cache\CacheKey::ModulesActive);
+        $dataList = Modules::query()
+            ->where("cloud_type",'module')
+            ->orderBy("updated_at","desc")
+            ->get()
+            ->toArray();
+        foreach ($dataList as $module) {
+            $modules_install_datas[$module['identification']] = $module;
+        }
+//$modules_install_datas = \cache()->get(\Mxzcms\Modules\cache\CacheKey::ModulesActive);
         //判断未安装的模块
         foreach ($modules_install_datas as $key => $value) {
             if (in_array($value['identification'], $local_modules)) {
@@ -62,7 +72,15 @@ class FuncController extends Controller {
 
         //获取模块下的模块文件夹和配置
         $local_plugin = getDirContent(PLUGIN_PATH) ?: [];
-        $plugin_install_datas = cache()->get(\Mxzcms\Modules\cache\CacheKey::PluginsActive);
+        $dataList = Modules::query()
+            ->where("cloud_type",'plugin')
+            ->orderBy("updated_at","desc")
+            ->get()
+            ->toArray();
+        foreach ($dataList as $module) {
+            $plugin_install_datas[$module['identification']] = $module;
+        }
+//        $plugin_install_datas = cache()->get(\Mxzcms\Modules\cache\CacheKey::PluginsActive);
         $plugin_not_install_datas = [];
         //判断未安装的模块
         foreach ($plugin_install_datas as $data) {
@@ -91,7 +109,10 @@ class FuncController extends Controller {
     function theme() {
         //获取模块下的模块文件夹和配置
         $local_themes = getDirContent(THEME_PATH) ?: [];
-        $themes_install_datas = DB::table('themes')->orderBy("status", "asc")->get()->toArray();
+        $themes_install_datas = DB::table('themes')
+            ->orderBy("status", "asc")
+            ->get()
+            ->toArray();
         $themes_not_install_datas = [];
         //判断未安装的模块
         foreach ($themes_install_datas as $data) {
@@ -248,8 +269,22 @@ class FuncController extends Controller {
         $res = $module->where('identification', '=', $get['m'])->where('cloud_type', '=', $get['cloud_type'])->update(['status' => $get['status']]);
         if ($res) {
             if ($get['cloud_type'] == \Modules\Main\Models\Modules::Plugin) {
+                Cache::put(\Mxzcms\Modules\cache\CacheKey::PluginsActive,
+                    array_merge(\cache(\Mxzcms\Modules\cache\CacheKey::PluginsActive),
+                        array(strtolower($get['m'])=>
+                            array_merge(\cache(\Mxzcms\Modules\cache\CacheKey::PluginsActive)[strtolower($get['m'])],
+                            ),["status" => $get['status']])
+                    ),86400
+                );
                 return redirect(url('admin/plugin'))->with('successmsg', '操作成功!');
             } else {
+                Cache::put(\Mxzcms\Modules\cache\CacheKey::ModulesActive,
+                    array_merge(\cache(\Mxzcms\Modules\cache\CacheKey::ModulesActive),
+                        array(strtolower($get['m'])=>
+                            array_merge(\cache(\Mxzcms\Modules\cache\CacheKey::ModulesActive)[strtolower($get['m'])],
+                        ),["status" => $get['status']])
+                    ),86400
+                );
                 return redirect(url('admin/module'))->with('successmsg', '操作成功!');
             }
         } else {

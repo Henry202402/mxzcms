@@ -40,9 +40,23 @@
                     <div class="">
                         <div class="table-responsive panel panel-default">
                             <div class="panel-heading">
-                                <a class="label bg-info pull-right m-t-xs"
+                                <a class="label pull-right m-t-xs" style="margin-top: -7px;"
+                                   href="#" onclick="resetModelData('{{url('admin/formtools/resetModelData')}}')">
+                                    <button type="button" class="h-button-edit btn  btn-danger btn-xs">
+                                        重置模型数据
+                                    </button>
+                                </a>
+                                <a class="label pull-right m-t-xs" style="margin-top: -7px;"
+                                   href="#" onclick="synmodel('{{url('admin/formtools/synmodel')}}')" >
+                                    <button type="button" class="h-button-edit btn btn-success btn-xs">
+                                        同步默认模型
+                                    </button>
+                                </a>
+                                <a class="label pull-right m-t-xs" style="margin-top: -7px;"
                                    href="{{url("admin/formtools/modelAdd")}}" >
-                                    新增
+                                    <button type="button" class="h-button-edit btn btn-info  btn-xs">
+                                        新增
+                                    </button>
                                 </a>
                                 模型列表
                             </div>
@@ -125,6 +139,28 @@
     <script>
         function del(url) {
             layer.confirm('确定要删除吗？', {
+                title: "操作提示",
+                btn: ['确定', '取消'] //可以无限个按钮
+            }, function (index, layero) {
+                //按钮【按钮一】的回调
+                window.location.href = url;
+            }, function (index) {
+                //按钮【按钮二】的回调
+            });
+        }
+        function synmodel(url) {
+            layer.confirm('确定要同步默认模型吗？', {
+                title: "操作提示",
+                btn: ['确定', '取消'] //可以无限个按钮
+            }, function (index, layero) {
+                //按钮【按钮一】的回调
+                window.location.href = url;
+            }, function (index) {
+                //按钮【按钮二】的回调
+            });
+        }
+        function resetModelData(url) {
+            layer.confirm('确定要重置模型数据吗？', {
                 title: "操作提示",
                 btn: ['确定', '取消'] //可以无限个按钮
             }, function (index, layero) {

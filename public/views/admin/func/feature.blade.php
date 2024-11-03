@@ -149,19 +149,19 @@
 
                                                 @if($modules_install_data['is_index'] == 0)
                                                     <div class="d-inline-block">
-                                                        <a href="{{url('admin/module/changeIndex?m='.$modules_install_data['identification'].'&is_index=1')}}">
+                                                        <div class="cursor text-primary" onclick="changeStatusHomePage(1,'{{url('admin/module/changeIndex?m='.$modules_install_data['identification'].'&is_index=1')}}')">
                                                             <span class="fa fa-home"></span>
                                                             {{getTranslateByKey('set_as_front_desk_home_page')}}
-                                                        </a>
+                                                        </div>
                                                     </div>
                                                 @else
 
                                                     <div class="d-inline-block">
-                                                        <a class="text-danger"
-                                                           href="{{url('admin/module/changeIndex?m='.$modules_install_data['identification'].'&is_index=0')}}">
+                                                        <div class="text-danger cursor" onclick="changeStatusHomePage(0,'{{url('admin/module/changeIndex?m='.$modules_install_data['identification'].'&is_index=0')}}')"
+                                                           >
                                                             <span class="fa fa-home"></span>
                                                             {{getTranslateByKey('unset_as_front_desk_home_page')}}
-                                                        </a>
+                                                        </div>
                                                     </div>
                                                 @endif
                                                 <br/>
@@ -284,7 +284,26 @@
 @include('admin.public.js',['load'=> ["custom"]])
 
 <script type="text/javascript">
-
+    function changeStatusHomePage(status, url) {
+        $.confirm({
+            title: '{{getTranslateByKey("common_tip")}}',
+            content: status == 1 ? '{{getTranslateByKey("set_as_front_desk_home_page")}}' : '{{getTranslateByKey("unset_as_front_desk_home_page")}}',
+            type: 'default',
+            buttons: {
+                ok: {
+                    text: "{{getTranslateByKey('common_ensure')}}",
+                    btnClass: 'btn-primary',
+                    keys: ['enter'],
+                    action: function () {
+                        location.href = url
+                    }
+                },
+                cancel: {
+                    text: "{{getTranslateByKey('common_cancel')}}"
+                }
+            }
+        });
+    }
     function changeStatusQuestion(status, url) {
         $.confirm({
             title: '{{getTranslateByKey("common_tip")}}',

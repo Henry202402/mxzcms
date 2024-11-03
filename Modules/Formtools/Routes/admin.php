@@ -28,6 +28,10 @@ Route::prefix('formtools')->middleware([CheckLoginByAdmin::class, CheckPermissio
         Route::any('/fieldEdit', 'HomeController@fieldEdit')->name('编辑字段');
         Route::any('/fieldDel', 'HomeController@fieldDel')->name('删除字段');
         Route::any('/fieldMove', 'HomeController@fieldMove')->name('移动字段');
+        Route::any('/synmodel', 'HomeController@synmodel')->name('同步默认模型');
+        Route::any('/resetModelData', 'HomeController@resetModelData')->name('重置模型数据');
+
+
     });
 
     Route::group(['as' => '追加模型@'], function () {

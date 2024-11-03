@@ -113,7 +113,7 @@
                                             </div>
                                             @if($install_data['config'])
                                                 <div class="d-inline-block">
-                                                    <a href="{{url('admin/plugin/config?identification='.strtolower($install_data['identification']))}}">
+                                                    <a href="{{url('admin/plugin/config?identification='.$install_data['identification'])}}">
                                                         <span class="fa fa-cog"></span> 设置
                                                     </a>
                                                 </div>

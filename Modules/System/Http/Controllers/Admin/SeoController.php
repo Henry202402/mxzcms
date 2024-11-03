@@ -133,7 +133,7 @@ class SeoController extends ModulesController {
         $string = str_replace("{{data_name}}", $data['data']->name, $string);
         $string = str_replace("{{model_name}}", $data['model']->name, $string);
         $string = str_replace("{{model_home_page_title}}", $data['model']->home_page_title, $string);
-        if(!$data['model']->home_page_describe){
+        if($data['data']->content){
             $string = str_replace(
                 "{{model_home_page_describe}}",
                 mb_substr(

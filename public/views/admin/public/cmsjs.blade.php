@@ -247,8 +247,8 @@
                         })
                             .done(function (json) {
 
-
-                                progress = Math.floor(json.size / file_size * 10000) / 100 ;
+                                let file_size2 = file_size * 10000;
+                                progress = Math.floor(json.size / file_size2) / 100 ;
 
                                 // updateProgress(progress);
 

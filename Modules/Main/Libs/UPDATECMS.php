@@ -22,7 +22,7 @@ class UPDATECMS
                 $res = $this->checkapp($all);
                 break;
             case "prepare-download":
-                $this->preparedownload(cache()->get('app_update_'.$all["cloudtype"].'_'.$all["identification"])['size']);
+                $res = $this->preparedownload(cache()->get('app_update_'.$all["cloudtype"].'_'.$all["identification"])['size']);
                 break;
             case "start-download":
 
@@ -56,10 +56,9 @@ class UPDATECMS
                 $res = $this->unzipFile($localFilePath, $topath,"callback_pre_extract");
                 //更新数据库
                 if ($res['status'] == 200){
-
                     //更新版本号
                     $update = [
-                        'version' => cache()->get('app_update_'.$all["cloudtype"].'_'.$all["identification"])['version'],
+//                        'version' => cache()->get('app_update_'.$all["cloudtype"].'_'.$all["identification"])['version'],
                         'updated_at' => date("Y-m-d H:i:s")
                     ];
                     if ($all["cloudtype"] == "theme"){
@@ -70,13 +69,13 @@ class UPDATECMS
                             DB::table("themes")
                                 ->where("identification",$all["identification"])
                                 ->update($update);
+                            hook("Statistic",['moduleName'=>"System","action"=>"Update","identification"=>$all["identification"],"type"=>$all["cloudtype"]]);
                             return [
                                 "status" => 200,
                                 "msg" => "升级成功"
                             ];
                         }
                     }else{
-
                         $check = DB::table("modules")
                             ->where("identification",$all["identification"])
                             ->where("cloud_type",$all["cloudtype"])
@@ -94,14 +93,13 @@ class UPDATECMS
                                     ]);
                                 }catch (\Exception $exception){}
                             }
+                            hook("Statistic",['moduleName'=>"System","action"=>"Update","identification"=>$all["identification"],"type"=>$all["cloudtype"]]);
                             return [
                                 "status" => 200,
                                 "msg" => "升级成功"
                             ];
                         }
-
                     }
-
                     $request = \request();
                     $request->merge([
                         'm' => $all["identification"],
@@ -116,14 +114,11 @@ class UPDATECMS
                     } else {
                         return ['msg' => '安装失败，请手动安装', 'status' => 0];
                     }
-
-
-
                 }
                 break;
             case "get-file-size":
                 // 本地保存文件的路径
-                $localFilePath = storage_path('download/'.$all["cloudtype"].'/'.$all["identification"].'/'.cache()->get('app_update_'.$all["cloudtype"].'_'.$all["identification"])['version'].'.zip');
+                $localFilePath = storage_path('download/'.$all["cloudtype"].'/'.strtolower($all["identification"]).'-'.cache()->get('app_update_'.$all["cloudtype"].'_'.$all["identification"])['version'].'.zip');
                 $res = $this->getFileSize($localFilePath);
                 break;
             case "get-app-list":
@@ -138,19 +133,12 @@ class UPDATECMS
     {
         $data["origin_host"]= url("/");
         $data['time'] = time();
-        $data["ip"] = $_SERVER['SERVER_ADDR'];
         unset($data['moduleName']);
         ksort($data);
         $data['sign'] =md5(http_build_query($data)."mxzcms".$data['time']);
         // 初始化 cURL
         $ch = curl_init();
         // 设置 cURL 选项
-//          'action' => 'Install',
-//          'identification' => 'Logger',
-//          'type' => 'module',
-//          'origin_host' => 'https://www.mxzcms.com',
-//          'time' => '1729245699',
-//          'sign' => '98c9c3b81c8b0095f3821352aadaf3a4',
         curl_setopt($ch, CURLOPT_URL, $this->cloud_host.'/api/cloud/statistic?'.http_build_query($data));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch,CURLOPT_NOSIGNAL,true);
@@ -396,7 +384,7 @@ class UPDATECMS
         ]);
 
         $remoteFile = fopen($remoteFileUrl, 'rb', false, $context);
-        $localFile = fopen($localFilePath, 'wb');
+        $localFile = fopen($localFilePath, 'r+wb');
         if(!$remoteFile){
             return [
                 "status" => 500,

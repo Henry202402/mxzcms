@@ -57,7 +57,7 @@ class ModelController extends ModulesController {
             $select[] = $temp[0] . '.' . $temp[2] . ' as ' . $temp[1];
         }
         //排序
-        $identificationArray = array_column($pageData['modeldetaill'], 'identification');
+        $identificationArray = array_column($pageData['modeldetaill']?:[], 'identification');
         if (in_array('sorts', $identificationArray)) {
             $pageData['datas'] = $pageData['datas']->orderBy($tableName . ".sorts", "desc");
         } elseif (in_array('sort', $identificationArray)) {

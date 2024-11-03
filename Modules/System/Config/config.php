@@ -1,7 +1,7 @@
 <?php  return array (
                 "name" => "系统设置",
                 "author" => "梦小记",
-                "version" => "1.0.0",
+                "version" => "1.0.1",
                 "description" => "系统模块，主系统设置，菜单管理和会员管理",
                 "identification" => "System",
                 "type" => "system",

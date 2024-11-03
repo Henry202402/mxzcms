@@ -4,12 +4,49 @@ namespace Modules\Formtools\Http\Controllers\Admin;
 
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Modules\Formtools\Models\FormModel;
 use Modules\ModulesController;
 
 class HomeController extends ModulesController {
+
+    public function synmodel()
+    {
+
+        try {
+            Artisan::call('db:seed', [
+                '--class' => "Modules\Formtools\Database\Seeders\DatabaseSeeder",
+                '--force' => 1,
+            ]);
+
+            return redirect("/admin/formtools/index")->with(["pageDataMsg" => "同步模型成功", "pageDataStatus" => 200]);
+        }catch (\Exception $exception){
+            return back()->with("pageDataMsg", "操作失败!");
+        }
+
+    }
+
+    public function resetModelData()
+    {
+        try {
+            Artisan::call('migrate', [
+                '--path' => "Modules/Formtools/Database/Migrations/install",
+                '--force' => 1,
+            ]);
+
+            Artisan::call('db:seed', [
+                '--class' => "Modules\Formtools\Database\Seeders\DatabaseSeeder",
+                '--force' => 1,
+            ]);
+
+            return redirect("/admin/formtools/index")->with(["pageDataMsg" => "重置模型数据成功", "pageDataStatus" => 200]);
+        }catch (\Exception $exception){
+            return back()->with("pageDataMsg", "操作失败!");
+        }
+    }
+
     /**
      * Display a listing of the resource.
      * @return Renderable
