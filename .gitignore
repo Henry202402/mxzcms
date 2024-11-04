@@ -2,4 +2,8 @@
 .git/
 bootstrap/cache/
 storage/
+vendor/
 .env
+public/install.lock
+
+public/views/modules/
