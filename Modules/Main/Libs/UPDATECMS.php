@@ -272,6 +272,7 @@ class UPDATECMS
             'Modules/Main',
             'Modules/System',
             'Modules/Formtools',
+            'Modules/Member',
             'public/views/admin',
             'public/views/themes/default',
         ];

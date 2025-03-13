@@ -83,22 +83,28 @@
                                         SMS短信配置
                                     </a>
                                 </li>
-                                {{--                                <li @if($_GET['type']==4) class="active" @endif >--}}
-                                {{--                                    <a href data-toggle="tab" data-target="#login">--}}
-                                {{--                                        第三方登录--}}
-                                {{--                                    </a>--}}
-                                {{--                                </li>--}}
-                                {{--                                <li @if($_GET['type']==5) class="active" @endif >--}}
-                                {{--                                    <a href data-toggle="tab" data-target="#pay">--}}
-                                {{--                                        第三方支付--}}
-                                {{--                                    </a>--}}
-                                {{--                                </li>--}}
+                                <li @if($_GET['type']==4) class="active" @endif >
+                                    <a href data-toggle="tab" data-target="#pay">
+                                        支付配置
+                                    </a>
+                                </li>
+
+                                <li @if($_GET['type']==5) class="active" @endif >
+                                    <a href data-toggle="tab" data-target="#login">
+                                        登录配置
+                                    </a>
+                                </li>
                                 <li @if($_GET['type']==6) class="active" @endif >
                                     <a href data-toggle="tab" data-target="#editor">
                                         富文本编辑器
                                     </a>
                                 </li>
-                                {{--                                <li @if($_GET['type']==6) class="active" @endif >--}}
+                                <li @if($_GET['type']==7) class="active" @endif >
+                                    <a href data-toggle="tab" data-target="#map">
+                                        地图配置
+                                    </a>
+                                </li>
+                                {{--                                <li @if($_GET['type']==8) class="active" @endif >--}}
                                 {{--                                    <a href data-toggle="tab" data-target="#push">--}}
                                 {{--                                        消息推送配置--}}
                                 {{--                                    </a>--}}
@@ -117,7 +123,7 @@
                                             <input type="text" class="form-control" name="website_name"
                                                    value="{{cacheGlobalSettingsByKey('website_name')}}">
                                         </div>
-                                        <div class="col-md-6 mt-20">
+                                        <div class="col-md-4 mt-20">
                                             <label>
                                                 网站logo
                                             </label>
@@ -141,7 +147,29 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-md-6 mt-20">
+                                        <div class="col-md-4 mt-20">
+                                            <label>
+                                                会员中心logo
+                                            </label>
+                                            <div>
+                                                <div class="fileinput-new-div col-lg-11" data-provides="fileinput"
+                                                     style="padding-left: 0">
+                                                    <div class="fileinput-preview" data-trigger="fileinput"
+                                                         style="width: 240px;height: 50px">
+                                                        <img id="addImg2" class="img-fluid "
+                                                             style="width: 239px;height: 49px"
+                                                             src="{{GetLocalFileByPath(cacheGlobalSettingsByKey('member_weblogo'))}}"
+                                                             alt=""/>
+                                                    </div>
+                                                    <span class="btn btn-primary  btn-file">
+                                                    <span class="fileinput-new">选择</span>
+                                                    <span class="fileinput-exists">更换</span>
+                                                        <input type="file" id="member_weblogo" name="member_weblogo"
+                                                               onchange="showFile('member_weblogo','addImg2')"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mt-20">
                                             <label>
                                                 地址栏ico
                                             </label>
@@ -269,7 +297,8 @@
 
                                         <div class="col-md-12 mt-20">
                                             <label>
-                                                注册协议【<a target="_blank" href="{{moduleAdminJump('Formtools','model?moduleName=Formtools&action=List&model=agreement')}}">协议列表</a>】
+                                                注册协议【<a target="_blank"
+                                                        href="{{moduleAdminJump('Formtools','model?moduleName=Formtools&action=List&model=agreement')}}">协议列表</a>】
                                             </label>
                                             <br>
                                             @foreach($agreementList as $agree)
@@ -371,12 +400,12 @@
                                                 @foreach(\Modules\Main\Services\ServiceModel::getLangList() as $kl=>$vl)
                                                     <option value="{{$kl}}"
                                                             @if(session("admin_current_language")['shortcode'] == $kl)
-                                                                selected >{{$vl}}</option>
-                                                            @elseif(cacheGlobalSettingsByKey('default_language') == $kl)
-                                                                selected >{{$vl}}</option>
-                                                            @else
-                                                                         >{{$vl}}</option>
-                                                            @endif
+                                                            selected>{{$vl}}</option>
+                                                    @elseif(cacheGlobalSettingsByKey('default_language') == $kl)
+                                                        selected >{{$vl}}</option>
+                                                    @else
+                                                        >{{$vl}}</option>
+                                                    @endif
                                                 @endforeach
                                             </select>
                                         </div>
@@ -747,6 +776,68 @@
                                     </form>
 
                                 </div>
+                                <div class="tab-pane @if($_GET['type']==4) active @endif " id="pay">
+                                    <form id="pay_form" class="h-mt20" role="form" method="post">
+                                        {{csrf_field()}}
+                                        <div class="col-md-12 mt-20">
+                                            <label>支付</label>
+                                            <br>
+                                            @foreach($plugin_pay_list as $key => $plugin)
+                                                <label class="radio-inline">
+                                                    <input type="radio" class="styled h-radio"
+                                                           value="{{$plugin['identification']}}"
+                                                           name="pay_driver"
+                                                           @if(!empty(__E("pay_driver")) && __E("pay_driver")==$plugin['identification']) checked @endif >
+                                                    <span class="h-span-val">{{$plugin['name']}}</span>
+                                                </label>
+                                            @endforeach
+
+                                        </div>
+                                        <div class="h-clear-both"></div>
+
+                                        <div class="h-clear-both mt-20"></div>
+                                        <div class="form-group col-md-10 mt-20">
+                                            <button type="button" onclick="formSub('pay_form','pay',4)"
+                                                    class="btn btn-primary {{permissions('base/baseConfigSubmit')}}">
+                                                提交
+                                            </button>
+                                        </div>
+
+
+                                    </form>
+
+                                </div>
+                                <div class="tab-pane @if($_GET['type']==5) active @endif " id="login">
+                                    <form id="login_form" class="h-mt20" role="form" method="post">
+                                        {{csrf_field()}}
+                                        <div class="col-md-12 mt-20">
+                                            <label>登录</label>
+                                            <br>
+                                            @foreach($plugin_login_list as $key => $plugin)
+                                                <label class="radio-inline">
+                                                    <input type="radio" class="styled h-radio"
+                                                           value="{{$plugin['identification']}}"
+                                                           name="login_driver"
+                                                           @if(!empty(__E("login_driver")) && __E("login_driver")==$plugin['identification']) checked @endif >
+                                                    <span class="h-span-val">{{$plugin['name']}}</span>
+                                                </label>
+                                            @endforeach
+
+                                        </div>
+                                        <div class="h-clear-both"></div>
+
+                                        <div class="h-clear-both mt-20"></div>
+                                        <div class="form-group col-md-10 mt-20">
+                                            <button type="button" onclick="formSub('login_form','login',5)"
+                                                    class="btn btn-primary {{permissions('base/baseConfigSubmit')}}">
+                                                提交
+                                            </button>
+                                        </div>
+
+
+                                    </form>
+
+                                </div>
                                 <div class="tab-pane @if($_GET['type']==6) active @endif " id="editor">
                                     <form id="editor_form" class="h-mt20" role="form" method="post">
                                         {{csrf_field()}}
@@ -773,6 +864,37 @@
                                         <div class="h-clear-both mt-20"></div>
                                         <div class="form-group col-md-10 mt-20">
                                             <button type="button" onclick="formSub('editor_form','editor',6)"
+                                                    class="btn btn-primary {{permissions('base/baseConfigSubmit')}}">
+                                                提交
+                                            </button>
+                                        </div>
+
+
+                                    </form>
+
+                                </div>
+                                <div class="tab-pane @if($_GET['type']==7) active @endif " id="map">
+                                    <form id="map_form" class="h-mt20" role="form" method="post">
+                                        {{csrf_field()}}
+                                        <div class="col-md-12 mt-20">
+                                            <label>地图</label>
+                                            <br>
+                                            @foreach($plugin_map_list as $key => $plugin)
+                                                <label class="radio-inline">
+                                                    <input type="radio" class="styled h-radio"
+                                                           value="{{$plugin['identification']}}"
+                                                           name="map_driver"
+                                                           @if(!empty(__E("map_driver")) && __E("map_driver")==$plugin['identification']) checked @endif >
+                                                    <span class="h-span-val">{{$plugin['name']}}</span>
+                                                </label>
+                                            @endforeach
+
+                                        </div>
+                                        <div class="h-clear-both"></div>
+
+                                        <div class="h-clear-both mt-20"></div>
+                                        <div class="form-group col-md-10 mt-20">
+                                            <button type="button" onclick="formSub('map_form','map',7)"
                                                     class="btn btn-primary {{permissions('base/baseConfigSubmit')}}">
                                                 提交
                                             </button>

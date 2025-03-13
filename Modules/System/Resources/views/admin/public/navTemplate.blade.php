@@ -1,7 +1,7 @@
 <!-- Main navbar -->
 <div class="navbar navbar-default header-highlight">
     <div class="navbar-header">
-        <a class="navbar-brand" href="{{moduleAdminJump($moduleName,'index')}}" style="color: #fff;">
+        <a class="navbar-brand" href="{{url('admin/module')}}" style="color: #fff;">
             {{--<img src="{{GetUrlByPath(cacheGlobalSettingsByKey('weblogo'))}}" alt="">--}}
             <span class="h-self-module">
                 {{config()->get('modules')[$moduleName]['name']}}

@@ -56,6 +56,7 @@ function moduleHomeTemplate($moduleName) {
 
 //模块后台的静态资源文件路径
 function moduleHomeResource($moduleName = '', $assets = 'assets') {
+    $moduleName = strtolower($moduleName);
     $str = asset("views/modules/$moduleName/".$assets);
     return $str;
 }
@@ -180,5 +181,13 @@ function getListByModel($model, $limit = 1, $orderby = "desc") {
     $data = $data->get();
 
     return $data;
+}
+
+function getFormRadioList($array) {
+    $list = [];
+    foreach ($array as $key => $item) {
+        $list[] = ['value' => $key, 'name' => $item];
+    }
+    return $list;
 }
 

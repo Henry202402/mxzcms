@@ -3,9 +3,19 @@
 namespace Modules\Main\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Modules\Main\Helper\Func;
 use Modules\Main\Services\ServiceModel;
+use Modules\Member\Models\Auth;
+use Modules\Member\Models\AuthRecord;
+use Modules\Member\Models\SignIn;
+use Modules\Member\Models\Vip;
+use Modules\Member\Models\VipOrder;
+use Modules\Member\Models\Wallet;
+use Modules\Member\Models\WalletRecord;
 use Modules\ModulesController;
+use Mxzcms\Modules\cache\CacheKey;
 
 class MemberController extends ModulesController {
     public $user;
@@ -22,6 +32,9 @@ class MemberController extends ModulesController {
         $row['moduleName'] = 'System';
         $row['username'] = $all['username'];
         $row['nickname'] = $all['nickname'];
+        $row['email'] = $all['email'];
+        $row['signature'] = $all['signature'];
+        $row['avatar'] = $all['avatar'];
         $row['home_key'] = $all['home_key'];
         $row['uid'] = $this->user['uid'];
         $res = hook('UpdateUserInfo', $row)[0];
@@ -105,6 +118,64 @@ class MemberController extends ModulesController {
 
     }
 
+    //获取我的会员列表
+    public function myMembers(Request $request) {
+        $all = $this->request->all();
+        $all['pid'] = $this->user['uid'];
+        $data = ServiceModel::getMyMembers($all);
+        return returnArr(200, '成功', $data);
+    }
+
+    //获取我的会员列表
+    public function getVipList(Request $request) {
+        $all = $this->request->all();
+        $all['pid'] = $this->user['uid'];
+        $data = ServiceModel::getVipList($all);
+        return returnArr(200, '成功', $data);
+    }
+
+    //获取我的会员列表
+    public function getWallet(Request $request) {
+        $all = $this->request->all();
+        $wallet = Wallet::getWallet($this->user['uid']);
+        return returnArr(200, '成功', $wallet);
+    }
+
+    public function myRealName(Request $request) {
+        $all = $this->request->all();
+        $data['auth'] = Auth::query()
+            ->where('uid', $this->user['uid'])
+            ->where('status', 1)
+            ->latest()
+            ->first();
+        $data['authRecord'] = AuthRecord::query()
+            ->where('uid', $this->user['uid'])
+            ->latest()
+            ->first();
+        return returnArr(200, '成功', $data);
+    }
+
+
+    public function myBill(Request $request) {
+        $all = $request->all();
+        $all['uid'] = $this->user['uid'];
+        if ($all['data_type'] == 'vip') {
+            $data = VipOrder::getBill($all);
+        } elseif ($all['data_type'] == 'signin') {
+            $data = SignIn::getBill($all);
+        } elseif ($all['data_type'] == 'wallet_record') {
+            $data = WalletRecord::getBill($all);
+            foreach (Cache::get(CacheKey::ModulesActive) ?: [] as $m) {
+                $moduleList[$m['identification']] = $m['name'];
+            }
+            foreach ($data as &$d) {
+                $d['module_name'] = $moduleList[$d['module']];
+                $d['type_msg'] = WalletRecord::type()[$d['type']];
+            }
+        }
+
+        return returnArr(200, '成功', $data);
+    }
     /************************************ 站内信 ***************************************/
     //站内信列表
     public function messageList(Request $request) {
@@ -144,5 +215,15 @@ class MemberController extends ModulesController {
         $all['operate_type'] = 3;
         $all['uid'] = $this->user['uid'];
         return hook('UpdateUserMessage', $all)[0];
+    }
+
+    //获取站内信未读数量
+    public function getUserNoReadMessage(Request $request) {
+        $all = $request->all();
+        $all['moduleName'] = 'System';
+        $all['operate_type'] = 9;
+        $all['uid'] = $this->user['uid'];
+        $data['no_read_num'] = hook('UpdateUserMessage', $all)[0]['data'];
+        return returnArr(200, '成功', $data);
     }
 }

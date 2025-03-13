@@ -13,4 +13,14 @@ class SystemMessage extends Model {
     protected $primaryKey = self::primaryKey;//主键
     public $timestamps = false;
 
+    public static function status() {
+        return [
+            0 => '未读',
+            1 => '已读'
+        ];
+    }
+
+    public function user() {
+        return $this->hasOne(Member::class, 'uid', 'receive_uid');
+    }
 }

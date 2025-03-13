@@ -16,20 +16,27 @@ class CMSBOOSTRAP
     static public function checkEnvValue()
     {
         config("app.key") || Artisan::call('key:generate');
-        is_writable(base_path("bootstrap/cache")) || chmod(base_path("bootstrap/cache"), 0777);
-        is_dir(storage_path("logs")) || mkdir(storage_path("logs"), 0777, true);
-        is_dir(storage_path("backup")) || mkdir(storage_path("backup"), 0777, true);
-
-        is_dir(storage_path("download")) || mkdir(storage_path("download"), 0777, true);
-        is_dir(storage_path("download/cms")) || mkdir(storage_path("download/cms"), 0777, true);
-        is_dir(storage_path("download/module")) || mkdir(storage_path("download/modules"), 0777, true);
-        is_dir(storage_path("download/plugin")) || mkdir(storage_path("download/plugin"), 0777, true);
-        is_dir(storage_path("download/theme")) || mkdir(storage_path("download/theme"), 0777, true);
-
-        is_dir(storage_path("framework")) || mkdir(storage_path("framework"), 0777, true);
-        is_dir(storage_path("framework/sessions")) || mkdir(storage_path("framework/sessions"), 0777, true);
-        is_dir(storage_path("framework/views")) || mkdir(storage_path("framework/views"), 0777, true);
-        is_dir(storage_path("framework/cache")) || mkdir(storage_path("framework/cache"), 0777, true);
+    }
+    static public function checkDir()
+    {
+        $dirList = [
+            base_path("bootstrap/cache"),
+            storage_path("logs"),
+            storage_path("backup"),
+            storage_path("download"),
+            storage_path("download/cms"),
+            storage_path("download/module"),
+            storage_path("download/plugin"),
+            storage_path("download/theme"),
+            storage_path("framework"),
+            storage_path("framework/sessions"),
+            storage_path("framework/views"),
+            storage_path("framework/cache")
+        ];
+        foreach ($dirList as $dir) {
+            is_dir($dir) || mkdir($dir, 0777, true);
+            is_writable($dir) || chmod($dir, 0777);
+        }
     }
     private function checkEnv()
     {

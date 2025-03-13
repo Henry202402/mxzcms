@@ -41,11 +41,31 @@ class BaseController extends CommonController {
             if ($captcha) $plugin_captcha_list2[] = $captcha;
         }
 
+        //支付列表
+        $plugin_pay_list = hook("GetPayPluginList");
+        foreach ($plugin_pay_list as $pay) {
+            if ($pay) $plugin_pay_list2[] = $pay;
+        }
+
+        //登录列表
+        $plugin_login_list = hook("GetLoginPluginList");
+        foreach ($plugin_login_list as $login) {
+            if ($login) $plugin_login_list2[] = $login;
+        }
+
+        //地图列表
+        $plugin_map_list = hook("GetMapPluginList");
+        foreach ($plugin_map_list as $map) {
+            if ($map) $plugin_map_list2[] = $map;
+        }
         return $this->adminView('base.baseConfig', [
             'pageData' => $pageData,
             'plugin_list' => $local_start_plugin_list,
             "plugin_editor_list" => $plugin_editor_list2,
             "plugin_captcha_list" => $plugin_captcha_list2,
+            "plugin_pay_list" => $plugin_pay_list2,
+            "plugin_login_list" => $plugin_login_list2,
+            "plugin_map_list" => $plugin_map_list2,
             "agreementList" => $agreementList,
         ]);
     }
@@ -63,16 +83,22 @@ class BaseController extends CommonController {
                     //文件上传
                     if (isset($_FILES['weblogo']) && $_FILES['weblogo']["size"] > 0) {
                         try {
-                            $weblogo = UploadFile($request, "weblogo", "website/logo", ALLOWEXT, __E("upload_driver"));
-                            if ($weblogo) $all['weblogo'] = $weblogo;
+                            $all['weblogo'] = UploadFile($request, "weblogo", "website/logo", ALLOWEXT, __E("upload_driver"));
+                        } catch (\Exception $exception) {
+                        }
+
+                    }
+
+                    if (isset($_FILES['member_weblogo']) && $_FILES['member_weblogo']["size"] > 0) {
+                        try {
+                            $all['member_weblogo'] = UploadFile($request, "member_weblogo", "website/member_logo", ALLOWEXT, __E("upload_driver"));
                         } catch (\Exception $exception) {
                         }
 
                     }
                     if (isset($_FILES['webicon']) && $_FILES['webicon']["size"] > 0) {
                         try {
-                            $webicon = UploadFile($request, "webicon", "website/webicon", 'ico', __E("upload_driver"));
-                            if ($webicon) $all['webicon'] = $webicon;
+                            $all['webicon'] = UploadFile($request, "webicon", "website/webicon", 'ico', __E("upload_driver"));
                         } catch (\Exception $exception) {
                         }
 
@@ -95,6 +121,7 @@ class BaseController extends CommonController {
                     $in_database = [
                         'website_name',
                         'weblogo',
+                        'member_weblogo',
                         'webicon',
                         'website_keys',
                         'website_desc',
@@ -223,6 +250,63 @@ class BaseController extends CommonController {
 //                    $setting->updateBatch($settings);
                     //更新缓存
                     cacheGlobalSettings(2);
+                    break;
+                case "pay":
+                    $settings = [];
+                    $in_database = [
+                        'pay_driver'
+                    ];
+                    foreach ($all as $key => $value) {
+                        if (in_array($key, $in_database)) {
+                            array_push($settings, ['key' => $key, 'value' => $value]);
+                            $type = "pay";
+                            $module = "Main";
+                            \Modules\Main\Services\ServiceModel::SettingInsertOrUpdate($module, $type, $key, $value);
+                        }
+                    }
+//                    $setting = new ServiceModel;
+//                    $setting->updateBatch($settings);
+                    //更新缓存
+                    cacheGlobalSettings(2);
+
+                    break;
+                case "login":
+                    $settings = [];
+                    $in_database = [
+                        'login_driver'
+                    ];
+                    foreach ($all as $key => $value) {
+                        if (in_array($key, $in_database)) {
+                            array_push($settings, ['key' => $key, 'value' => $value]);
+                            $type = "login";
+                            $module = "Main";
+                            \Modules\Main\Services\ServiceModel::SettingInsertOrUpdate($module, $type, $key, $value);
+                        }
+                    }
+//                    $setting = new ServiceModel;
+//                    $setting->updateBatch($settings);
+                    //更新缓存
+                    cacheGlobalSettings(2);
+
+                    break;
+                case "map":
+                    $settings = [];
+                    $in_database = [
+                        'map_driver'
+                    ];
+                    foreach ($all as $key => $value) {
+                        if (in_array($key, $in_database)) {
+                            array_push($settings, ['key' => $key, 'value' => $value]);
+                            $type = "map";
+                            $module = "Main";
+                            \Modules\Main\Services\ServiceModel::SettingInsertOrUpdate($module, $type, $key, $value);
+                        }
+                    }
+//                    $setting = new ServiceModel;
+//                    $setting->updateBatch($settings);
+                    //更新缓存
+                    cacheGlobalSettings(2);
+
                     break;
                 default :
                     return ["status" => 40000, "msg" => "Method does not exist"];

@@ -8,6 +8,7 @@ use Modules\Main\Models\HomeMenu;
 use Modules\Main\Models\Member;
 use Modules\Main\Models\Modules;
 use Modules\Main\Models\SystemMessage;
+use Modules\Member\Models\Vip;
 use Modules\System\Models\Setting;
 
 class ServiceModel {
@@ -17,6 +18,14 @@ class ServiceModel {
         return md5(cacheGlobalSettingsByKey('password_key') . md5($password));
     }
 
+
+    public static function check($tableName, $w) {
+        if ($find = self::apiGetOne($tableName, $w)) {
+            return $find;
+        } else {
+            return self::add($tableName, $w);
+        }
+    }
 
     public static function add($tableName, $add) {
         $add['created_at'] = date('Y-m-d H:i:s');
@@ -56,7 +65,7 @@ class ServiceModel {
                 $q->where("username", "=", $all["username"])
                     ->orWhere("phone", "=", $all["username"]);
             })
-            ->first()->toArray();
+            ->first();
     }
 
     //获取所有用户
@@ -223,8 +232,24 @@ class ServiceModel {
         }
     }
 
-
+    //获取未读数量
     public static function getNoReadMessageNum($uid) {
         return SystemMessage::query()->where(['receive_uid' => $uid, 'status' => 0])->count(SystemMessage::primaryKey);
+    }
+
+    //获取我的会员列表
+    public static function getMyMembers($all) {
+        return Member::query()
+            ->where('pid', $all['pid'])
+            ->paginate(getLen($all));
+    }
+
+    //获取我的VIP列表
+    public static function getVipList($all) {
+        return Vip::query()
+            ->where('status', 1)
+            ->latest('sort')
+            ->latest('created_at')
+            ->get()->toArray();
     }
 }

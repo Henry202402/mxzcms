@@ -180,39 +180,6 @@ class ServiceModel {
             ->toArray();
     }
 
-    /********************************* Member ************************************/
-    //用户列表
-    public static function getAdminUserList($all, $type = []) {
-        return Member::query()
-            ->from(Member::TABLE_NAME . ' as user')
-            ->where(function ($q) use ($all) {
-                if ($all['username']) $q->where('user.username', "LIKE", "{$all['username']}%")
-                    ->orWhere('user.phone', "LIKE", "{$all['username']}%")
-                    ->orWhere('user.nickname', "LIKE", "{$all['username']}%");
-            })
-            ->where(function ($q) use ($all) {
-                if ($all['status'] > 0) $q->where('user.status', $all['status'] - 1);
-                if ($all['uid'] > 0) $q->where('user.uid', $all['uid']);
-                if ($all['timeRang'] && count($all['timeRang']) > 0) $q->whereBetween('user.created_at', $all['timeRang']);
-            })
-            ->where(function ($q) use ($all) {
-//                $q->where('group.type', null)->orWhere('group.type', '<>', 'admin');
-            })
-            ->leftJoin(Member::TABLE_NAME . ' as puser', 'puser.uid', '=', 'user.pid')
-            ->leftJoin(GroupUser::TABLE_NAME . ' as role', function ($q) use ($all) {
-                $q->on('user.uid', '=', 'role.uid');
-            })
-            ->leftJoin(Group::TABLE_NAME . ' as group', 'group.group_id', '=', 'role.group_id')
-            ->orderByDesc('user.created_at')
-            ->select([
-                'user.*',
-                'puser.username as pid_name',
-                'group.group_id',
-                'group.type',
-                'group.group_name',
-            ])
-            ->paginate(__E('admin_page_count'));
-    }
 
     /********************************* ModuleBindDomain ************************************/
     public static function apiGetOne($tableName, $w) {

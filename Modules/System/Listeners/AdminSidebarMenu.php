@@ -18,7 +18,7 @@ class AdminSidebarMenu {
         $config = include module_path($moduleName, 'Config/config.php');
         if ($config['auth'] == 'y') {
             $roleArray = session(\Modules\System\Http\Controllers\Common\SessionKey::CurrentUserPermissionGroupInfo);
-            $roleModule = $roleArray['role_array'][$moduleName];
+            $roleModule = $roleArray['role_array'][$moduleName] ?: [];;
             foreach ($menus as $key => $menu) {
                 if ($roleArray['type'] != 'admin' && (!in_array($menu['title'], $roleModule) && !in_array($menu['url'], $roleModule))) {
                     unset($menus[$key]);

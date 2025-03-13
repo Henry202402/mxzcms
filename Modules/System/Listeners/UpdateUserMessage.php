@@ -13,7 +13,7 @@ class UpdateUserMessage {
     public function handle(\Modules\System\Events\UpdateUserMessage $event) {
         //事件逻辑 ...
         $all = $event->data;
-        if ($all['uid'] <= 0) return returnArr(0, 'uid错误');
+        if (in_array($all['operate_type'], [1, 2, 3, 4, 5, 6]) && $all['uid'] <= 0) return returnArr(0, 'uid错误');
         if (in_array($all['operate_type'], [1, 3])) {
             $ids = is_array($all['ids']) ? $all['ids'] : explode(',', $all['ids']);
             $ids = array_unique(array_filter($ids));
@@ -29,6 +29,11 @@ class UpdateUserMessage {
                     ->update(['status' => 1, 'updated_at' => getDay()]);
                 break;
             case 2://全部已读
+                if (!SystemMessage::query()
+                    ->where('receive_uid', $all['uid'])
+                    ->where('status', 0)->first()) {
+                    return returnArr(200, '操作成功');
+                }
                 $res = SystemMessage::query()
                     ->where('receive_uid', $all['uid'])
                     ->where('status', 0)
@@ -47,7 +52,7 @@ class UpdateUserMessage {
                 if ($all['get_data_type'] == 'array') {
                     $res = $res->get()->toArray();
                 } else {
-                    $res = $res->simplePaginate(getLen($all));
+                    $res = $res->paginate(getLen($all));
                 }
                 break;
             case 5://详情
@@ -78,6 +83,43 @@ class UpdateUserMessage {
                     'json_str' => is_array($all['json_str']) ? json_encode($all['json_str'], JSON_UNESCAPED_UNICODE) : $all['json_str'],
                 ];
                 $res = SystemMessage::query()->insertGetId($add);
+                break;
+            case 7://列表
+                if ($all['rang']) {
+                    $all['rangTime'] = explode(' - ', $all['rang']);
+                    $all['rangTime'][0] .= ' 00:00:00';
+                    $all['rangTime'][1] .= ' 23:59:59';
+                }
+
+                $res = SystemMessage::query()
+                    ->where(function ($q) use ($all) {
+                        if ($all['uid']) $q->where('receive_uid', $all['uid']);
+                        if (count($all['rangTime'] ?: [])) $q->whereBetween('created_at', $all['rangTime']);
+                        if ($all['title']) $q->where('title', 'LIKE', "%{$all['title']}%");
+                        if ($all['content']) $q->where('content', 'LIKE', "%{$all['content']}%");
+                    })
+                    ->with(['user']);
+
+                if ($all['username']) {
+                    $res = $res->whereHas('user', function ($q) use ($all) {
+                        if ($all['username']) $q->where('username', 'LIKE', "%{$all['username']}%");
+                    });
+                }
+
+                $res = $res->latest(SystemMessage::primaryKey)
+                    ->paginate(getLen($all));
+                break;
+            case 8://详情
+                $res = SystemMessage::query()
+                    ->where('id', $all['id'])
+                    ->with(['user'])
+                    ->first();
+                break;
+            case 9://未读数量
+                $res = SystemMessage::query()
+                    ->where('receive_uid', $all['uid'])
+                    ->where('status', 0)
+                    ->count('id');
                 break;
             default:
                 return returnArr(0, '类型错误');

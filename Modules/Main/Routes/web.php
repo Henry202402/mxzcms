@@ -35,19 +35,3 @@ Route::middleware([CheckHome::class,\Modules\Main\Http\Middleware\AccessLog::cla
     });
 });
 
-Route::middleware([CheckHomeLogin::class])->namespace('Home')->group(function () {
-    Route::group(["prefix" => "member"], function () {
-        Route::get('', ["uses" => "MemberController@index"]);
-        Route::get('/index', ["uses" => "MemberController@index"]);
-        Route::any('/mine', ["uses" => "MemberController@mine"]);
-        Route::any('/password', ["uses" => "MemberController@updatePassword"]);
-        Route::any('/email', ["uses" => "MemberController@updateEmail"]);
-        Route::any('/phone', ["uses" => "MemberController@updatePhone"]);
-
-        Route::any('/message', ["uses" => "MemberController@messageList"]);
-        Route::any('/message/detail', ["uses" => "MemberController@messageDetail"]);
-        Route::any('/message/read', ["uses" => "MemberController@messageRead"]);
-        Route::any('/message/delete', ["uses" => "MemberController@messageDelete"]);
-    });
-});
-

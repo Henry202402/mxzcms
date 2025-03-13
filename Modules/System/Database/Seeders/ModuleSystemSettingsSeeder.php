@@ -371,14 +371,14 @@ class ModuleSystemSettingsSeeder extends Seeder
      'module' => 'Main',
      'type' => 'theme',
      'key' => 'head_codes',
-     'value' => '1',
+     'value' => '',
   ),
   49 => 
   array(
      'module' => 'Main',
      'type' => 'theme',
      'key' => 'foot_codes',
-     'value' => '2',
+     'value' => '',
   ),
   50 => 
   array(
@@ -415,6 +415,55 @@ class ModuleSystemSettingsSeeder extends Seeder
      'key' => 'website_reg_agreement',
      'value' => NULL,
   ),
+    55 =>
+        array(
+            'module' => 'Main',
+            'type' => 'website',
+            'key' => 'use_of_cloud',
+            'value' => '1',
+        ),
+    56 =>
+        array(
+            'module' => 'Main',
+            'type' => 'captcha',
+            'key' => 'captcha_driver',
+            'value' => 'System',
+        ),
+    57 =>
+        array(
+            'module' => 'Main',
+            'type' => 'login',
+            'key' => 'login_driver',
+            'value' => 'Login',
+        ),
+    58 =>
+        array(
+            'module' => 'Main',
+            'type' => 'map',
+            'key' => 'map_driver',
+            'value' => 'Map',
+        ),
+    59 =>
+        array(
+            'module' => 'Main',
+            'type' => 'website',
+            'key' => 'website_icp',
+            'value' => NULL,
+        ),
+    60 =>
+        array(
+            'module' => 'Main',
+            'type' => 'website',
+            'key' => 'website_copyright',
+            'value' => NULL,
+        ),
+    61 =>
+        array(
+            'module' => 'Main',
+            'type' => 'website',
+            'key' => 'member_weblogo',
+            'value' => 'website/member_logo.png',
+        ),
 ));
 
 

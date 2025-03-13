@@ -1,9 +1,11 @@
 .idea/
 .git/
 bootstrap/cache/
+public/uploads/
 storage/
 vendor/
 .env
 public/install.lock
-
 public/views/modules/
+
+public/order/

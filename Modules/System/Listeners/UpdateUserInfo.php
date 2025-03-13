@@ -6,6 +6,7 @@ use Intervention\Image\Facades\Image;
 use Modules\Main\Services\ServiceModel;
 use Modules\System\Http\Controllers\Common\SessionKey;
 use Modules\Main\Models\Member;
+
 class UpdateUserInfo {
 
     public function handle(\Modules\System\Events\UpdateUserInfo $event) {
@@ -41,9 +42,9 @@ class UpdateUserInfo {
 
         if (!$res) return returnArr(0, 'error');
 
-        if($all['home_key']){
+        if ($all['home_key']) {
             $user_key = \Modules\System\Http\Controllers\Common\SessionKey::HomeInfo;
-        }else{
+        } else {
             $user_key = \Modules\System\Http\Controllers\Common\SessionKey::AdminInfo;
         }
 
@@ -56,6 +57,7 @@ class UpdateUserInfo {
         }
 
         if ($all['uid'] == $admin_info["uid"]) {
+            if (!is_array($admin_info)) $admin_info = $admin_info->toArray();
             session([$user_key => array_merge($admin_info, $update)]);
             session()->save();
             $remark = "更新自己信息";

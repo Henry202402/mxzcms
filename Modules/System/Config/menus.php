@@ -2,22 +2,6 @@
 
 return [
     [
-        'icon' => 'icon-users',
-        'title' => '账号管理',
-        "controller" => "User",
-        "action" => "#",//顶级菜单必须为#，否则无法展开
-        'url' => '#', //顶级菜单必须为#，否则无法展开
-        'submenu' => [
-            [
-                'icon' => '',
-                'title' => '账号列表',
-                "controller" => "User",
-                "action" => "userList",//顶级菜单必须为#，否则无法展开
-                'url' => 'admin/system/user/userList', //顶级菜单必须为#，否则无法展开
-            ]
-        ]
-    ],
-    [
         'icon' => 'icon-wrench',
         'title' => '安全与工具',
         "controller" => "Secure",

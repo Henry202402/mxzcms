@@ -354,7 +354,11 @@ class FormTool {
         $pageData['subtitle'] = $pageData["subtitle"] ?: $this->formTitle;
         $pageData['subtitleUrl'] = $pageData["subtitleUrl"] ?: $this->formTitleUrl;
         $pageData['searchFields'] = $this->searchFields;
+        $pageData['searchClearEmpty'] = $this->searchClearEmpty;
         $pageData['listActions'] = $this->listActions;
+        $pageData['leftListActions'] = $this->leftListActions;
+        $pageData['isShowMoreCheckbox'] = $this->isShowMoreCheckbox;
+        $pageData['linkAppend'] = $this->linkAppend;
         $pageData['popup'] = $this->popup;
 
         $pageData['datas'] = $datas;

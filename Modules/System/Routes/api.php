@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+use Modules\System\Http\Controllers\Api\PayController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,5 +17,5 @@ use Illuminate\Http\Request;
 
 
 Route::prefix('system')->group(function () {
-
+    Route::any('pay/callback/{pay_method}', [PayController::class, 'callback']);
 });

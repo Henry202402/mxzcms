@@ -75,6 +75,11 @@ function UploadFile($request,
         //获取文件的扩展名
         $ext = $file->getClientOriginalExtension();
         $ext = strtolower($ext);
+        if (!$ext){
+            $mimeType = $file->getClientMimeType();
+            $mimeType = explode("/",$mimeType);
+            $ext = $mimeType[1];
+        }
         //过滤文件格式
         if (!in_array($ext, explode(",", $allowExt))) {
             throw new Exception("文件格式不允许！", 40000);
@@ -148,6 +153,11 @@ function _upload($request,
         //如果括号里面的不加上的话，下面的方法也无法调用的
         //获取文件的扩展名
         $ext = $file->getClientOriginalExtension();
+        if (!$ext){
+            $mimeType = $file->getClientMimeType();
+            $mimeType = explode("/",$mimeType);
+            $ext = $mimeType[1];
+        }
         //获取文件的绝对路径
         $path = $file->getRealPath();
 

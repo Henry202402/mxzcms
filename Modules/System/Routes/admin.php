@@ -8,12 +8,6 @@ use Modules\Auth\Http\Middleware\CheckPermission;
 
 Route::prefix('system')->middleware([CheckModuleAdmin::class, CheckPermission::class])->namespace('Admin')->group(function () {
 
-    //用户
-    Route::group(["prefix" => "user", 'as' => '账号管理@'], function () {
-        Route::any('userList', "UserController@userList")->name('用户列表');
-        Route::any('userAdd', "UserController@userAdd")->name('添加用户');
-        Route::any('userDetail', "UserController@userDetail")->name('用户详情');
-    });
 
     //安全与工具
     Route::group(["prefix" => "secure", 'as' => '安全与工具@'], function () {

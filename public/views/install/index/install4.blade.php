@@ -163,6 +163,7 @@
         "{{url('install/installModule?m=System')}}",
         "{{url('install/installModule?m=Auth')}}",
         "{{url('install/installModule?m=Formtools')}}",
+        "{{url('install/installModule?m=Member')}}",
         "{{url('install/setSite')}}",
     ];
 
