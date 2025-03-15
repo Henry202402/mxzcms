@@ -33,13 +33,13 @@ class UserLogin {
         if (!$check) return returnArr(0, "用户不存在");
         $password = ServiceModel::getPassword($all['password']);
         if ($password != $check->password) return returnArr(0, "密码不正确");
-        $data = $check->toArray();
+        $data = $check;
         $data['avatar'] = GetUrlByPath($data['avatar']);
 
-        /*if ($event->data['api_login']) {
+        if ($event->data['api_login']) {
             $token = JWTAuth::fromUser($data);
             $data['token'] = $token;
-        }*/
+        }
 
         session([SessionKey::HomeInfo => $data]);
         session()->save();

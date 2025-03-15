@@ -229,7 +229,7 @@
             });
         }
     </script>
-    <script type="text/javascript" src="{{moduleAdminResource($moduleName)}}/laydate/laydate.js"></script>
+    <script type="text/javascript" src="{{asset("assets/module")}}/laydate/laydate.js"></script>
     <script>
         //创建日期范围选择
         laydate.render({
