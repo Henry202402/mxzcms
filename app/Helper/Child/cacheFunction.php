@@ -92,7 +92,7 @@ function permissions($path) {
     $route = explode('/', ltrim($_SERVER['REQUEST_URI'], '/'));
     $moduleName = $route[1];
     $config = include module_path($moduleName, 'Config/config.php');
-    if ($config['auth'] != 1) return '';
+    if ($config['auth'] != 'y') return '';
     $url = "$route[0]/$route[1]/$path";
     $roleArray = session(\Modules\System\Http\Controllers\Common\SessionKey::CurrentUserPermissionGroupInfo);
     $roleModule = $roleArray['role_array'][ucfirst($moduleName)];

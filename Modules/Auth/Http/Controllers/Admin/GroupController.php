@@ -197,6 +197,7 @@ class GroupController extends ModulesController {
         $routers = Route::getRoutes();
         foreach ($routers as $router) {
             $controllerAndAction = $router->action['controller'];
+            if (strpos($controllerAndAction, '\Admin\\') === false) continue;
             $module = explode("\\", $controllerAndAction)[1];
             $indexArr = explode('@', $router->action['as']);
             if ($indexArr[0]) {

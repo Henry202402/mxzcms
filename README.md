@@ -53,6 +53,43 @@
                             
     强大的权限管理，用户可以根据自己的需求来设置权限。
 
+### 平台要求
+
+跨平台：Windows，macOS 和 Linux
+
+
+
+### 环境要求
+
+PHP >= 8.0
+
+Fileinfo PHP 扩展
+
+JSON PHP 扩展
+
+Mbstring PHP 扩展
+
+OpenSSL PHP 扩展
+
+PCRE PHP 扩展
+
+PDO PHP 扩展
+
+Tokenizer PHP 扩展
+
+XML PHP 扩展
+
+### 数据库支持
+
+MySQL 5.7+ 
+
+PostgreSQL 9.6+
+
+SQLite 3.8.8+
+
+SQL Server 2017+ 
+
+
 ### 安装说明
 
 1. clone git https://github.com/Henry202402/mxzcms.git
