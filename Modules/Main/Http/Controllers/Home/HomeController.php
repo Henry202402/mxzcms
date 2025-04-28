@@ -3,6 +3,7 @@
 namespace Modules\Main\Http\Controllers\Home;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Modules\Formtools\Models\FormModel;
 use Modules\ModulesController;
 use Modules\System\Http\Controllers\Common\SessionKey;
@@ -26,10 +27,18 @@ class HomeController extends ModulesController {
             return $view;
         } else {
             $userInfo = session(SessionKey::HomeInfo);
-            $models = FormModel::query()->where("show_home_page","yes")->get();
+            $models = FormModel::query()->where("show_home_page","yes")->orderBy("home_page_sort")->get();
 //            dump($models);
             return HomeView('index.index', compact("models","userInfo"));
         }
+    }
+
+    public function lang()
+    {
+       $all = $this->request->all();
+       session()->put('homelang',$all['lang']);
+       Cache::put("homelangList",null);
+       return back();
     }
 
 

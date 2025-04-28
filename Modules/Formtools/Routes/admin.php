@@ -30,6 +30,7 @@ Route::prefix('formtools')->middleware([CheckLoginByAdmin::class, CheckPermissio
         Route::any('/fieldMove', 'HomeController@fieldMove')->name('移动字段');
         Route::any('/synmodel', 'HomeController@synmodel')->name('同步默认模型');
         Route::any('/resetModelData', 'HomeController@resetModelData')->name('重置模型数据');
+        Route::any('/getModel', 'HomeController@getModel')->name('从数据表获取模型结构');
 
 
     });

@@ -12,8 +12,13 @@ use Modules\System\Services\ServiceModel;
  * Time: 17:50
  */
 
-function module_path($name, $path = '',$type="Modules") {
-    return base_path($type."/{$name}/{$path}");
+function module_path($name, $path = '',$type="Module") {
+    if ($type=='theme'){
+        return public_path('views/themes/'.$name.'/'.$path);
+    }else{
+        return base_path(ucfirst($type)."s/{$name}/{$path}");
+    }
+
 }
 
 //file文件
@@ -28,10 +33,21 @@ function modifyEnv(array $data) {
                 return $key . '=' . $value;
             }
         }
-
         return $item;
     });
 
+    foreach ($data as $key => $value) {
+        $is_key = false;
+        foreach ($contentArray->toArray() as $content) {
+            if (str_contains($content,$key)) {
+                $is_key = true;
+                 break;
+            }
+        }
+        if (!$is_key) {
+            $contentArray->push($key."=".$value);
+        }
+    }
     $content = implode("\n", $contentArray->toArray());
 
     File::put($envPath, $content);
@@ -542,6 +558,21 @@ function callback_pre_extract($p_event,$p_header)
     if (file_exists($filename)) {
         // 获取当前文件的修改时间
         $currentMtime = filemtime($filename);
+
+        if (strpos($filename, 'Config/config.php') !== false) {
+            copy($filename,$filename."_copy.php");
+            $temp = cache()->get("update_backup")?:[];
+            array_push($temp,$filename);
+            cache()->put("update_backup",$temp);
+        }
+
+        if (strpos($filename, 'config.json') !== false) {
+            copy($filename,$filename."_copy.json");
+            $temp = cache()->get("update_backup")?:[];
+            array_push($temp,$filename);
+            cache()->put("update_backup",$temp);
+        }
+
         // 比对修改时间
         if ($fileMtime != $currentMtime) {
             chmod($filename,0777);

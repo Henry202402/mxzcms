@@ -59,6 +59,6 @@
 <!-- 						Content End		 						-->
 <!-- ============================================================== -->
 @include(moduleAdminTemplate($moduleName)."public.js")
-{{--<script type="text/javascript" src="{{moduleAdminResource($moduleName)}}/js/pages/dashboard.js"></script>--}}
+{{--<script type="text/javascript" src="{{asset("assets/module")}}/js/pages/dashboard.js"></script>--}}
 </body>
 </html>

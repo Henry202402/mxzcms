@@ -32,7 +32,7 @@ return new class extends Migration
   `updated_at` timestamp NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`),
   KEY `position` (`position`)
-) ENGINE=InnoDB DEFAULT CHARSET=".env("DB_CHARSET")." COMMENT='前台菜单表'");
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=".env("DB_CHARSET")."");
 
     }
 

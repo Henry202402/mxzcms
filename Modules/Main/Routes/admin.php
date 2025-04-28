@@ -68,12 +68,14 @@ Route::middleware([AdminLanguage::class, CheckAdmin::class, CheckIpBlacklist::cl
 
         //功能安装
         Route::any('/module/install', ["uses" => "FuncController@install", "permissions" => ""]);
+        Route::any('/module/delete', ["uses" => "FuncController@delete", "permissions" => ""]);
         //模块卸载
         Route::any('/module/uninstall', ["uses" => "FuncController@uninstall", "permissions" => ""]);
         //功能 启用/禁用
         Route::any('/module/changeStatus', ["uses" => "FuncController@changeStatus", "permissions" => ""]);
         //设为首页
         Route::any('/module/changeIndex', ["uses" => "FuncController@changeIndex", "permissions" => ""]);
+        Route::any('/module/changeBack', ["uses" => "FuncController@changeBack", "permissions" => ""]);
 
         //插件配置
         Route::group(["prefix" => "plugin"], function () {

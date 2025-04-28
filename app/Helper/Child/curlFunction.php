@@ -124,3 +124,31 @@ function seourl($url) {
         return url($url);
     }
 }
+
+function curl_request_ms($url,$postData,$timeout = 10)
+{
+    // 初始化 cURL 会话
+    $curl = curl_init();
+    // 设置要访问的 URL
+    curl_setopt($curl, CURLOPT_URL, $url);
+    // 设置 POST 请求
+    curl_setopt($curl, CURLOPT_POST, true);
+    curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($postData)); // 设置 POST 数据
+    // 设置连接超时时间（毫秒）
+    curl_setopt($curl, CURLOPT_CONNECTTIMEOUT_MS, $timeout); // 1秒
+    // 设置响应超时时间（毫秒）
+    curl_setopt($curl, CURLOPT_TIMEOUT_MS, $timeout); // 2秒
+    // 返回结果而不是直接输出
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+    // 执行 cURL 请求
+    $response = curl_exec($curl);
+    // 检查是否有错误发生
+    if (curl_errno($curl)) {
+
+    } else {
+        // 输出响应内容
+
+    }
+    // 关闭 cURL 会话
+    curl_close($curl);
+}

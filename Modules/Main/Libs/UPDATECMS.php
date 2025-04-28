@@ -31,9 +31,9 @@ class UPDATECMS
                     $this->checkapp($all);
                 }
                 if (strpos($remoteFileUrl, "?") !== false) {
-                    $remoteFileUrl = $remoteFileUrl . "&origin_host=" . $this->request->getHost()."&user_agent=".urlencode($_SERVER['HTTP_USER_AGENT']);
+                    $remoteFileUrl = $remoteFileUrl . "&origin_host=" . $this->request->getHost()."&user_agent=".urlencode($_SERVER['HTTP_USER_AGENT'])."&cmsversion=".env("APP_VERSION");
                 }else{
-                    $remoteFileUrl = $remoteFileUrl . "?origin_host=" . $this->request->getHost()."&user_agent=".urlencode($_SERVER['HTTP_USER_AGENT']);
+                    $remoteFileUrl = $remoteFileUrl . "?origin_host=" . $this->request->getHost()."&user_agent=".urlencode($_SERVER['HTTP_USER_AGENT'])."&cmsversion=".env("APP_VERSION");
                 }
                 $localFilePath = storage_path('download/'.$all["cloudtype"].'/'.strtolower($all["identification"]).'-'.cache()->get('app_update_'.$all["cloudtype"].'_'.$all["identification"])['version'].'.zip');
                 $res = $this->startdownload($remoteFileUrl, $localFilePath);
@@ -58,7 +58,6 @@ class UPDATECMS
                 if ($res['status'] == 200){
                     //更新版本号
                     $update = [
-//                        'version' => cache()->get('app_update_'.$all["cloudtype"].'_'.$all["identification"])['version'],
                         'updated_at' => date("Y-m-d H:i:s")
                     ];
                     if ($all["cloudtype"] == "theme"){
@@ -87,9 +86,13 @@ class UPDATECMS
                                 ->update($update);
                             if($all["cloudtype"]=="module"){
                                 try {
-                                    Artisan::call('migrate', [
-                                        '--path' => "Modules/{$all["identification"]}/Database/Migrations/update",
-                                        '--force' => 1,
+                                    curl_request_ms(url("api/asynCall"),[
+                                        'actionName'=>"migrate",
+                                        'arguments'=>[
+                                            '--path' => "Modules/{$all["identification"]}/Database/Migrations/update",
+                                            '--force' => 1,
+                                        ],
+                                        'moduleName'=>"{$all["identification"]}"
                                     ]);
                                 }catch (\Exception $exception){}
                             }
@@ -133,21 +136,15 @@ class UPDATECMS
     {
         $data["origin_host"]= url("/");
         $data['time'] = time();
+        if($data['identification']=="cms"){
+            $data['version'] = config("app.app_version");
+        }
         unset($data['moduleName']);
         ksort($data);
         $data['sign'] =md5(http_build_query($data)."mxzcms".$data['time']);
-        // 初始化 cURL
-        $ch = curl_init();
-        // 设置 cURL 选项
-        curl_setopt($ch, CURLOPT_URL, $this->cloud_host.'/api/cloud/statistic?'.http_build_query($data));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch,CURLOPT_NOSIGNAL,true);
-//        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT_MS, 300);
-        curl_setopt($ch, CURLOPT_TIMEOUT_MS, 500);
-        // 发起请求
-        curl_exec($ch);
-        // 关闭 cURL 资源
-        curl_close($ch);
+
+        curl_request_ms($this->cloud_host.'/api/cloud/statistic',$data);
+
     }
     public function getapplist($all){
         $res = curl_request($this->cloud_host.'/api/cloud/applist?'.http_build_query($all));
@@ -186,9 +183,13 @@ class UPDATECMS
                         'APP_VERSION' => cache()->get("cms_update_version")['version']
                     ]);
                     try {
-                        Artisan::call('migrate', [
-                            '--path' => "Modules/Main/Database/Migrations/update",
-                            '--force' => 1,
+                        curl_request_ms(url("api/asynCall"),[
+                            'actionName'=>"migrate",
+                            'arguments'=>[
+                                '--path' => "Modules/Main/Database/Migrations/update",
+                                '--force' => 1,
+                            ],
+                            'moduleName'=>"Main"
                         ]);
                     }catch (\Exception $exception){}
                     call_user_func([new IndexController(),"clearCache"]);
@@ -227,7 +228,7 @@ class UPDATECMS
         $res = curl_request($this->cloud_host.'/api/cloud/checkapp?'.http_build_query($all));
         $res = json_decode($res, true);
         if ($res['status'] == 200 && $res['data']['version']) {
-            if ($res['data']['version'] != $all['version']){
+            if (version_compare($res['data']['version'], $all['version']) > 0){
                 $return = [
                     "status" => 200,
                     "msg" => "有新版本"
@@ -246,19 +247,22 @@ class UPDATECMS
         if (cache()->get('cms_update_version')['version'] == config("app.app_version")){
             return $return;
         }
-        $res = curl_request($this->cloud_host.'/api/cloud/getversion?bycmsupdate=1');
+
+        $data['bycmsupdate'] = 1;
+        $data['version'] = config("app.app_version");
+        $res = curl_request($this->cloud_host.'/api/cloud/getversion?'.http_build_query($data));
         $res = json_decode($res, true);
         if ($res['code'] == 200 && $res['data']['version']) {
-            if ($res['data']['version'] != config("app.app_version")){
+            if (version_compare($res['data']['version'], config("app.app_version")) > 0){
                 $return = [
                     "status" => 200,
                     "msg" => "有新版本"
                 ];
                 //保存缓存
                 cache()->put('cms_update_version', $res['data'], 60 * 60 * 12);
+                hook("Statistic",['moduleName'=>"System","action"=>"Check","identification"=>"cms","type"=>"cms"]);
             }
         }
-
         return $return;
     }
 
@@ -439,11 +443,46 @@ class UPDATECMS
         );
         @unlink($localFilePath);
         if ($res <= 0) {
+            $temps = cache()->get("update_backup");
+            foreach ($temps as $temp) {
+                if (strpos($temp, 'Modules/') !== false) {
+                    @unlink($temp.'_copy.php');
+                }elseif (strpos($temp, 'Plugins/') !== false){
+                    @unlink($temp.'_copy.php');
+                }else{
+                    @unlink($temp.'_copy.json');
+                }
+            }
+            cache()->put("update_backup",null);
             return [
                 "status" => 500,
                 "msg" => "解压失败"
             ];
         }
+        $temps = cache()->get("update_backup");
+        foreach ($temps as $temp) {
+
+            if (strpos($temp, 'Modules/') !== false) {
+                @unlink($temp.'_copy.php');
+            }elseif (strpos($temp, 'Plugins/') !== false){
+
+                if(file_exists($temp)){
+                    $temp_arr = include $temp;
+                }
+                if(file_exists($temp.'_copy.php')){
+                    $temp_copy = include $temp.'_copy.php';
+                }
+                @unlink($temp.'_copy.php');
+                $temp_arr['config'] = array_merge($temp_arr['config'],$temp_copy['config']);
+                $str = '<?php  return '.var_export($temp_arr,true).';';
+                file_put_contents($temp, $str);
+
+            }else{
+                @unlink($temp.'_copy.json');
+            }
+
+        }
+        cache()->put("update_backup",null);
         return [
             "status" => 200,
             "msg" => "解压成功"

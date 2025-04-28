@@ -80,7 +80,7 @@
 
 {{--必须放在最后--}}
 <script type="text/javascript"
-        src="{{moduleAdminResource($moduleName)}}/js/plugins/forms/selects/select2.min.js"></script>
-<script type="text/javascript" src="{{moduleAdminResource($moduleName)}}/js/pages/form_select2.js"></script>
+        src="{{asset("assets/module")}}/js/plugins/forms/selects/select2.min.js"></script>
+<script type="text/javascript" src="{{asset("assets/module")}}/js/pages/form_select2.js"></script>
 </body>
 </html>

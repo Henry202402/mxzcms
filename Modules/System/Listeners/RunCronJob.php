@@ -28,6 +28,7 @@ class RunCronJob {
                         ],
                         'remark' => "定时任务执行结果",
                         'unique_id' => $item['id'],
+                        'requestid' => \request()->requestid
                     ]);
 
                 })->cron($cron);
@@ -73,6 +74,7 @@ class RunCronJob {
             ],
             'remark' => "定时任务执行参数",
             'unique_id' => $find['id'],
+            'requestid' => \request()->requestid
         ]);
 
         try {
@@ -98,6 +100,7 @@ class RunCronJob {
             ],
             'remark' => "定时任务执行结果",
             'unique_id' => $find['id'],
+            'requestid' => \request()->requestid
         ]);
 
         if ($res) {

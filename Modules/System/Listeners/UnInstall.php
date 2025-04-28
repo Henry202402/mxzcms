@@ -56,6 +56,16 @@ class UnInstall {
                 if ($get['cloud_type'] == \Modules\Main\Models\Modules::Module) {
                     @rmdir(public_path("views/modules/".strtolower($module_name)));
                     $deletePath = MODULE_PATH . '/' . $module_name;
+
+                    try {
+                        Artisan::call('migrate:rollback', [
+                            '--path' => "Modules/{$module_name}/Database/Migrations/install",
+                            '--force' => 1,
+                            '--step' => 100000000,
+                        ]);
+                    }catch (Exception $exception){
+
+                    }
                 }
 
                 if ($get['cloud_type'] == \Modules\Main\Models\Modules::Plugin) {
@@ -66,15 +76,7 @@ class UnInstall {
                     del_dir_files($deletePath);
                 }
 
-                try {
-                    Artisan::call('migrate:rollback', [
-                        '--path' => "Modules/{$module_name}/Database/Migrations/install",
-                        '--force' => 1,
-                        '--step' => 100000000,
-                    ]);
-                }catch (Exception $exception){
 
-                }
 
                 $res = returnArr(200, '卸载成功');
                 return $res;

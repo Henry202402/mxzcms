@@ -54,6 +54,7 @@ class ModulesController extends BaseController {
                 'params' => $array,
                 'remark' => $array['code'],
                 'unique_id' => "",
+                'requestid' => $this->request->requestid
             ]);
         }
 

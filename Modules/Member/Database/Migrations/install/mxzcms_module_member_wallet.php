@@ -26,7 +26,7 @@ return new class extends Migration
   `created_at` timestamp NULL DEFAULT NULL COMMENT '创建时间',
   `updated_at` timestamp NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`wallet_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=".env("DB_CHARSET")." COMMENT='钱包表'");
+) ENGINE=InnoDB DEFAULT CHARSET=".env("DB_CHARSET")." COMMENT='钱包表'");
 
     }
 

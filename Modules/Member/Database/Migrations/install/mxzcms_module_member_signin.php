@@ -30,7 +30,7 @@ return new class extends Migration
   KEY `uid` (`uid`) USING BTREE,
   KEY `day` (`day`) USING BTREE,
   KEY `tig` (`tig`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=".env("DB_CHARSET")." COMMENT='签到表'");
+) ENGINE=InnoDB DEFAULT CHARSET=".env("DB_CHARSET")." COMMENT='签到表'");
 
     }
 

@@ -33,7 +33,7 @@ class ModuleSystemAttachmentsSeeder extends Seeder
      'path_md5' => '45015146e362f86bb1f7d9721a22c192',
      'drive' => 'local',
      'create_at' => '2023-07-26 03:26:49',
-     'update_at' => '2023-07-26 03:26:49',
+     'update_at' => '2024-03-05 14:59:50',
   ),
   2 => 
   array(
@@ -41,7 +41,15 @@ class ModuleSystemAttachmentsSeeder extends Seeder
      'path_md5' => '769a5be2a7062d89772f608fff9e8a60',
      'drive' => 'local',
      'create_at' => '2023-07-26 03:26:49',
-     'update_at' => '2023-07-26 03:26:49',
+     'update_at' => '2024-03-05 14:59:07',
+  ),
+  3 => 
+  array(
+     'path' => 'website/member_logo.png',
+     'path_md5' => 'a3e71be8cc26a4a91b813da9e5252f25',
+     'drive' => 'local',
+     'create_at' => '2025-03-21 15:11:20',
+     'update_at' => '2025-03-21 15:11:20',
   ),
 ));
 

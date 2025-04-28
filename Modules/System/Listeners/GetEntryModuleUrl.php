@@ -2,6 +2,7 @@
 
 namespace Modules\System\Listeners;
 
+use Modules\Main\Models\Modules;
 use Modules\System\Http\Controllers\Common\SessionKey;
 
 class GetEntryModuleUrl {
@@ -44,6 +45,12 @@ class GetEntryModuleUrl {
                 }
             }
         }
+
+        Modules::query()
+        ->where("identification",'=',$moduleName)
+        ->where('cloud_type','=','module')
+        ->update(['updated_at'=>date('Y-m-d H:i:s')]);
+
         return url($url);
     }
 

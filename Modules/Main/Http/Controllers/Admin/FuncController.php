@@ -11,6 +11,37 @@ use Modules\ModulesController as Controller;
 
 class FuncController extends Controller {
 
+    function delete()
+    {
+        $all = $this->request->all();
+        if($all['cloud_type']=="module" || $all['cloud_type']=="plugin"){
+            $check = Modules::query()
+                ->where("cloud_type",$all['cloud_type'])
+                ->where("identification",$all['m'])
+                ->count();
+        }elseif ($all['cloud_type']=="theme"){
+            $check = DB::table("themes")->where("identification", $all['m'])->count();
+        }
+        if($check){
+            return back()->with('errormsg','此标识不能直接删除');
+        }
+        if($all['cloud_type']=="module"){
+            $deletePath = MODULE_PATH . '/' . $all['m'];
+            $url = url("admin/module");
+        }else if($all['cloud_type']=="plugin"){
+            $deletePath = PLUGIN_PATH . '/' . $all['m'];
+            $url = url("admin/plugin");
+        }else if ($all['cloud_type']=="theme"){
+            $deletePath = THEME_PATH . '/' . $all['m'];
+            $url = url("admin/theme");
+        }
+
+        del_dir_files($deletePath);
+
+        return redirect($url)->with('successmsg', "删除成功!");
+
+    }
+
     //模块列表
     function module(Request $request) {
         $get = $request->all();
@@ -20,13 +51,15 @@ class FuncController extends Controller {
         //获取已安装的module
         $dataList = Modules::query()
             ->where("cloud_type",'module')
+            ;
+        $dataList = $dataList->orderBy("order","desc")
             ->orderBy("updated_at","desc")
             ->get()
             ->toArray();
         foreach ($dataList as $module) {
             $modules_install_datas[$module['identification']] = $module;
         }
-//$modules_install_datas = \cache()->get(\Mxzcms\Modules\cache\CacheKey::ModulesActive);
+
         //判断未安装的模块
         foreach ($modules_install_datas as $key => $value) {
             if (in_array($value['identification'], $local_modules)) {
@@ -37,6 +70,10 @@ class FuncController extends Controller {
                 }
             }
             if ($get['type'] && $get['type'] != $value['type']) {
+                unset($modules_install_datas[$key]);
+            }
+
+            if ($get['keyword'] && !strstr($value['name'], $get['keyword'])) {
                 unset($modules_install_datas[$key]);
             }
         }
@@ -298,13 +335,30 @@ class FuncController extends Controller {
         $get['m'] = isset($get['m']) ? $get['m'] : '';
         $get['is_index'] = isset($get['is_index']) ? $get['is_index'] : 1;
         if (!$get['m']) return back()->with('errormsg', '模块标识为必传项');
-
+        if(cacheGlobalSettingsByKey('moduleHomeLock') =='lock'){
+            return back()->with('errormsg', '操作失败，请先取消模块首页锁定!');
+        }
         //判断是否安装
         $module = new \Modules\Main\Models\Modules();
         $res = $module->where('identification', '=', $get['m'])->where('cloud_type', \Modules\Main\Models\Modules::Module)->first();
         if (!$res) return back()->with('errormsg', '模块未安装!');
         $module->where('id', '>', 0)->where('identification', '<>', $get['m'])->where('cloud_type', \Modules\Main\Models\Modules::Module)->update(['is_index' => 0]);
         $res = $module->where('identification', '=', $get['m'])->where('cloud_type', \Modules\Main\Models\Modules::Module)->update(['is_index' => $get['is_index']]);
+        if ($res) return back()->with('successmsg', '操作成功!');
+        else return back()->with('errormsg', '操作失败，重新再试!');
+    }
+
+    function changeBack(Request $request) {
+        $get = $request->all();
+        $get['m'] = isset($get['m']) ? $get['m'] : '';
+        $get['is_backend'] = isset($get['is_backend']) ? $get['is_backend'] : 1;
+        if (!$get['m']) return back()->with('errormsg', '模块标识为必传项');
+        //判断是否安装
+        $module = new \Modules\Main\Models\Modules();
+        $res = $module->where('identification', '=', $get['m'])->where('cloud_type', \Modules\Main\Models\Modules::Module)->first();
+        if (!$res) return back()->with('errormsg', '模块未安装!');
+        $module->where('id', '>', 0)->where('identification', '<>', $get['m'])->where('cloud_type', \Modules\Main\Models\Modules::Module)->update(['is_backend' => 0]);
+        $res = $module->where('identification', '=', $get['m'])->where('cloud_type', \Modules\Main\Models\Modules::Module)->update(['is_backend' => $get['is_backend']]);
         if ($res) return back()->with('successmsg', '操作成功!');
         else return back()->with('errormsg', '操作失败，重新再试!');
     }

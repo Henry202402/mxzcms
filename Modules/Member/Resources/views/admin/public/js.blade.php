@@ -19,7 +19,7 @@
 <!-- /theme JS files -->
 
 <!--   弹窗 -->
-<script type="text/javascript" src="{{ADMIN_ASSET}}assets/layer/layer/layer.js"></script>
+<script type="text/javascript" src="{{ADMIN_ASSET}}layer/layer/layer.js"></script>
 <!--   弹窗end -->
 <script>
     var alert_title = "你确定要此操作吗？";

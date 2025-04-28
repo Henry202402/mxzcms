@@ -36,7 +36,7 @@ return new class extends Migration
   KEY `bill_order_num` (`bill_order_num`),
   KEY `order_num` (`order_num`),
   KEY `created_at` (`created_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=".env("DB_CHARSET")." COMMENT='钱包记录表'");
+) ENGINE=InnoDB DEFAULT CHARSET=".env("DB_CHARSET")." COMMENT='钱包记录表'");
 
     }
 

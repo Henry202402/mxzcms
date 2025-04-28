@@ -3,6 +3,8 @@
 namespace Modules\Main\Http\Middleware;
 
 use Closure;
+use Modules\Main\Http\Controllers\Admin\LoginController;
+use Modules\Main\Models\Member;
 use Modules\System\Http\Controllers\Common\SessionKey;
 
 class CheckAdmin {
@@ -21,9 +23,15 @@ class CheckAdmin {
             return $next($request);
         }
         if (empty($userInfo)) {
-            //获取当前路径，登录后依然回到改路径
-            //session()->put("admin_previous",url()->current());
-            return redirect("admin/login");
+            return redirect('admin/login/' . cacheGlobalSettingsByKey('admin_login_entrance'));
+        }
+
+        $checkPass = Member::query()
+            ->where('uid',$userInfo['uid'])
+            ->where('password',$userInfo['password'])
+            ->count();
+        if(!$checkPass){
+            return call_user_func([new LoginController(),'logout']);
         }
 
         if ($userInfo['uid'] != 1 && session(SessionKey::CurrentUserPermissionGroupInfo)['type'] != 'admin') {
@@ -40,7 +48,7 @@ class CheckAdmin {
         session([
             'now_module' => 'main',
         ]);
-//        event(new CheckVersionUpdate($request));
+
         cacheGlobalSettings();
         return $next($request);
     }

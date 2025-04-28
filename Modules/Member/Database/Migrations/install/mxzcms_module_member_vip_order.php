@@ -38,7 +38,7 @@ return new class extends Migration
   KEY `order_num` (`order_num`),
   KEY `uid` (`uid`),
   KEY `created_at` (`created_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=".env("DB_CHARSET")." COMMENT='Vip订单表'");
+) ENGINE=InnoDB DEFAULT CHARSET=".env("DB_CHARSET")." COMMENT='Vip订单表'");
 
     }
 

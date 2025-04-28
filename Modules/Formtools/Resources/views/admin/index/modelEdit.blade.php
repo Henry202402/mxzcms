@@ -12,7 +12,7 @@
 
     <div class="page-content">
 
-    @include(moduleAdminTemplate($moduleName)."public.left")
+        @include(moduleAdminTemplate($moduleName)."public.left")
 
         <div class="content-wrapper">
 
@@ -22,7 +22,7 @@
                     <div class="panel-heading">
 
                         <form class="form-horizontal" action="{{url("admin/formtools/modelEdit")}}" method="post"
-                              id="post_form">
+                              id="post_form" enctype="multipart/form-data">
                             {{csrf_field()}}
                             <fieldset class="content-group">
                                 <legend class="text-bold">菜单</legend>
@@ -142,9 +142,10 @@
                                 <div id="home-setting-content" style="display: none">
                                     <div class="form-group">
                                         <label class="col-lg-1 control-label">
-                                            列表模板{{$pageData['data']->list_template}}
+                                            列表模板<br>
+                                            【{{$pageData['data']->list_template}}】
                                         </label>
-                                        <div class="col-lg-11">
+                                        <div class="col-lg-5">
                                             <select name="list_template" class="form-control">
                                                 @foreach(\Modules\Formtools\Helper\FormFunc::listTemplate() as $key=>$value)
                                                     <option value="{{$key}}"
@@ -152,6 +153,14 @@
                                                 @endforeach
                                             </select>
                                         </div>
+
+                                        <div class="col-lg-5">
+                                            <input type="text" value="" name="custom_list_template"
+                                                   class="form-control"
+                                                   placeholder="自定义模板名称">
+                                            <span class="help-block">自定义模板名称，例如 template.blade.php，只需要填写 template ，不需要后缀.blade.php</span>
+                                        </div>
+
                                     </div>
                                     <div class="form-group">
                                         <label class="col-lg-1 control-label">
@@ -205,7 +214,8 @@
                                             前台页面标题
                                         </label>
                                         <div class="col-lg-11">
-                                            <input type="text" value="{{$pageData['data']->home_page_title}}" name="home_page_title" class="form-control"
+                                            <input type="text" value="{{$pageData['data']->home_page_title}}"
+                                                   name="home_page_title" class="form-control"
                                                    placeholder="前台页面标题">
                                         </div>
                                     </div>
@@ -215,7 +225,37 @@
                                             前台页面简介
                                         </label>
                                         <div class="col-lg-11">
-                                            <textarea name="home_page_describe" class="form-control" rows="5" placeholder="前台页面简介">{!! $pageData['data']->home_page_describe !!}</textarea>
+                                            <textarea name="home_page_describe" class="form-control" rows="5"
+                                                      placeholder="前台页面简介">{!! $pageData['data']->home_page_describe !!}</textarea>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="col-lg-1 control-label">
+                                            前台头部背景图
+                                        </label>
+                                        <div class="col-lg-11">
+                                            <div class="media no-margin-top">
+                                                @if($pageData['data']->home_page_bg_img)
+                                                    <div class="media-left">
+                                                        <img src="{{GetUrlByPath($pageData['data']->home_page_bg_img)}}"
+                                                             style="width: 35px; height: 35px;" class="img-rounded">
+                                                    </div>
+                                                @endif
+                                                <div class="media-body">
+                                                    <input type="file" name="home_page_bg_img" class="file-styled"
+                                                           accept="image/*">
+                                                </div>
+                                            </div>
+                                            <script>
+                                                $(function () {
+                                                    // Primary file input
+                                                    $(".file-styled").uniform({
+                                                        wrapperClass: 'bg-warning',
+                                                        fileButtonHtml: '<i class="icon-googleplus5"></i>'
+                                                    });
+                                                })
+                                            </script>
                                         </div>
                                     </div>
 
@@ -225,11 +265,15 @@
                                         </label>
                                         <div class="col-lg-11">
                                             <label class="radio-inline">
-                                                <input type="radio" class="styled h-radio" @if($pageData['data']->show_home_page=="yes") checked @endif value="yes" name="show_home_page">
+                                                <input type="radio" class="styled h-radio"
+                                                       @if($pageData['data']->show_home_page=="yes") checked
+                                                       @endif value="yes" name="show_home_page">
                                                 <span class="h-span-val">显示</span>
                                             </label>
                                             <label class="radio-inline">
-                                                <input type="radio" class="styled h-radio" @if($pageData['data']->show_home_page=="no") checked @endif value="no" name="show_home_page">
+                                                <input type="radio" class="styled h-radio"
+                                                       @if($pageData['data']->show_home_page=="no" || !$pageData['data']->show_home_page) checked
+                                                       @endif value="no" name="show_home_page">
                                                 <span class="h-span-val">不显示</span>
                                             </label>
                                         </div>
@@ -240,11 +284,22 @@
                                             首页显示数量
                                         </label>
                                         <div class="col-lg-11">
-                                            <input type="text" value="{{$pageData['data']->home_page_num}}" name="home_page_num" class="form-control"
+                                            <input type="text" value="{{$pageData['data']->home_page_num}}"
+                                                   name="home_page_num" class="form-control"
                                                    placeholder="首页显示数量，0为全部">
                                         </div>
                                     </div>
 
+                                    <div class="form-group">
+                                        <label class="col-lg-1 control-label">
+                                            显示在前台的顺序【升序排序】
+                                        </label>
+                                        <div class="col-lg-11">
+                                            <input type="text" value="{{$pageData['data']->home_page_sort}}"
+                                                   name="home_page_sort" class="form-control"
+                                                   placeholder="显示在前台的顺序【升序排序】，从小到大排序，默认为0">
+                                        </div>
+                                    </div>
                                 </div>
 
 

@@ -47,6 +47,8 @@ class Install {
 
         $modules_data = include($file);
 
+        //判断版本限制
+
         //判断是否安装
         $module = new \Modules\Main\Models\Modules();
         $res = $module->where('identification', '=', $modules_data['identification'])
@@ -108,6 +110,8 @@ class Install {
         if (!$all['m']) {
             return returnArr(0, '请选择主题');
         }
+        //判断版本限制
+
         //安装主题
         $checkData = DB::table("themes")->where("identification","=", $all['m'])->count();
         if( $checkData != 0 ) {

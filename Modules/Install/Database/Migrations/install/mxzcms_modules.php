@@ -26,6 +26,7 @@ return new class extends Migration
   `type` varchar(255) DEFAULT '2' COMMENT '模块类型，system=内置模块，function=功能模块',
   `domain` varchar(255) DEFAULT '2' COMMENT '域名绑定，y=有，n=没有',
   `form` varchar(25) DEFAULT '' COMMENT '来源local cloud',
+  `order` int(11) DEFAULT '0' COMMENT '排序，每点击一次进入，增加一次',
   `created_at` timestamp NULL DEFAULT NULL COMMENT '创建时间',
   `updated_at` timestamp NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`),

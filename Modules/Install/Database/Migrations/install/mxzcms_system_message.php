@@ -31,7 +31,7 @@ return new class extends Migration
   KEY `status` (`status`) USING BTREE,
   KEY `uid` (`uid`) USING BTREE,
   KEY `receive_uid` (`receive_uid`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='系统站内信'");
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='系统站内信'");
 
     }
 

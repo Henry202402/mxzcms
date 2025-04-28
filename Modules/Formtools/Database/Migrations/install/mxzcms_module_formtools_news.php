@@ -25,7 +25,7 @@ return new class extends Migration
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=".env("DB_CHARSET")." COMMENT='新闻列表'");
+) ENGINE=InnoDB DEFAULT CHARSET=".env("DB_CHARSET")." COMMENT='新闻列表'");
 
     }
 

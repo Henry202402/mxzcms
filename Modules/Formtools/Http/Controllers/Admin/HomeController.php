@@ -12,8 +12,103 @@ use Modules\ModulesController;
 
 class HomeController extends ModulesController {
 
-    public function synmodel()
-    {
+    public function getModel() {
+        $all = $this->request->all();
+        $dataBase = env("DB_DATABASE");
+        $insters = [];
+        if(!$all['table']){
+            return back()->with("pageDataMsg", "参数有误!");
+        }
+
+
+        $tables = DB::connection()->getDoctrineSchemaManager()->listTables();
+
+        foreach ($all['table'] as $key => $table) {
+            $identification = str_replace('module_formtools_', '', $table);
+            if ($identification=="models"){
+                continue;
+            }
+            $check = FormModel::query()
+                ->where("identification",$identification)
+                ->first();
+            if ($check){
+                continue;
+            }
+            $table = env('DB_PREFIX').$table;
+
+            foreach ($tables as $tableName) {
+                if($tableName->getName()==$table){
+                    $temp['name'] = $tableName->getComment();
+                    break;
+                }
+            }
+
+            $results = DB::select("SELECT
+                                    COLUMN_NAME,
+                                    IS_NULLABLE,
+                                    COLUMN_DEFAULT,
+                                    DATA_TYPE,
+                                    CHARACTER_MAXIMUM_LENGTH,
+                                    COLUMN_COMMENT
+                                FROM
+                                    INFORMATION_SCHEMA.COLUMNS
+                                WHERE
+                                    TABLE_NAME = '{$table}' AND
+                                    TABLE_SCHEMA = '{$dataBase}'");
+
+            $field = [];
+            foreach ($results as $key => $result) {
+                if(in_array($result->COLUMN_NAME,['id','created_at','updated_at'])){
+                    continue;
+                }
+                $field['name'] = $result->COLUMN_COMMENT;
+                $field['rule'] = "unlimited";
+                $field['regex'] = null;
+                $field['foreign'] = null;
+                $field['remark'] = $field['name'];
+                $field['isindex'] = "NOINDEX";
+                $field['formtype'] = "";
+                $field['required'] = "";
+                $field['maxlength'] = "";
+                $field['foreign_key'] = "";
+                $field['identification'] = $result->COLUMN_NAME;
+                $fields[] = $field;
+            }
+
+            $temp['identification'] = $temp['access_identification'] = str_replace(env('DB_PREFIX').'module_formtools_', '', $table);
+            $temp['menuname'] = "待同步模型";
+            $temp['icon'] = "icon-list-numbered";
+            $temp['remark'] = $temp['name'];
+            $temp['created_at'] = $temp['updated_at'] = date('Y-m-d H:i:s');
+
+            //[
+            //{
+            //"name": "内容",
+            // "rule": "unlimited",
+            // "regex": null,
+            // "remark": "内容",
+            // "foreign": null,
+            // "isindex": "NOINDEX",
+            // "formtype": "editor",
+            // "required": "required",
+            // "fieldtype": "longText",
+            // "maxlength": "0",
+            // "foreign_key": null,
+            // "is_show_list": "2",
+            // "identification": "content"
+            //}
+            //]
+            $temp['fields'] = json_encode($fields);
+
+            $insters[] = $temp;
+        }
+        $res = FormModel::query()->insert($insters);
+
+        return returnArr($res?200:0,'获取成功！','','');
+
+    }
+
+    public function synmodel() {
 
         try {
             Artisan::call('db:seed', [
@@ -22,14 +117,13 @@ class HomeController extends ModulesController {
             ]);
 
             return redirect("/admin/formtools/index")->with(["pageDataMsg" => "同步模型成功", "pageDataStatus" => 200]);
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return back()->with("pageDataMsg", "操作失败!");
         }
 
     }
 
-    public function resetModelData()
-    {
+    public function resetModelData() {
         try {
             Artisan::call('migrate', [
                 '--path' => "Modules/Formtools/Database/Migrations/install",
@@ -42,7 +136,7 @@ class HomeController extends ModulesController {
             ]);
 
             return redirect("/admin/formtools/index")->with(["pageDataMsg" => "重置模型数据成功", "pageDataStatus" => 200]);
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return back()->with("pageDataMsg", "操作失败!");
         }
     }
@@ -55,10 +149,38 @@ class HomeController extends ModulesController {
         $pageData = getURIByRoute($this->request);
         $pageData['title'] = "模型列表";
 
-        $pageData['datas'] = FormModel::query()->orderBy("id", "desc")->paginate(10);
+        $tables = DB::connection()->getDoctrineSchemaManager()->listTables();
+        $tablesList = [];
+
+        foreach ($tables as $table) {
+            if (strpos($table->getName(), 'module_formtools') !== false) {
+                $tablename = str_replace(env("DB_PREFIX"),'', $table->getName());
+                $identification = str_replace('module_formtools_', '', $tablename);
+                if ($identification=="models"){
+                    continue;
+                }
+                $check = FormModel::query()
+                    ->where("identification",$identification)
+                    ->first();
+                if($check){
+                    continue;
+                }
+                $tablesList[] = [
+                    "name" => $tablename,
+                    "comment" => $table->getComment(),
+                ];
+            }
+        }
+
+        $pageData['datas'] = FormModel::query()
+            ->orderBy("show_home_page", "desc")
+            ->orderBy("home_page_sort")
+            ->orderBy("id", "desc")
+            ->paginate(10);
 
         return view("formtools::admin.index.index", [
-            "pageData" => $pageData
+            "pageData" => $pageData,
+            "tablesList" => $tablesList,
         ]);
 
     }
@@ -75,9 +197,19 @@ class HomeController extends ModulesController {
                 return back()->with("pageDataMsg", "标识已存在");
             }
 
+            $data['list_template'] = $data['list_template'] ?: $data['custom_list_template'];
             $data['created_at'] = date("Y-m-d H:i:s", time());
             $data['updated_at'] = date("Y-m-d H:i:s", time());
-            unset($data['_token']);
+
+            if ($_FILES['home_page_bg_img']['size'] > 0) {
+                try {
+                    $data['home_page_bg_img'] = UploadFile($this->request, "home_page_bg_img", "model/" . date("Y/m/d/") . uniqid(), ALLOWEXT, __E("upload_driver"));
+                } catch (\Exception $exception) {
+                    return redirect("/admin/formtools/index")->with("pageDataMsg", $exception->getMessage());
+                }
+            }
+
+            unset($data['_token'], $data['custom_list_template']);
             $tableName = 'module_formtools_' . $data['identification'];
             //创建模型表
             if (Schema::hasTable($tableName)) {
@@ -118,8 +250,9 @@ class HomeController extends ModulesController {
             }
 
             $data['updated_at'] = date("Y-m-d H:i:s", time());
-            unset($data['_token']);
+            $data['list_template'] = $data['list_template'] ?: $data['custom_list_template'];
 
+            unset($data['_token'], $data['custom_list_template']);
             $updateData = [
                 "name" => $data['name'],
                 "identification" => $data['identification'],
@@ -141,9 +274,19 @@ class HomeController extends ModulesController {
                 "home_page_describe" => $data['home_page_describe'],
                 "show_home_page" => $data['show_home_page'],
                 "home_page_num" => $data['home_page_num'],
+                "home_page_sort" => $data['home_page_sort'],
 
                 "updated_at" => $data['updated_at']
             ];
+
+            if ($_FILES['home_page_bg_img']['size'] > 0) {
+                try {
+                    $updateData['home_page_bg_img'] = UploadFile($this->request, "home_page_bg_img", "model/" . date("Y/m/d/") . uniqid(), ALLOWEXT, __E("upload_driver"));
+                } catch (\Exception $exception) {
+                    return redirect("/admin/formtools/index")->with("pageDataMsg", $exception->getMessage());
+                }
+            }
+
             $res = FormModel::query()->where('id', $data['id'])->update($updateData);
             if ($res) {
                 return redirect("/admin/formtools/index")->with(["pageDataMsg" => "编辑成功", "pageDataStatus" => 200]);
@@ -229,7 +372,7 @@ class HomeController extends ModulesController {
             $updateData2['isindex'] = $data['isindex'];
             $updateData2['formtype'] = $data['formtype'];
             $updateData2['fieldtype'] = $data['fieldtype'];
-            $updateData2['datas'] = json_encode($data['datas'] ?array_values($data['datas']): [], JSON_UNESCAPED_UNICODE);
+            $updateData2['datas'] = json_encode($data['datas'] ? array_values($data['datas']) : [], JSON_UNESCAPED_UNICODE);
             $updateData2['rule'] = $data['rule'];
             $updateData2['regex'] = $data['regex'];
             $updateData2['maxlength'] = $data['maxlength'];
@@ -333,7 +476,7 @@ class HomeController extends ModulesController {
             $updateData2['name'] = $data['name'];
             $updateData2['formtype'] = $data['formtype'];
             $updateData2['fieldtype'] = $data['fieldtype'];
-            $updateData2['datas'] = json_encode($data['datas'] ?array_values($data['datas']): [], JSON_UNESCAPED_UNICODE);
+            $updateData2['datas'] = json_encode($data['datas'] ? array_values($data['datas']) : [], JSON_UNESCAPED_UNICODE);
             $updateData2['rule'] = $data['rule'];
             $updateData2['regex'] = $data['regex'];
             if ($data['fieldtype'] == "text") {

@@ -38,7 +38,7 @@ return new class extends Migration
   KEY `uid` (`uid`),
   KEY `wx_unionid` (`wx_unionid`),
   KEY `wx_small_openid` (`wx_small_openid`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=".env("DB_CHARSET")." COMMENT='用户第三方登录表'");
+) ENGINE=InnoDB DEFAULT CHARSET=".env("DB_CHARSET")." COMMENT='用户第三方登录表'");
 
     }
 

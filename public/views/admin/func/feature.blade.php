@@ -1,4 +1,5 @@
 @include("admin.public.header")
+
 <body class="horizontal">
 @include("admin.public.topbar")
 @include("admin.public.nav")
@@ -69,7 +70,7 @@
                             <a href="#" onclick="clearCache();" class="small">清空缓存</a>
                             @if(cacheGlobalSettingsByKey('use_of_cloud')==1)
                                 <a href="{{url('admin/cloud?cloud_type='.\Modules\Main\Models\Modules::Module)}}"
-                                   class="text-right float-right onlineModuleList small">
+                                   class="text-right float-right onlineModuleList">
                                     {{getTranslateByKey('online_module')}} <i class="fa fa-arrow-circle-o-right"></i>
                                 </a>
                             @endif
@@ -78,16 +79,28 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <div class="row mb-3 pb-3">
-                        <div class="col-md-12">
-                            <a href="{{url("admin/module")}}"
-                               class="btn btn-sm btn-light mr-3 @if(!$_GET['type']) btn-primary active @endif ">全部模块</a>
-                            <a href="{{url("admin/module?type=system")}}"
-                               class="btn btn-sm btn-light mr-3 @if($_GET['type']=='system') btn-primary active @endif  ">内置模块</a>
-                            <a href="{{url("admin/module?type=function")}}"
-                               class="btn btn-sm btn-light mr-3 @if($_GET['type']=="function") btn-primary active @endif  ">功能模块</a>
+                    <form class="">
+                        <div class="row mb-3 pb-3">
+                            <div class="col-md-12">
+                                <a href="{{url("admin/module")}}"
+                                   class="btn btn-sm btn-light mr-3 @if(!$_GET['type']) btn-primary active @endif ">全部模块</a>
+                                <a href="{{url("admin/module?type=system")}}"
+                                   class="btn btn-sm btn-light mr-3 @if($_GET['type']=='system') btn-primary active @endif  ">内置模块</a>
+                                <a href="{{url("admin/module?type=function")}}"
+                                   class="btn btn-sm btn-light mr-3 @if($_GET['type']=="function") btn-primary active @endif  ">功能模块</a>
+                            </div>
                         </div>
-                    </div>
+                        <div class="row mb-3 pb-3">
+                            <div class="col-md-12 form-inline">
+                                <div class="form-group">
+                                    <label for="input-email" class="sr-only">模块名称</label>
+                                    <input  type="text" name="keyword" value="{{$_GET['keyword']}}" placeholder="输入名称关键词" class="form-control">
+                                    <input type="hidden" name="type" value="{{$_GET['type']}}">
+                                </div>
+                                <button type="submit" class="btn btn-primary margin-l-5 mx-sm-3">搜索</button>
+                            </div>
+                        </div>
+                    </form>
                     <div class="row">
                         @if($modules_install_datas)
                             @foreach($modules_install_datas as $modules_install_data)
@@ -173,7 +186,31 @@
                                                 <br/>
                                             @endif
 
+                                            @if($modules_install_data['is_backend'] == 0)
+                                                <div class="d-inline-block">
+                                                    <div class="cursor text-primary" onclick="changeStatusBackPage(1,'{{url('admin/module/changeBack?m='.$modules_install_data['identification'].'&is_backend=1')}}')">
+                                                        <span class="fa fa-flag"></span>
+                                                        设为后台入口
+                                                    </div>
+                                                </div>
+                                            @else
+
+                                                <div class="d-inline-block">
+                                                    <div class="text-danger cursor" onclick="changeStatusBackPage(0,'{{url('admin/module/changeBack?m='.$modules_install_data['identification'].'&is_backend=0')}}')"
+                                                    >
+                                                        <span class="fa fa-flag"></span>
+                                                        取消后台入口
+                                                    </div>
+                                                </div>
+                                            @endif
+
                                             @if($modules_install_data['type'] == "function")
+                                                &nbsp;
+                                                <div class="d-inline-block text-secondary cursor"
+                                                     onclick="uninstallQuestion('{{url('admin/module/uninstall?m='.$modules_install_data['identification'].'&cloud_type='.\Modules\Main\Models\Modules::Module)}}')">
+                                                    <span class=" fa fa-trash-o"></span> 卸载
+                                                </div>
+                                                &nbsp;
                                                 @if($modules_install_data['status'] == 0)
                                                     <div class="d-inline-block cursor"
                                                          onclick="changeStatusQuestion(1, '{{url('admin/module/changeStatus?m='.$modules_install_data['identification'].'&status=1&cloud_type='.\Modules\Main\Models\Modules::Module)}}')">
@@ -188,15 +225,17 @@
                                                         {{getTranslateByKey('common_disable')}}
                                                     </div>
                                                 @endif
-                                                <div class="d-inline-block text-secondary cursor"
-                                                     onclick="uninstallQuestion('{{url('admin/module/uninstall?m='.$modules_install_data['identification'].'&cloud_type='.\Modules\Main\Models\Modules::Module)}}')">
-                                                    <span class=" fa fa-trash-o"></span> 卸载
-                                                </div>
+
                                             @else
                                                 <div class="d-inline-block text-secondary cursor">
                                                     &nbsp;
                                                 </div>
                                             @endif
+
+
+
+
+
                                         </div>
                                     </div>
 
@@ -256,6 +295,16 @@
                                                                    {{getTranslateByKey('install')}}
                                                                </a>
                                                         </span>
+
+                                                        <span class="glyphicon glyphicon-cog ">
+                                                               <span onclick="DelQuestion('{{url('admin/module/delete?m='
+                                                                    .$modules_not_install_data['identification']
+                                                                    .'&form=local'
+                                                                    .'&cloud_type='.\Modules\Main\Models\Modules::Module)}}')"
+                                                                  class="text-danger" style="cursor: pointer;">
+                                                                   删除
+                                                               </span>
+                                                        </span>
                                                 </div>
                                             </div>
 
@@ -281,9 +330,32 @@
 
 </section>
 
+
+
 @include('admin.public.js',['load'=> ["custom"]])
 
+
 <script type="text/javascript">
+    function changeStatusBackPage(status, url) {
+        $.confirm({
+            title: '<?php echo e(getTranslateByKey("common_tip")); ?>',
+            content: status == 1 ? '<?php echo '设为默认后台入口吗？'; ?>' : '<?php echo '取消默认后台入口吗？'; ?>',
+            type: 'default',
+            buttons: {
+                ok: {
+                    text: "<?php echo e(getTranslateByKey('common_ensure')); ?>",
+                    btnClass: 'btn-primary',
+                    keys: ['enter'],
+                    action: function () {
+                        location.href = url
+                    }
+                },
+                cancel: {
+                    text: "<?php echo e(getTranslateByKey('common_cancel')); ?>"
+                }
+            }
+        });
+    }
     function changeStatusHomePage(status, url) {
         $.confirm({
             title: '{{getTranslateByKey("common_tip")}}',
@@ -329,6 +401,27 @@
         $.confirm({
             title: '{{getTranslateByKey("common_tip")}}',
             content: '{{getTranslateByKey("common_sure_to_uninstall")}}',
+            type: 'default',
+            buttons: {
+                ok: {
+                    text: "{{getTranslateByKey('common_ensure')}}",
+                    btnClass: 'btn-primary',
+                    keys: ['enter'],
+                    action: function () {
+                        location.href = url
+                    }
+                },
+                cancel: {
+                    text: "{{getTranslateByKey('common_cancel')}}"
+                }
+            }
+        });
+    }
+
+    function DelQuestion(url) {
+        $.confirm({
+            title: '{{getTranslateByKey("common_tip")}}',
+            content: '确定要删除吗!',
             type: 'default',
             buttons: {
                 ok: {

@@ -8,12 +8,12 @@
     <link rel="icon" type="image/ico" sizes="48x48" href="{{GetLocalFileByPath(cacheGlobalSettingsByKey('webicon'))}}">
     <!-- Global stylesheets -->
     {{--<link href="https://fonts.googleapis.com/css?family=Roboto:400,300,100,500,700,900" rel="stylesheet" type="text/css">--}}
-    <link href="{{moduleAdminResource($moduleName)}}/css/icons/icomoon/styles.css" rel="stylesheet" type="text/css">
-    <link href="{{moduleAdminResource($moduleName)}}/css/minified/bootstrap.min.css" rel="stylesheet" type="text/css">
-    <link href="{{moduleAdminResource($moduleName)}}/css/minified/core.min.css" rel="stylesheet" type="text/css">
-    <link href="{{moduleAdminResource($moduleName)}}/css/minified/components.min.css" rel="stylesheet" type="text/css">
-    <link href="{{moduleAdminResource($moduleName)}}/css/minified/colors.min.css" rel="stylesheet" type="text/css">
-    <link href="{{moduleAdminResource($moduleName)}}/css/h-css.css" rel="stylesheet" type="text/css">
+    <link href="{{asset("assets/module")}}/css/icons/icomoon/styles.css" rel="stylesheet" type="text/css">
+    <link href="{{asset("assets/module")}}/css/minified/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <link href="{{asset("assets/module")}}/css/minified/core.min.css" rel="stylesheet" type="text/css">
+    <link href="{{asset("assets/module")}}/css/minified/components.min.css" rel="stylesheet" type="text/css">
+    <link href="{{asset("assets/module")}}/css/minified/colors.min.css" rel="stylesheet" type="text/css">
+    <link href="{{asset("assets/module")}}/css/h-css.css" rel="stylesheet" type="text/css">
     <!-- /global stylesheets -->
 
 

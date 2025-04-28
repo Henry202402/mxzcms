@@ -22,6 +22,7 @@ class ExceptionHandler
             'params' => $array,
             'remark' => "",
             'unique_id' => '',
+            'requestid' => \request()->requestid
         ]);
 
         if ($array['code'] == 40000) {

@@ -140,6 +140,7 @@ class BaseController extends CommonController {
                         'default_language',
                         'website_statut',
                         'website_statut_when',
+                        'moduleHomeLock',
                         'admin_page_count',
                         'use_of_cloud',
                     ];

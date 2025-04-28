@@ -2,12 +2,39 @@
 
 namespace Modules\System\Http\Controllers\Admin;
 
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
 use Modules\Formtools\Http\Controllers\Admin\FormTool;
 use Modules\Main\Services\ServiceModel;
 use Modules\ModulesController;
 use Modules\System\Models\Setting;
 
 class SeoController extends ModulesController {
+
+    public function updateSitemap()
+    {
+
+        $urls = hook("GetSiteMapUrl");
+
+        $xml = '<?xml version="1.0" encoding="UTF-8"?>'.PHP_EOL.'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'.PHP_EOL;
+
+        $urlslist = "";
+        foreach ($urls as $url) {
+            foreach ($url as $value) {
+                $xml .= "    <url>".PHP_EOL.
+                    "      <loc>".$value."</loc>".PHP_EOL.
+                    "   </url>".PHP_EOL;
+                $urlslist.=$value.PHP_EOL;
+            }
+        }
+        $xml .= "</urlset>";
+
+        file_put_contents('sitemap.xml', $xml);
+        file_put_contents('sitemap.xml.gz', gzencode($xml));
+        file_put_contents('urllist.txt', $urlslist);
+
+        return ;
+    }
 
     public function seoConfig(){
         $pageData = getURIByRoute($this->request);
@@ -17,6 +44,7 @@ class SeoController extends ModulesController {
         if($this->request->isMethod("post")){
             $all = $this->request->all();
             unset($all["_token"]);
+            unset($all["sitemap"]);
             $robotstxt = $all["seo_robots"];
             file_put_contents(public_path("robots.txt"),$robotstxt);
             unset($all["seo_robots"]);
@@ -66,7 +94,18 @@ class SeoController extends ModulesController {
             ->formtype("seo_website_desc_detail","textarea")
             ->notes("seo_website_desc_detail","{{model_name}} 模型名称 {{data_title}} 页面标题 {{data_name}} 页面name {{model_home_page_title}} {{model_home_page_describe}}");
 
-
+        $buttonurl = url('admin/system/seo/updateSitemap');
+        $fn = "function(){layer.msg('更新成功!')}";
+        //url, para, fn,type="GET",dataType="html"
+        $formtool->field("section5","网站地图sitemap",'','section');
+        $formtool->field("sitemap","网站地图sitemap",'','button',
+            [
+                [
+                    'name'=>"更新sitemap",
+                    "click"=>"getPage('".$buttonurl."', [], ".$fn.",'post','json')"
+                ]
+            ])
+            ->notes("sitemap","将在根目录生成网站地图sitemap，三个文件：".url("/")."/sitemap.xml，".url("/")."/sitemap.xml.gz和".url("/")."/urllist.txt");
 
         $formtool->field("section3","蜘蛛限制",'','section');
         $formtool->field("seo_limit_domain","域名限制",cacheGlobalSettingsByKey("seo_limit_domain"))

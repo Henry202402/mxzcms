@@ -119,42 +119,23 @@ class SecureController extends CommonController {
 
                 case "cache":
 
-                    if ($all['CACHE_PREFIX']) {
-                        $env['CACHE_PREFIX'] = $all['CACHE_PREFIX'];
-                    }
+                    $env['CACHE_PREFIX'] = $all['CACHE_PREFIX'];
 
-                    if ($all['CACHE_DRIVER']) {
-                        $env['CACHE_DRIVER'] = $all['CACHE_DRIVER'];
-                    }
+                    $env['CACHE_DRIVER'] = $all['CACHE_DRIVER'];
 
-                    if ($all['REDIS_HOST']) {
-                        $env['REDIS_HOST'] = $all['REDIS_HOST'];
-                    }
+                    $env['REDIS_HOST'] = $all['REDIS_HOST'];
 
-                    if ($all['REDIS_PASSWORD']) {
-                        $env['REDIS_PASSWORD'] = $all['REDIS_PASSWORD'];
-                    }
+                    $env['REDIS_PASSWORD'] = $all['REDIS_PASSWORD'];
 
-                    if ($all['REDIS_PORT']) {
-                        $env['REDIS_PORT'] = $all['REDIS_PORT'];
-                    }
+                    $env['REDIS_PORT'] = $all['REDIS_PORT'];
 
-                    if ($all['MEMCACHED_HOST']) {
-                        $env['MEMCACHED_HOST'] = $all['MEMCACHED_HOST'];
-                    }
+                    $env['MEMCACHED_HOST'] = $all['MEMCACHED_HOST'];
 
-                    if ($all['MEMCACHED_USERNAME']) {
-                        $env['MEMCACHED_USERNAME'] = $all['MEMCACHED_USERNAME'];
-                    }
+                    $env['MEMCACHED_USERNAME'] = $all['MEMCACHED_USERNAME'];
 
-                    if ($all['MEMCACHED_PASSWORD']) {
-                        $env['MEMCACHED_PASSWORD'] = $all['MEMCACHED_PASSWORD'];
-                    }
+                    $env['MEMCACHED_PASSWORD'] = $all['MEMCACHED_PASSWORD'];
 
-                    if ($all['MEMCACHED_PORT']) {
-                        $env['MEMCACHED_PORT'] = $all['MEMCACHED_PORT'];
-                    }
-
+                    $env['MEMCACHED_PORT'] = $all['MEMCACHED_PORT'];
 
                     modifyEnv($env);
 

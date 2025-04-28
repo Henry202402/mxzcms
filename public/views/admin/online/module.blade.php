@@ -66,7 +66,7 @@
                             <a href="{{url("admin/cloud?cloud_type=plugin")}}"
                                class="btn btn-sm btn-light mr-3 btn-sm @if($_GET['cloud_type']=='plugin') btn-primary active @endif  ">在线插件</a>
                             <a href="{{url("admin/cloud?cloud_type=theme")}}"
-                               class="btn btn-sm btn-light mr-3 btn-sm @if($_GET['cloud_type']=="theme") btn-primary active @endif  ">在线模板</a>
+                               class="btn btn-sm btn-light mr-3 btn-sm @if($_GET['cloud_type']=="theme") btn-primary active @endif  ">在线主题</a>
                         </div>
                         <div class="col-md-12">
                             一级分类：

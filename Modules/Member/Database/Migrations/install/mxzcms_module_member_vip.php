@@ -32,7 +32,7 @@ return new class extends Migration
   `is_only_buy_one` tinyint(1) DEFAULT '2' COMMENT '是否只能购买一次【1=是，2=否】',
   PRIMARY KEY (`id`),
   KEY `status` (`status`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=".env("DB_CHARSET")." COMMENT='vip列表'");
+) ENGINE=InnoDB DEFAULT CHARSET=".env("DB_CHARSET")." COMMENT='vip列表'");
 
     }
 

@@ -91,7 +91,7 @@ function getModuleLang($module, $lang_name, $key = '', $reset = 1) {
 function permissions($path) {
     $route = explode('/', ltrim($_SERVER['REQUEST_URI'], '/'));
     $moduleName = $route[1];
-    $config = include module_path($moduleName, 'Config/config.php');
+    $config = include module_path(ucfirst($moduleName), 'Config/config.php');
     if ($config['auth'] != 'y') return '';
     $url = "$route[0]/$route[1]/$path";
     $roleArray = session(\Modules\System\Http\Controllers\Common\SessionKey::CurrentUserPermissionGroupInfo);

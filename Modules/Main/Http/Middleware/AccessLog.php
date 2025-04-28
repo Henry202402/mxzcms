@@ -17,6 +17,7 @@ class AccessLog {
             'params' => [],
             'remark' => "访问页面",
             'unique_id' => $userInfo['uid'] ?: '',
+            'requestid' => $request->requestid
         ]);
         return $next($request);
     }

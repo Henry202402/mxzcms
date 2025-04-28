@@ -34,6 +34,7 @@ Route::prefix('system')->middleware([CheckModuleAdmin::class, CheckPermission::c
     //SEO配置
     Route::group(["prefix" => "seo", 'as' => 'SEO配置@'], function () {
         Route::any('config', "SeoController@seoConfig")->name('SEO配置');
+        Route::any('updateSitemap', "SeoController@updateSitemap")->name('更新Sitemap');
         Route::any('submit', "SeoController@Submit")->name('提交处理');
     });
 

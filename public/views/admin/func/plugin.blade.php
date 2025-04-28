@@ -68,7 +68,7 @@
                             <a href="#" onclick="clearCache();" class="small">清空缓存</a>
                             @if(cacheGlobalSettingsByKey('use_of_cloud')==1)
                                 <a href="{{url('admin/cloud?cloud_type='.\Modules\Main\Models\Modules::Plugin)}}"
-                                   class="text-right float-right onlineModuleList small">
+                                   class="text-right float-right onlineModuleList">
                                     在线插件 <i class="fa fa-arrow-circle-o-right"></i>
                                 </a>
                             @endif
@@ -205,9 +205,18 @@
                                                                     .'&form=local'
                                                                     .'&cloud_type='.\Modules\Main\Models\Modules::Plugin)}}"
                                                                   class="">
-                                                                   {{--安装--}}
                                                                    {{getTranslateByKey('install')}}
                                                                </a>
+                                                        </span>
+
+                                                        <span class="glyphicon glyphicon-cog ">
+                                                               <span onclick="DelQuestion('{{url('admin/module/delete?m='
+                                                                    .$not_install_data['identification']
+                                                                    .'&form=local'
+                                                                    .'&cloud_type='.\Modules\Main\Models\Modules::Plugin)}}')"
+                                                                     class="text-danger" style="cursor: pointer;">
+                                                                   删除
+                                                               </span>
                                                         </span>
                                                 </div>
                                             </div>
@@ -275,6 +284,27 @@
                 },
                 cancel: {
                     text: "{{getTranslateByKey('common_cancel')}}"
+                }
+            }
+        });
+    }
+
+    function DelQuestion(url) {
+        $.confirm({
+            title: '<?php echo e(getTranslateByKey("common_tip")); ?>',
+            content: '确定要删除吗!',
+            type: 'default',
+            buttons: {
+                ok: {
+                    text: "<?php echo e(getTranslateByKey('common_ensure')); ?>",
+                    btnClass: 'btn-primary',
+                    keys: ['enter'],
+                    action: function () {
+                        location.href = url
+                    }
+                },
+                cancel: {
+                    text: "<?php echo e(getTranslateByKey('common_cancel')); ?>"
                 }
             }
         });

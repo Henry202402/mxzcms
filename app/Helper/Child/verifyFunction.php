@@ -491,6 +491,8 @@ if (!function_exists('get_ip')) {
 
 //获取ip
 function getIP($type = 0) {
+    $addr = $_SERVER['HTTP_X_FORWARDED_FOR'] ?: $_SERVER['REMOTE_ADDR'];
+    if ($addr) return $addr;
     $type = $type ? 1 : 0;
     static $ip = NULL;
     if ($ip !== NULL)

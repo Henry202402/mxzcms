@@ -1,21 +1,21 @@
 
 <!-- Jquery UI -->
-<script src="{{ADMIN_ASSET}}assets/lib/jquery-ui/jquery-ui.min.js"></script>
-<script src="{{ADMIN_ASSET}}assets/js/jquery.ui.custom.js"></script>
+<script src="{{ADMIN_ASSET}}lib/jquery-ui/jquery-ui.min.js"></script>
+<script src="{{ADMIN_ASSET}}js/jquery.ui.custom.js"></script>
 
 <!--Sweet Alerts-->
-<script type="text/javascript" src="{{ADMIN_ASSET}}assets/js/jquery-confirm.min.js"></script>
+<script type="text/javascript" src="{{ADMIN_ASSET}}js/jquery-confirm.min.js"></script>
 
-<script type="text/javascript" src="{{ADMIN_ASSET}}assets/other/DialogJS/javascript/zepto.min.js"></script>
-<script type="text/javascript" src="{{ADMIN_ASSET}}assets/other/DialogJS/javascript/dialog.min.js"></script>
+<script type="text/javascript" src="{{ADMIN_ASSET}}other/DialogJS/javascript/zepto.min.js"></script>
+<script type="text/javascript" src="{{ADMIN_ASSET}}other/DialogJS/javascript/dialog.min.js"></script>
 
-<script type="text/javascript" src="{{ADMIN_ASSET}}assets/other/jqueryToast/js/toast.script.js"></script>
+<script type="text/javascript" src="{{ADMIN_ASSET}}other/jqueryToast/js/toast.script.js"></script>
 
-<script type="text/javascript" src="{{ADMIN_ASSET}}assets/layer/layer/layer.js"></script>
+<script type="text/javascript" src="{{ADMIN_ASSET}}layer/layer/layer.js"></script>
 <!---->
 @foreach($load as $value)
     @if($value)
-        <script src="{{ADMIN_ASSET}}assets/js/{{$value}}.js"></script>
+        <script src="{{ADMIN_ASSET}}js/{{$value}}.js"></script>
     @endif
 @endforeach
 @include('admin.public.cmsjs')

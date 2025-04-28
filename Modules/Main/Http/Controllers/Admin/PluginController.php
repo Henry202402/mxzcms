@@ -14,15 +14,20 @@ class PluginController extends ModulesController {
     public function config() {
         //换成钩子代替
         $all = $this->request->all();
+        if(!$all['identification']){
+            return redirect(url("admin/plugin"));
+        }
         $identification = $all['identification'];
         $path = base_path("Plugins/{$identification}/Config/config.php");
         $configArr = include $path;
         $config = $configArr['config'] ?: [];
         if ($this->request->isMethod('POST')) {
-            unset($all['_token'], $all['identification']);
+
+            unset($all['_token'], $all['identification'],$all['requestid']);
             foreach ($all as $key => $value) {
                 $config[$key]['value'] = $value;
             }
+
             $configArr['config'] = $config;
 
             $new_data = var_export($configArr, true);

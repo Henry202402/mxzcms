@@ -22,7 +22,7 @@
                     <div class="panel-heading">
 
                         <form class="form-horizontal" action="{{url("admin/formtools/modelAdd")}}" method="post"
-                              id="post_form">
+                              id="post_form" enctype="multipart/form-data">
                             {{csrf_field()}}
                             <fieldset class="content-group">
                                 <legend class="text-bold">菜单</legend>
@@ -61,6 +61,21 @@
                                 </div>
 
                                 <legend class="text-bold">模型</legend>
+                                <div class="form-group">
+                                    <label class="col-lg-1 control-label">
+                                        模型类型
+                                    </label>
+                                    <div class="col-lg-11">
+                                        <label class="radio-inline">
+                                            <input type="radio" class="styled h-radio" value="multi" name="type" checked>
+                                            <span class="h-span-val">列表</span>
+                                        </label>
+                                        <label class="radio-inline">
+                                            <input type="radio" class="styled h-radio" value="single" name="type">
+                                            <span class="h-span-val">单页</span>
+                                        </label>
+                                    </div>
+                                </div>
                                 <div class="form-group">
                                     <label class="col-lg-1 control-label">
                                         模型标识
@@ -130,24 +145,33 @@
                                 <div id="home-setting-content" style="display: none">
                                     <div class="form-group">
                                         <label class="col-lg-1 control-label">
-                                            前台列表模板
+                                            列表模板
                                         </label>
-                                        <div class="col-lg-11">
+                                        <div class="col-lg-5">
                                             <select name="list_template" class="form-control">
                                                 @foreach(\Modules\Formtools\Helper\FormFunc::listTemplate() as $key=>$value)
-                                                    <option value="{{$key}}">{{$value}}</option>
+                                                    <option value="{{$key}}"
+                                                            @if($key=='list') selected @endif >{{$value}}</option>
                                                 @endforeach
                                             </select>
+                                        </div>
+
+                                        <div class="col-lg-5">
+                                            <input type="text" value="" name="custom_list_template"
+                                                   class="form-control"
+                                                   placeholder="自定义模板名称">
+                                            <span class="help-block">自定义模板名称，例如 template.blade.php，只需要填写 template ，不需要后缀.blade.php</span>
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label class="col-lg-1 control-label">
-                                            前台详情模板
+                                            详情模板
                                         </label>
                                         <div class="col-lg-11">
                                             <select name="detail_template" class="form-control">
                                                 @foreach(\Modules\Formtools\Helper\FormFunc::detailTemplate() as $key=>$value)
-                                                    <option value="{{$key}}">{{$value}}</option>
+                                                    <option value="{{$key}}"
+                                                            @if($key=='detail') selected @endif>{{$value}}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -164,7 +188,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label class="col-lg-1 control-label">
-                                            前台列表分页样式
+                                            列表分页样式
                                         </label>
                                         <div class="col-lg-11">
                                             <select name="list_page_template" class="form-control">
@@ -177,7 +201,7 @@
 
                                     <div class="form-group">
                                         <label class="col-lg-1 control-label">
-                                            前台页面标题
+                                            列表头部页面标题
                                         </label>
                                         <div class="col-lg-11">
                                             <input type="text" value="" name="home_page_title" class="form-control"
@@ -187,10 +211,39 @@
 
                                     <div class="form-group">
                                         <label class="col-lg-1 control-label">
-                                            前台页面简介
+                                            列表头部页面简介
                                         </label>
                                         <div class="col-lg-11">
                                             <textarea name="home_page_describe" class="form-control" rows="5" placeholder="前台页面简介"></textarea>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="col-lg-1 control-label">
+                                            列表头部背景图
+                                        </label>
+                                        <div class="col-lg-11">
+                                            <div class="media no-margin-top">
+                                                @if($pageData['data']->home_page_bg_img)
+                                                    <div class="media-left">
+                                                        <img src="{{GetUrlByPath($pageData['data']->home_page_bg_img)}}"
+                                                             style="width: 35px; height: 35px;" class="img-rounded">
+                                                    </div>
+                                                @endif
+                                                <div class="media-body">
+                                                    <input type="file" name="home_page_bg_img" class="file-styled"
+                                                           accept="image/*">
+                                                </div>
+                                            </div>
+                                            <script>
+                                                $(function () {
+                                                    // Primary file input
+                                                    $(".file-styled").uniform({
+                                                        wrapperClass: 'bg-warning',
+                                                        fileButtonHtml: '<i class="icon-googleplus5"></i>'
+                                                    });
+                                                })
+                                            </script>
                                         </div>
                                     </div>
 
@@ -204,7 +257,7 @@
                                                 <span class="h-span-val">显示</span>
                                             </label>
                                             <label class="radio-inline">
-                                                <input type="radio" class="styled h-radio" value="no" name="show_home_page">
+                                                <input type="radio" class="styled h-radio" value="no" name="show_home_page" checked>
                                                 <span class="h-span-val">不显示</span>
                                             </label>
                                         </div>
@@ -219,8 +272,82 @@
                                                    placeholder="首页显示数量，0为全部">
                                         </div>
                                     </div>
+                                    <div class="form-group">
+                                        <label class="col-lg-1 control-label">
+                                            显示在前台的顺序【升序排序】
+                                        </label>
+                                        <div class="col-lg-11">
+                                            <input type="text" value="0" name="home_page_sort" class="form-control"
+                                                   placeholder="显示在前台的顺序【升序排序】，从小到大排序，默认为0">
+                                        </div>
+                                    </div>
 
 
+
+                                </div>
+
+                                <legend class="text-bold cursor-pointer" onclick="clickOpen('home-setting-seo')">SEO（点击设置）</legend>
+                                <div id="home-setting-seo" style="display: none">
+
+                                    <h6>列表页SEO</h6>
+                                    <div class="form-group" >
+                                        <label class="col-lg-1 control-label">
+                                            标题
+                                        </label>
+                                        <div class="col-lg-11">
+                                            <input type="text" name="" class="form-control"
+                                                   placeholder="SEO标题">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group" >
+                                        <label class="col-lg-1 control-label">
+                                            关键词
+                                        </label>
+                                        <div class="col-lg-11">
+                                            <input type="text" name="" class="form-control"
+                                                   placeholder="SEO关键词">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group" >
+                                        <label class="col-lg-1 control-label">
+                                            描述
+                                        </label>
+                                        <div class="col-lg-11">
+                                            <textarea name="" id="" cols="30" rows="4" placeholder="SEO描述" class="form-control"></textarea>
+                                        </div>
+                                    </div>
+
+                                    <h6>详情页SEO</h6>
+                                    <div class="form-group" >
+                                        <label class="col-lg-1 control-label">
+                                            标题
+                                        </label>
+                                        <div class="col-lg-11">
+                                            <input type="text" name="" class="form-control"
+                                                   placeholder="SEO标题">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group" >
+                                        <label class="col-lg-1 control-label">
+                                            关键词
+                                        </label>
+                                        <div class="col-lg-11">
+                                            <input type="text" name="" class="form-control"
+                                                   placeholder="SEO关键词">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group" >
+                                        <label class="col-lg-1 control-label">
+                                            描述
+                                        </label>
+                                        <div class="col-lg-11">
+                                            <textarea name="" id="" cols="30" rows="4" placeholder="SEO描述" class="form-control"></textarea>
+                                        </div>
+                                    </div>
 
 
                                 </div>

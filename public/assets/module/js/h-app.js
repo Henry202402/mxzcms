@@ -101,12 +101,12 @@ var wap_arrUrl = wap_url.split("//");
 var domain = wap_arrUrl[0] + "//" + wap_host + '/';
 
 //分页加载
-function getPage(url, para, fn) {
+function getPage(url, para, fn,type="GET",dataType="html") {
     $.ajax({
-        type: "GET",
+        type: type,
         url: url,
         data: para,
-        dataType: "html",
+        dataType: dataType,
         success: fn
     });
 }

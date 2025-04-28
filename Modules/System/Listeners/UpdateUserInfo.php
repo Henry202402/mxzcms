@@ -72,6 +72,7 @@ class UpdateUserInfo {
             'params' => $array,
             'remark' => $remark,
             'unique_id' => $all['uid'],
+            'requestid' => \request()->requestid
         ]);
         return returnArr(200, 'success', $update);
     }

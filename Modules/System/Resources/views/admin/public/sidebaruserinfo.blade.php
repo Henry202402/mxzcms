@@ -6,7 +6,7 @@
                         @if($userInfo['avatar'])
                 {{GetUrlByPath($userInfo['avatar'])}}
                 @else
-                {{moduleAdminResource($moduleName)}}/images/placeholder.jpg
+                {{asset("assets/module")}}/images/placeholder.jpg
                         @endif">
             </a>
             <div class="media-body">

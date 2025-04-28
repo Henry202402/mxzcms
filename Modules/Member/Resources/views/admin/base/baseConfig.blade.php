@@ -237,7 +237,7 @@
 <!-- 						Content End		 						-->
 <!-- ============================================================== -->
 @include(moduleAdminTemplate($moduleName)."public.js")
-<script type="text/javascript" src="{{moduleAdminResource($moduleName)}}/laydate/laydate.js"></script>
+<script type="text/javascript" src="{{asset("assets/module")}}/laydate/laydate.js"></script>
 <script>
     var setType = false;
 
@@ -576,13 +576,13 @@
 
 
 <script type="text/javascript"
-        src="{{moduleAdminResource($moduleName)}}/js/core/libraries/jquery_ui/core.min.js"></script>
+        src="{{asset("assets/module")}}/js/core/libraries/jquery_ui/core.min.js"></script>
 <script type="text/javascript"
-        src="{{moduleAdminResource($moduleName)}}/js/plugins/forms/selects/selectboxit.min.js"></script>
-<script type="text/javascript" src="{{moduleAdminResource($moduleName)}}/js/pages/form_selectbox.js"></script>
+        src="{{asset("assets/module")}}/js/plugins/forms/selects/selectboxit.min.js"></script>
+<script type="text/javascript" src="{{asset("assets/module")}}/js/pages/form_selectbox.js"></script>
 
 <script type="text/javascript"
-        src="{{moduleAdminResource($moduleName)}}/js/plugins/forms/selects/select2.min.js"></script>
-<script type="text/javascript" src="{{moduleAdminResource($moduleName)}}/js/pages/form_select2.js"></script>
+        src="{{asset("assets/module")}}/js/plugins/forms/selects/select2.min.js"></script>
+<script type="text/javascript" src="{{asset("assets/module")}}/js/pages/form_select2.js"></script>
 </body>
 </html>

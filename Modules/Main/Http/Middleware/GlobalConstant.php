@@ -15,8 +15,8 @@ class GlobalConstant
      */
     public function handle($request, Closure $next)
     {
+        $request->merge(['requestid' => uniqid().rand(10000,99999).rand(1000,9999)]);
         //主题路径
-
         if(!cache('theme')){
             cache('theme','default');
         }
@@ -44,7 +44,7 @@ class GlobalConstant
 
         //admin 路径
         define("ADMIN_SKIN_PATH", "views/admin/");
-        define("ADMIN_ASSET",asset(ADMIN_SKIN_PATH).'/');
+        define("ADMIN_ASSET",asset("assets/admin").'/');
 
         //安装路径
         define("INSTALL_ASSET",asset(INSTALL_SKIN_PATH).'/');

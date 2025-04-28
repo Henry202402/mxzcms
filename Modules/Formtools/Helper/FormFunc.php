@@ -99,6 +99,7 @@ trait FormFunc {
     //列表模板
     public static function listTemplate() {
         return [
+            '' => '自定义',
             'list' => '纯文字列表模板',
             'titleContentImage' => '图文列表模板（标题+内容+图片）',
             'titleImage' => '图文列表模板（标题+图片）',
@@ -109,17 +110,18 @@ trait FormFunc {
             'carousel' => "轮播图（图片+url）",
             'photoList' => '相册模板，点击轮播（标题+图片）',
             'videoList' => '视频列表模板（标题+视频封面+点击播放）',
+            'onlydetail' => '单页模型（只有详情页）',
         ];
     }
 
     //详情模板
     public static function detailTemplate() {
         return [
+            '' => '自定义',
             'detail' => '单详情模板',
             'detailLeftList' => '详情+左侧栏模板',
             'detailRightList' => '详情+右侧栏模板',
             'detailBottomList' => '详情+底部栏模板',
-
         ];
     }
 }

@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Modules\Main\Models\Member;
+use Modules\Main\Models\Modules;
 use Modules\Main\Services\ServiceModel;
 use Modules\ModulesController;
 use Modules\System\Http\Controllers\Common\SessionKey;
@@ -22,6 +23,13 @@ class LoginController extends ModulesController {
 
         if (session(\Modules\System\Http\Controllers\Common\SessionKey::AdminInfo)) {
             //返回上一层，带上已登录提示
+            $identification = Modules::query()
+                ->where('is_backend',1)
+                ->where('status',1)
+                ->value("identification");
+            if($identification){
+                return redirect(url("admin/entryModule?m=".$identification));
+            }
             return redirect("/admin")->with("errormsg", getTranslateByKey('already_logged_in'));
         }
         $entrance = cacheGlobalSettingsByKey('admin_login_entrance');
@@ -77,6 +85,7 @@ class LoginController extends ModulesController {
                         ],
                         'remark' => '登录后台-密码错误',
                         'unique_id' => $first['uid'],
+                        'requestid' => $this->request->requestid
                     ]);
                     session()->put("admin_remember",
                         array_merge(session('admin_remember')?:[], ["password" => null])
@@ -102,6 +111,7 @@ class LoginController extends ModulesController {
                 ],
                 'remark' => '登录后台成功',
                 'unique_id' => $first['uid'],
+                'requestid' => $this->request->requestid
             ]);
 
             if ($post["is_remember"] != "on") {
@@ -110,18 +120,22 @@ class LoginController extends ModulesController {
 
             //返回上一级
             if (session("admin_previous")) return redirect(session("admin_previous"));
+            $identification = Modules::query()
+                ->where('is_backend',1)
+                ->where('status',1)
+                ->value("identification");
+            if($identification){
+                return redirect(url("admin/entryModule?m=".$identification));
+            }
             return redirect("/admin/index");
 
         }
     }
 
     //退出
-    public function logout(Request $request) {
-        session(['userInfo' => NULL]);
-        session([SessionKey::AdminInfo => NULL]);
-        session([SessionKey::HomeInfo => NULL]);
-        session([SessionKey::CurrentUserPermissionGroupInfo => NULL]);
-        session()->save();
+    public function logout() {
+        session()->flush();
+        session()->regenerate();
         return redirect('admin/login/' . cacheGlobalSettingsByKey('admin_login_entrance'));
     }
 }

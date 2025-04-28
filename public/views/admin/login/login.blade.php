@@ -7,18 +7,18 @@
     <title>{{cacheGlobalSettingsByKey('website_name')}}{{getTranslateByKey("login_title")}}</title>
     <link rel="icon" type="image/ico" sizes="48x48" href="{{GetLocalFileByPath(cacheGlobalSettingsByKey('webicon'))}}">
 
-    <link href="{{ADMIN_ASSET}}assets/other/jqueryToast/css/toast.style.css" rel="stylesheet">
+    <link href="{{ADMIN_ASSET}}other/jqueryToast/css/toast.style.css" rel="stylesheet">
     <!-- Common Plugins -->
-    <link href="{{ADMIN_ASSET}}assets/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ADMIN_ASSET}}lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom Css-->
-    <link href="{{ADMIN_ASSET}}assets/css/style.css" rel="stylesheet">
+    <link href="{{ADMIN_ASSET}}css/style.css" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
-    <script src="{{ADMIN_ASSET}}assets/js/html5shiv.min.js"></script>
-    <script src="{{ADMIN_ASSET}}assets/js/respond.min.js"></script>
+    <script src="{{ADMIN_ASSET}}js/html5shiv.min.js"></script>
+    <script src="{{ADMIN_ASSET}}js/respond.min.js"></script>
     <![endif]-->
     <style type="text/css">
         html,body{
@@ -101,8 +101,8 @@
 
 </body>
 </html>
-<script src="{{ADMIN_ASSET}}assets/lib/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="{{ADMIN_ASSET}}assets/other/jqueryToast/js/toast.script.js"></script>
+<script src="{{ADMIN_ASSET}}lib/jquery/dist/jquery.min.js"></script>
+<script type="text/javascript" src="{{ADMIN_ASSET}}other/jqueryToast/js/toast.script.js"></script>
 <script>
 
     var toastMsg;

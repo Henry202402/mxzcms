@@ -577,6 +577,30 @@
                                         </div>
 
                                         <div class="col-md-12 mt-20">
+                                            <label>模块首页锁定</label><br>
+                                            <label class="radio-inline">
+                                                <input type="radio" class="styled h-radio"
+                                                       name="moduleHomeLock" value="lock"
+                                                       @if(cacheGlobalSettingsByKey('moduleHomeLock') =='lock') checked @endif >
+                                                <span class="h-span-val">锁定</span>
+                                            </label>
+
+                                            <label class="radio-inline">
+                                                <input type="radio" class="styled h-radio"
+                                                       name="moduleHomeLock" value=""
+                                                       @if(!cacheGlobalSettingsByKey('moduleHomeLock')) checked @endif >
+                                                <span class="h-span-val">不锁定</span>
+                                            </label>
+                                            <div class="col-sm-12">
+                                                <p style="padding-top: 10px;">
+                                                    设置模块首页锁定后，将不能设置、取消模块设为首页功能
+                                                </p>
+                                            </div>
+
+
+                                        </div>
+
+                                        <div class="col-md-12 mt-20">
                                             <label>
                                                 后台每页显示的数量
                                             </label>
