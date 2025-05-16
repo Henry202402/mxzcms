@@ -17,6 +17,16 @@ class TableStructure {
             $table->collation = 'utf8mb4_general_ci';
             $table->comment($data['remark']);
             $table->increments('id')->comment('主键');
+            $table->integer("uid")->nullable()->comment('发布者UID');
+            $table->integer("access_count")->nullable()->default(0)->comment('访问次数统计');
+            $table->integer("good_count")->nullable()->default(0)->comment('点赞次数统计');
+            $table->integer("comment_count")->nullable()->default(0)->comment('评论数');
+            $table->integer("download_count")->nullable()->default(0)->comment('下载次数');
+            $table->string('seo_title',255)->nullable()->comment("SEO标题");
+            $table->string('seo_keywords',2250)->nullable()->comment("SEO关键词");
+            $table->string('seo_description',2250)->nullable()->comment("SEO描述");
+            $table->tinyInteger('status')->default(0)->nullable()->comment("状态，0待审核，1通过，2下架");
+            $table->string('remark',255)->nullable()->comment("备注");
             $table->timestamps(); //添加 created_at 和 updated_at列
         });
     }

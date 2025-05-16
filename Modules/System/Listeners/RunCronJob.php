@@ -20,8 +20,8 @@ class RunCronJob {
                     \Modules\System\Services\ServiceModel::whereUpdateTask(['id' => $item['id']], ['last_execution_time' => getDay()]);
                     hook("Loger",[
                         'module' => $item['module'],
-                        'type' => 5,
-                        'two_type' => 2,
+                        'type' => "third",
+                        'two_type' => "back" ,
                         'params' => [
                             'time' => getDay(),
                             'result' => $res,
@@ -66,8 +66,8 @@ class RunCronJob {
     public function executeTasks($find) {
         hook("Loger",[
             'module' => $find['module'],
-            'type' => 5,
-            'two_type' => 1,
+            'type' => "third",
+            'two_type' => "call" ,
             'params' => [
                 'time' => getDay(),
                 'content' => $find['content'],
@@ -91,8 +91,8 @@ class RunCronJob {
         \Modules\System\Services\ServiceModel::whereUpdateTask(['id' => $find['id']], ['last_execution_time' => getDay()]);
         hook("Loger",[
             'module' => $find['module'],
-            'type' => 5,
-            'two_type' => 2,
+            'type' => "third",
+            'two_type' => "back" ,
             'params' => [
                 'time' => getDay(),
                 'content' => $find['content'],

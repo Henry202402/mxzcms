@@ -133,7 +133,7 @@
                                             </div>
                                             <div class="d-inline-block module-update-{{$install_data->identification}} text-danger"
                                                  style="cursor: pointer;visibility: hidden;"
-                                                 onclick="updateVersion('{{$install_data->identification}}','theme')"
+                                                 onclick="updateVersion('{{$install_data->identification}}','theme','{{session()->get("theme_".$install_data->identification)}}')"
                                             >
                                                 &nbsp;&nbsp;
                                                 更新版本

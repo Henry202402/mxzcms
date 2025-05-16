@@ -48,9 +48,31 @@ class Install {
         $modules_data = include($file);
 
         //判断版本限制
+        if($modules_data['cmslimit'] && version_compare($modules_data['cmslimit'], env("APP_VERSION")) > 0) {
+            return returnArr(0, '主程序版本太低，请先升级!');
+        }
+        $module = new \Modules\Main\Models\Modules();
+        //判断依赖插件
+        if($modules_data['pluginlimit'] && $get['cloud_type']=="module"){
+            $pluginInfo =  explode("-",$modules_data['pluginlimit']);
+            $res = $module->where('identification', '=', $pluginInfo[0])
+                ->where("cloud_type", "=", "plugin")
+                ->first();
+            if(!$res){
+                return returnArr(0, '请先安装依赖插件!');
+            }else{
+                $file2 = $cloud_type["plugin"] . '/' . $pluginInfo[0] . '/Config/config.php';
+                if (!file_exists($file2)) return returnArr(0, '配置不完整，请重新安装依赖插件!');
+
+                $plugin_data = include($file2);
+                if($plugin_data['version'] && version_compare($pluginInfo[1],$plugin_data['version']) > 0) {
+                    return returnArr(0, '依赖插件版本太低，请先升级!');
+                }
+            }
+        }
 
         //判断是否安装
-        $module = new \Modules\Main\Models\Modules();
+
         $res = $module->where('identification', '=', $modules_data['identification'])
             ->where("cloud_type", "=", $get['cloud_type'])
             ->first();
@@ -67,30 +89,32 @@ class Install {
         $inster_modules_data['created_at'] = $inster_modules_data['updated_at'] = date('Y-m-d H:i:s');
         $res = $module->insert($inster_modules_data);
         if ($res) {
-            $lock_file = fopen($cloud_type[$get['cloud_type']] . '/' . $get['m'] . '/lock', 'w+');//创建 锁文件
+            $lock_file = $cloud_type[$get['cloud_type']] . '/' . $get['m'] . '/lock';
+            chmod(basename($lock_file), 0777);
+            @unlink($lock_file);
+            $lock_file = fopen($lock_file, 'w+');//创建 锁文件
             fwrite($lock_file, date('Y-m-d H:i:s'));//写入
 
             if ($get['cloud_type'] == \Modules\Main\Models\Modules::Module) {
                 @symlink(module_path($modules_data['identification'], "Resources/views"),
                     public_path("views/modules/".strtolower($modules_data['identification']))
                 );
+
+                try {
+
+                    Artisan::call('migrate', [
+                        '--path' => "Modules/{$modules_data['identification']}/Database/Migrations/install",
+                        '--force' => 1,
+                    ]);
+                    Artisan::call('db:seed', [
+                        '--class' => "Modules\\".$modules_data['identification']."\Database\Seeders\DatabaseSeeder",
+                        '--force' => 1,
+                    ]);
+
+                }catch (\Exception $exception){
+
+                }
             }
-
-            try {
-
-                Artisan::call('migrate', [
-                    '--path' => "Modules/{$modules_data['identification']}/Database/Migrations/install",
-                    '--force' => 1,
-                ]);
-                Artisan::call('db:seed', [
-                    '--class' => "Modules\\".$modules_data['identification']."\Database\Seeders\DatabaseSeeder",
-                    '--force' => 1,
-                ]);
-
-            }catch (\Exception $exception){
-
-            }
-
 
             if ($get['return_type'] == 'api') {
                 return returnArr(200, $modules_data['name'] . '模块安装成功；');
@@ -110,8 +134,6 @@ class Install {
         if (!$all['m']) {
             return returnArr(0, '请选择主题');
         }
-        //判断版本限制
-
         //安装主题
         $checkData = DB::table("themes")->where("identification","=", $all['m'])->count();
         if( $checkData != 0 ) {
@@ -119,6 +141,12 @@ class Install {
         }
 
         $themeConfig = json_decode(file_get_contents(THEME_PATH . $all['m'] . '/config.json'), true);
+
+        //判断版本限制
+        if($themeConfig['cmslimit'] && version_compare($themeConfig['cmslimit'], env("APP_VERSION")) > 0) {
+            return returnArr(0, '主程序版本太低，请先升级!');
+        }
+
         $inster['name'] = $themeConfig['name'];
         $inster['identification'] = $all['m'];
         $inster['preview'] = $themeConfig['preview'];

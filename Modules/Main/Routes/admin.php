@@ -86,6 +86,7 @@ Route::middleware([AdminLanguage::class, CheckAdmin::class, CheckIpBlacklist::cl
     Route::group(['namespace' => 'Admin'], function () {
         Route::group(["prefix" => "cms"], function () {
             Route::any('updateCmsVersion', ["uses" => "UpdateController@updateCmsVersion", "permissions" => "cms/updateCmsVersion"]);
+            Route::any('checklimit', ["uses" => "UpdateController@checklimit", "permissions" => "cms/checklimit"]);
         });
     });
 

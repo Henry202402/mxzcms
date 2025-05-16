@@ -4,6 +4,7 @@ namespace Modules\System\Listeners;
 
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+use Modules\System\Models\Setting;
 use PHPUnit\Exception;
 
 class UnInstall {
@@ -66,6 +67,7 @@ class UnInstall {
                     }catch (Exception $exception){
 
                     }
+                    Setting::query()->where("module",$module_name)->delete();
                 }
 
                 if ($get['cloud_type'] == \Modules\Main\Models\Modules::Plugin) {

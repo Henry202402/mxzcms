@@ -178,6 +178,8 @@ class HomeController extends ModulesController {
             ->orderBy("id", "desc")
             ->paginate(10);
 
+        //dd($pageData['datas'] );
+
         return view("formtools::admin.index.index", [
             "pageData" => $pageData,
             "tablesList" => $tablesList,
@@ -192,24 +194,34 @@ class HomeController extends ModulesController {
             if (!$data['name'] || !$data['identification'] || !$data['access_identification'] || !$data['remark']) {
                 return back()->with("pageDataMsg", "请填写完整");
             }
+            $data['identification'] = strtolower($data['identification']);
             $check = FormModel::query()->where("identification", $data['identification'])->first();
             if ($check) {
                 return back()->with("pageDataMsg", "标识已存在");
             }
 
-            $data['list_template'] = $data['list_template'] ?: $data['custom_list_template'];
+            $data['home_config']['list_template'] = $data['home_config']['list_template'] ?: $data['home_config']['custom_list_template'];
+            $data['home_config']['detail_template'] = $data['home_config']['detail_template'] ?: $data['home_config']['custom_detail_template'];
             $data['created_at'] = date("Y-m-d H:i:s", time());
             $data['updated_at'] = date("Y-m-d H:i:s", time());
 
-            if ($_FILES['home_page_bg_img']['size'] > 0) {
+            if ($_FILES['detail_page_bg_img']['size'] > 0) {
                 try {
-                    $data['home_page_bg_img'] = UploadFile($this->request, "home_page_bg_img", "model/" . date("Y/m/d/") . uniqid(), ALLOWEXT, __E("upload_driver"));
+                    $data['home_config']['detail_page_bg_img'] = UploadFile($this->request, "detail_page_bg_img", "model/" . date("Y/m/d/") . uniqid(), ALLOWEXT, __E("upload_driver"));
                 } catch (\Exception $exception) {
                     return redirect("/admin/formtools/index")->with("pageDataMsg", $exception->getMessage());
                 }
             }
 
-            unset($data['_token'], $data['custom_list_template']);
+            if ($_FILES['home_page_bg_img']['size'] > 0) {
+                try {
+                    $data['home_config']['home_page_bg_img'] = UploadFile($this->request, "home_page_bg_img", "model/" . date("Y/m/d/") . uniqid(), ALLOWEXT, __E("upload_driver"));
+                } catch (\Exception $exception) {
+                    return redirect("/admin/formtools/index")->with("pageDataMsg", $exception->getMessage());
+                }
+            }
+
+            unset($data['_token'], $data['custom_list_template'], $data['requestid']);
             $tableName = 'module_formtools_' . $data['identification'];
             //创建模型表
             if (Schema::hasTable($tableName)) {
@@ -218,6 +230,12 @@ class HomeController extends ModulesController {
 
             // 表不存在
             call_user_func([new TableStructure(), 'createTable'], $tableName, $data);
+
+            $data['admin_config'] = json_encode($data['admin_config'], true);
+            $data['home_config'] = json_encode($data['home_config'], true);
+            $data['home_seo_config'] = json_encode($data['home_seo_config'], true);
+            $data['home_seo_detail_config'] = json_encode($data['home_seo_detail_config'], true);
+            $data['other_config'] = json_encode($data['other_config'], true);
 
             $res = FormModel::query()->insert($data);
             if ($res) {
@@ -244,15 +262,38 @@ class HomeController extends ModulesController {
             if (!$data['name'] || !$data['identification'] || !$data['access_identification'] || !$data['remark']) {
                 return back()->with("pageDataMsg", "请填写完整");
             }
+            $data['identification'] = strtolower($data['identification']);
             $check = FormModel::query()->where("identification", $data['identification'])->first();
             if (!$check) {
                 return back()->with("pageDataMsg", "标识不存在");
             }
+            $find = FormModel::query()->where('id', $data['id'])->first();
+            $home_config = json_decode($find['home_config'], true);
 
             $data['updated_at'] = date("Y-m-d H:i:s", time());
-            $data['list_template'] = $data['list_template'] ?: $data['custom_list_template'];
+            $data['home_config']['list_template'] = $data['home_config']['list_template'] ?: $data['home_config']['custom_list_template'];
+            $data['home_config']['detail_template'] = $data['home_config']['detail_template'] ?: $data['home_config']['custom_detail_template'];
 
-            unset($data['_token'], $data['custom_list_template']);
+            if ($_FILES['detail_page_bg_img']['size'] > 0) {
+                try {
+                    $data['home_config']['detail_page_bg_img'] = UploadFile($this->request, "detail_page_bg_img", "model/" . date("Y/m/d/") . uniqid(), ALLOWEXT, __E("upload_driver"));
+                } catch (\Exception $exception) {
+                    return redirect("/admin/formtools/index")->with("pageDataMsg", $exception->getMessage());
+                }
+            } else {
+                $data['home_config']['detail_page_bg_img'] = $home_config['detail_page_bg_img'];
+            }
+            if ($_FILES['home_page_bg_img']['size'] > 0) {
+                try {
+                    $data['home_config']['home_page_bg_img'] = UploadFile($this->request, "home_page_bg_img", "model/" . date("Y/m/d/") . uniqid(), ALLOWEXT, __E("upload_driver"));
+                } catch (\Exception $exception) {
+                    return redirect("/admin/formtools/index")->with("pageDataMsg", $exception->getMessage());
+                }
+            } else {
+                $data['home_config']['home_page_bg_img'] = $home_config['home_page_bg_img'];
+            }
+
+            unset($data['_token'], $data['custom_list_template'], $data['requestid']);
             $updateData = [
                 "name" => $data['name'],
                 "identification" => $data['identification'],
@@ -261,31 +302,19 @@ class HomeController extends ModulesController {
                 "module" => $data['module'],
                 "remark" => $data['remark'],
                 "icon" => $data['icon'],
-                "form_template" => $data['form_template'],
-                "list_template" => $data['list_template'],
-                "detail_template" => $data['detail_template'],
-                "data_source" => $data['data_source'],
-                "data_source_api_url" => $data['data_source_api_url'] ?: '',
-                "data_source_api_url_detail" => $data['data_source_api_url_detail'] ?: "",
-                "data_source_field_mapping" => $data['data_source_field_mapping'] ?: null,
-                "page_num" => $data['page_num'] ?: 20,
-                "list_page_template" => $data['list_page_template'],
-                "home_page_title" => $data['home_page_title'],
-                "home_page_describe" => $data['home_page_describe'],
+                "type" => $data['type'],
                 "show_home_page" => $data['show_home_page'],
                 "home_page_num" => $data['home_page_num'],
                 "home_page_sort" => $data['home_page_sort'],
-
                 "updated_at" => $data['updated_at']
             ];
 
-            if ($_FILES['home_page_bg_img']['size'] > 0) {
-                try {
-                    $updateData['home_page_bg_img'] = UploadFile($this->request, "home_page_bg_img", "model/" . date("Y/m/d/") . uniqid(), ALLOWEXT, __E("upload_driver"));
-                } catch (\Exception $exception) {
-                    return redirect("/admin/formtools/index")->with("pageDataMsg", $exception->getMessage());
-                }
-            }
+            $updateData['admin_config'] = json_encode($data['admin_config'], true);
+            $updateData['home_config'] = json_encode($data['home_config'], true);
+            $updateData['home_seo_config'] = json_encode($data['home_seo_config'], true);
+            $updateData['home_seo_detail_config'] = json_encode($data['home_seo_detail_config'], true);
+            $updateData['other_config'] = json_encode($data['other_config'], true);
+
 
             $res = FormModel::query()->where('id', $data['id'])->update($updateData);
             if ($res) {
@@ -301,6 +330,12 @@ class HomeController extends ModulesController {
         $pageData['subtitle'] = "万能模型编辑";
         $pageData['modules'] = event(new \Modules\Formtools\Events\GetFormToolsModules())[0];
         $pageData['data'] = DB::table("module_formtools_models")->where("id", $all['id'])->first();
+        $pageData['data']->admin_config = json_decode($pageData['data']->admin_config, true);
+        $pageData['data']->home_config = json_decode($pageData['data']->home_config, true);
+        $pageData['data']->home_seo_config = json_decode($pageData['data']->home_seo_config, true);
+        $pageData['data']->home_seo_detail_config = json_decode($pageData['data']->home_seo_detail_config, true);
+        $pageData['data']->other_config = json_decode($pageData['data']->other_config, true);
+
         return view("formtools::admin.index.modelEdit", [
             "pageData" => $pageData
         ]);

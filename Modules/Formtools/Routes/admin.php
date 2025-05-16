@@ -39,11 +39,9 @@ Route::prefix('formtools')->middleware([CheckLoginByAdmin::class, CheckPermissio
         Route::any('/model', 'ModelController@loadModel')->name('追加模型');
     });
 
-
-    Route::any('/testAdd', 'TestController@Add');
-    Route::any('/testEdit', 'TestController@Edit');
-    Route::any('/testdo', 'TestController@Handle');
-    Route::any('/testindex', 'TestController@index');
+    Route::group(['as' => '模块设置@'], function () {
+        Route::any('/setting', 'SettingController@setting')->name('基本设置');
+    });
 
 
 });

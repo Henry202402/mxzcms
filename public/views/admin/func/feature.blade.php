@@ -152,7 +152,7 @@
                                             </div>
                                             <div class="d-inline-block module-update-{{$modules_install_data['identification']}} text-danger"
                                                  style="cursor: pointer;visibility: hidden;"
-                                                 onclick="updateVersion('{{$modules_install_data['identification']}}','module')"
+                                                 onclick="updateVersion('{{$modules_install_data['identification']}}','module','{{session()->get("module_".$modules_install_data["identification"])}}')"
                                             >
                                                 &nbsp;&nbsp;
                                                 更新版本

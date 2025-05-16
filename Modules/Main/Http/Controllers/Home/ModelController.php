@@ -26,12 +26,18 @@ class ModelController extends ModulesController {
         if (!$model) return abort(404);
 
         $model['fields'] = $model['fields'] ? json_decode($model['fields'], true) : [];
+        $model['other_config'] = json_decode($model['other_config'], true);
+        $model['home_config'] = json_decode($model['home_config'], true);
+        $model['home_seo_config'] = json_decode($model['home_seo_config'], true);
+        $model['home_seo_detail_config'] = json_decode($model['home_seo_detail_config'], true);
 
-        if ($model['data_source'] == "api") {
 
-            $curldatas = json_decode(curl_request($model['data_source_api_url']), true);
-            $model['data_source_field_mapping'] = str_replace("\r\n", "\n", $model['data_source_field_mapping']);
-            $data_source_field_mapping = explode("\n", $model['data_source_field_mapping']);
+
+        if ($model['other_config']['data_source'] == "api") {
+
+            $curldatas = json_decode(curl_request($model['other_config']['data_source_api_url']), true);
+            $model['other_config']['data_source_field_mapping'] = str_replace("\r\n", "\n", $model['other_config']['data_source_field_mapping']);
+            $data_source_field_mapping = explode("\n", $model['other_config']['data_source_field_mapping']);
             $data_source_field_mappings = [];
             foreach ($data_source_field_mapping as $v) {
                 $temp = explode("=>", $v);
@@ -46,13 +52,18 @@ class ModelController extends ModulesController {
             }
 
         } else {
-            $list = Common::query()->from("module_formtools_{$model['identification']}")->latest('id');
-            if ($model['page_num'] > 0) {
-                //$model['page_num']
-                $list = $list->paginate(6);
-            } else {
-                $list = $list->get()->toArray();
+            $list = Common::query()->from("module_formtools_{$model['identification']}")->latest('id')->where("status",1);
+            if($model['type']=="multi"){
+                if ($model['home_config']['page_num'] > 0) {
+                    //$model['page_num']
+                    $list = $list->paginate(6);
+                } else {
+                    $list = $list->get()->toArray();
+                }
+            }else{
+                $list = $list->first();
             }
+
         }
 
         $param['model'] = $access;
@@ -67,11 +78,11 @@ class ModelController extends ModulesController {
                 ],
             ], JSON_UNESCAPED_UNICODE);
         }
-        return ModelView($model['list_template'] ?: 'list', [
-            'list' => $list,
+        return ModelView($model['home_config']['list_template'] ?: 'list', [
+            'data' => $list,
             'model' => $model,
             'param' => $param,
-            'data_source' => $model['data_source']
+            'data_source' => $model['other_config']['data_source']
         ]);
     }
 
@@ -89,12 +100,17 @@ class ModelController extends ModulesController {
             }
         }
         $model['fields'] = $model['fields'] ? json_decode($model['fields'], true) : [];
-        if ($model['data_source'] == "api") {
+        $model['other_config'] = json_decode($model['other_config'], true);
+        $model['home_config'] = json_decode($model['home_config'], true);
+        $model['home_seo_config'] = json_decode($model['home_seo_config'], true);
+        $model['home_seo_detail_config'] = json_decode($model['home_seo_detail_config'], true);
 
-            $curldatas = json_decode(curl_request($model['data_source_api_url_detail'] . $id), true);
+        if ($model['other_config']['data_source'] == "api") {
+
+            $curldatas = json_decode(curl_request($model['other_config']['data_source_api_url_detail'] . $id), true);
             $data = $curldatas["data"];
-            $model['data_source_field_mapping'] = str_replace("\r\n", "\n", $model['data_source_field_mapping']);
-            $data_source_field_mapping = explode('\n', $model['data_source_field_mapping']);
+            $model['other_config']['data_source_field_mapping'] = str_replace("\r\n", "\n", $model['other_config']['data_source_field_mapping']);
+            $data_source_field_mapping = explode('\n', $model['other_config']['data_source_field_mapping']);
             $data_source_field_mappings = [];
             foreach ($data_source_field_mapping as $v) {
                 $temp = explode("=>", $v);
@@ -104,10 +120,13 @@ class ModelController extends ModulesController {
             $list = $curldatas['other'];
 
         } else {
-            $data = Common::query()->from("module_formtools_{$model['identification']}")->where('id', $id)->first();
+            $data = Common::query()->from("module_formtools_{$model['identification']}")->where('id', $id)->where("status",1)->first();
             if (!$data) return abort(404);
+            //访问数加1
+            Common::query()->from("module_formtools_{$model['identification']}")->where('id', $id)->increment("access_count");
             $list = Common::query()->from("module_formtools_{$model['identification']}")
                 ->where($pid, $data[$pid])
+                ->where("status",1)
                 ->whereNot('id', $id)
                 ->latest('id')
                 ->limit(10)
@@ -115,9 +134,11 @@ class ModelController extends ModulesController {
                 ->toArray();
             $data['prev_id'] = Common::query()->from("module_formtools_{$model['identification']}")
                 ->where($pid, $data[$pid])
+                ->where("status",1)
                 ->where('id', '<', $id)->limit(1)->value('id');
             $data['last_id'] = Common::query()->from("module_formtools_{$model['identification']}")
                 ->where($pid, $data[$pid])
+                ->where("status",1)
                 ->where('id', '>', $id)->limit(1)->value('id');
         }
 
@@ -139,7 +160,7 @@ class ModelController extends ModulesController {
             ], JSON_UNESCAPED_UNICODE);
         }
 
-        return ModelView($model['detail_template'] ?: 'detail', [
+        return ModelView($model['home_config']['detail_template'] ?: 'detail', [
             'data' => $data,
             'list' => $list,
             'model' => $model,
@@ -148,8 +169,10 @@ class ModelController extends ModulesController {
     }
 
     public function handle($access) {
-        $model = FormModel::query()->where('access_identification', $access)->first();
+        $model = FormModel::query()->where('access_identification', $access)->first()->toArray();
+        $model['other_config'] = json_decode($model['other_config'], true);
+        $model['home_config'] = json_decode($model['home_config'], true);
         if (!$model) return back();
-        return ModelView($model['detail_template'] ?: 'handle', []);
+        return ModelView($model['home_config']['detail_template'] ?: 'handle', []);
     }
 }

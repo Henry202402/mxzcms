@@ -125,7 +125,7 @@ function seourl($url) {
     }
 }
 
-function curl_request_ms($url,$postData,$timeout = 10)
+function curl_request_ms($url,$postData,$timeout = 500)
 {
     // 初始化 cURL 会话
     $curl = curl_init();

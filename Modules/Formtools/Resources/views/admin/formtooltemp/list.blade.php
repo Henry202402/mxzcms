@@ -33,6 +33,12 @@
                     </form>
                 @endif
                 <div class="">
+                    @if($pageData['tips'])
+                        <div class="alert alpha-orange-600 border-orange alert-styled-left">
+                            <button type="button" class="close" data-dismiss="alert"><span>×</span><span class="sr-only">Close</span></button>
+                            {{$pageData['tips']}}
+                        </div>
+                    @endif
                     <div class="table-responsive panel panel-default">
                         <div class="panel-heading">
                             @foreach($pageData['listActions'] as $act)

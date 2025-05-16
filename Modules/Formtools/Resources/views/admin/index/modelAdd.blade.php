@@ -132,9 +132,9 @@
                                             后台表单模板
                                         </label>
                                         <div class="col-lg-11">
-                                            <select name="form_template" class="form-control">
-                                                <option value="">并列模板</option>
-                                                <option value="">独行模板</option>
+                                            <select name="admin_config[form_template]" class="form-control">
+                                                <option value="row">并列模板</option>
+                                                <option value="solo">独行模板</option>
                                             </select>
                                         </div>
                                     </div>
@@ -148,7 +148,7 @@
                                             列表模板
                                         </label>
                                         <div class="col-lg-5">
-                                            <select name="list_template" class="form-control">
+                                            <select name="home_config[list_template]" class="form-control">
                                                 @foreach(\Modules\Formtools\Helper\FormFunc::listTemplate() as $key=>$value)
                                                     <option value="{{$key}}"
                                                             @if($key=='list') selected @endif >{{$value}}</option>
@@ -157,7 +157,7 @@
                                         </div>
 
                                         <div class="col-lg-5">
-                                            <input type="text" value="" name="custom_list_template"
+                                            <input type="text" value="" name="home_config[custom_list_template]"
                                                    class="form-control"
                                                    placeholder="自定义模板名称">
                                             <span class="help-block">自定义模板名称，例如 template.blade.php，只需要填写 template ，不需要后缀.blade.php</span>
@@ -165,23 +165,10 @@
                                     </div>
                                     <div class="form-group">
                                         <label class="col-lg-1 control-label">
-                                            详情模板
-                                        </label>
-                                        <div class="col-lg-11">
-                                            <select name="detail_template" class="form-control">
-                                                @foreach(\Modules\Formtools\Helper\FormFunc::detailTemplate() as $key=>$value)
-                                                    <option value="{{$key}}"
-                                                            @if($key=='detail') selected @endif>{{$value}}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="col-lg-1 control-label">
                                             列表分页数量
                                         </label>
                                         <div class="col-lg-11">
-                                            <input type="text" value="20" name="page_num" class="form-control"
+                                            <input type="text" value="20" name="home_config[page_num]" class="form-control"
                                                    placeholder="分页数量" required>
                                             <span class="help-block">分页数量，每页显示的条数，0代表全部</span>
                                         </div>
@@ -191,7 +178,7 @@
                                             列表分页样式
                                         </label>
                                         <div class="col-lg-11">
-                                            <select name="list_page_template" class="form-control">
+                                            <select name="home_config[list_page_template]" class="form-control">
                                                 <option value="center">分页居中</option>
                                                 <option value="left">分页居左</option>
                                                 <option value="right">分页居右</option>
@@ -201,51 +188,89 @@
 
                                     <div class="form-group">
                                         <label class="col-lg-1 control-label">
-                                            列表头部页面标题
+                                            详情页模板
                                         </label>
-                                        <div class="col-lg-11">
-                                            <input type="text" value="" name="home_page_title" class="form-control"
-                                                   placeholder="前台页面标题">
+                                        <div class="col-lg-5">
+                                            <select name="home_config[detail_template]" class="form-control">
+                                                @foreach(\Modules\Formtools\Helper\FormFunc::detailTemplate() as $key=>$value)
+                                                    <option value="{{$key}}"
+                                                            @if($key=='detail') selected @endif>{{$value}}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        <div class="col-lg-5">
+                                            <input type="text" name="home_config[custom_detail_template]"
+                                                   class="form-control"
+                                                   placeholder="自定义详情模板名称">
+                                            <span class="help-block">自定义详情模板名称，例如 detail.blade.php，只需要填写 detail ，不需要后缀.blade.php</span>
                                         </div>
                                     </div>
 
                                     <div class="form-group">
                                         <label class="col-lg-1 control-label">
-                                            列表头部页面简介
+                                            详情页面标题
                                         </label>
                                         <div class="col-lg-11">
-                                            <textarea name="home_page_describe" class="form-control" rows="5" placeholder="前台页面简介"></textarea>
+                                            <input type="text" value=""
+                                                   name="home_config[detail_page_title]" class="form-control"
+                                                   placeholder="详情页面标题">
                                         </div>
                                     </div>
 
                                     <div class="form-group">
                                         <label class="col-lg-1 control-label">
-                                            列表头部背景图
+                                            详情页面简介
+                                        </label>
+                                        <div class="col-lg-11">
+                                            <textarea name="home_config[detail_page_describe]" class="form-control" rows="5"
+                                                      placeholder="详情页面简介"></textarea>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="col-lg-1 control-label">
+                                            详情区块背景类型
+                                        </label>
+                                        <div class="col-lg-11">
+                                            <label class="radio-inline">
+                                                <input type="radio" class="styled h-radio"  checked
+                                                        value="color" name="home_config[detail_page_show_type]">
+                                                <span class="h-span-val">纯色</span>
+                                            </label>
+                                            <label class="radio-inline">
+                                                <input type="radio" class="styled h-radio"  value="img" name="home_config[detail_page_show_type]">
+                                                <span class="h-span-val">图片</span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="col-lg-1 control-label">
+                                            详情区块背景颜色
+                                        </label>
+                                        <div class="col-lg-11">
+                                            <input type="text" value=""
+                                                   name="home_config[detail_page_bg_color]" class="form-control"
+                                                   placeholder="详情页面区块背景颜色">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="col-lg-1 control-label">
+                                            详情块背景图
                                         </label>
                                         <div class="col-lg-11">
                                             <div class="media no-margin-top">
-                                                @if($pageData['data']->home_page_bg_img)
-                                                    <div class="media-left">
-                                                        <img src="{{GetUrlByPath($pageData['data']->home_page_bg_img)}}"
-                                                             style="width: 35px; height: 35px;" class="img-rounded">
-                                                    </div>
-                                                @endif
                                                 <div class="media-body">
-                                                    <input type="file" name="home_page_bg_img" class="file-styled"
+                                                    <input type="file" name="detail_page_bg_img" class="file-styled"
                                                            accept="image/*">
                                                 </div>
                                             </div>
-                                            <script>
-                                                $(function () {
-                                                    // Primary file input
-                                                    $(".file-styled").uniform({
-                                                        wrapperClass: 'bg-warning',
-                                                        fileButtonHtml: '<i class="icon-googleplus5"></i>'
-                                                    });
-                                                })
-                                            </script>
                                         </div>
                                     </div>
+
+
 
                                     <div class="form-group">
                                         <label class="col-lg-1 control-label">
@@ -281,6 +306,115 @@
                                                    placeholder="显示在前台的顺序【升序排序】，从小到大排序，默认为0">
                                         </div>
                                     </div>
+                                    <div class="form-group">
+                                        <label class="col-lg-1 control-label">
+                                            首页页面标题
+                                        </label>
+                                        <div class="col-lg-3">
+                                            <input type="text" value=""
+                                                   name="home_config[home_page_title]" class="form-control"
+                                                   placeholder="首页页面标题">
+                                        </div>
+                                        <label class="col-lg-1 control-label">
+                                            首页页面标题大小
+                                        </label>
+                                        <div class="col-lg-3">
+                                            <input type="text" value=""
+                                                   name="home_config[home_page_title_size]" class="form-control"
+                                                   placeholder="首页页面标题大小">
+                                        </div>
+                                        <label class="col-lg-1 control-label">
+                                            首页页面标题颜色
+                                        </label>
+                                        <div class="col-lg-3">
+                                            <input type="text" value=""
+                                                   name="home_config[home_page_title_color]" class="form-control"
+                                                   placeholder="首页页面标题颜色">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="col-lg-1 control-label">
+                                            首页页面简介
+                                        </label>
+                                        <div class="col-lg-11">
+                                            <textarea name="home_config[home_page_describe]" class="form-control" rows="5"
+                                                      placeholder="首页页面简介"></textarea>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="col-lg-1 control-label">
+                                            首页页面简介大小
+                                        </label>
+                                        <div class="col-lg-5">
+                                            <input type="text" value=""
+                                                   name="home_config[home_page_describe_size]" class="form-control"
+                                                   placeholder="首页页面标题大小">
+                                            </select>
+                                        </div>
+                                        <label class="col-lg-1 control-label">
+                                            首页页面简介颜色
+                                        </label>
+                                        <div class="col-lg-5">
+                                            <input type="text" value=""
+                                                   name="home_config[home_page_describe_color]" class="form-control"
+                                                   placeholder="首页页面简介颜色">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="col-lg-1 control-label">
+                                            首页区块背景类型
+                                        </label>
+                                        <div class="col-lg-11">
+                                            <label class="radio-inline">
+                                                <input type="radio" class="styled h-radio"
+                                                        checked
+                                                        value="color" name="home_config[show_home_type]">
+                                                <span class="h-span-val">纯色</span>
+                                            </label>
+                                            <label class="radio-inline">
+                                                <input type="radio" class="styled h-radio"
+                                                        value="img" name="home_config[show_home_type]">
+                                                <span class="h-span-val">图片</span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="col-lg-1 control-label">
+                                            首页区块背景颜色
+                                        </label>
+                                        <div class="col-lg-11">
+                                            <input type="text" value=""
+                                                   name="home_config[home_page_bg_color]" class="form-control"
+                                                   placeholder="首页区块背景颜色">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="col-lg-1 control-label">
+                                            首页区块背景图
+                                        </label>
+                                        <div class="col-lg-11">
+                                            <div class="media no-margin-top">
+                                                <div class="media-body">
+                                                    <input type="file" name="home_page_bg_img" class="file-styled"
+                                                           accept="image/*">
+                                                </div>
+                                            </div>
+                                            <script>
+                                                $(function () {
+                                                    // Primary file input
+                                                    $(".file-styled").uniform({
+                                                        wrapperClass: 'bg-warning',
+                                                        fileButtonHtml: '<i class="icon-googleplus5"></i>'
+                                                    });
+                                                })
+                                            </script>
+                                        </div>
+                                    </div>
 
 
 
@@ -295,7 +429,7 @@
                                             标题
                                         </label>
                                         <div class="col-lg-11">
-                                            <input type="text" name="" class="form-control"
+                                            <input type="text" name="home_seo_config[title]" class="form-control"
                                                    placeholder="SEO标题">
                                         </div>
                                     </div>
@@ -305,7 +439,7 @@
                                             关键词
                                         </label>
                                         <div class="col-lg-11">
-                                            <input type="text" name="" class="form-control"
+                                            <input type="text" name="home_seo_config[keyword]" class="form-control"
                                                    placeholder="SEO关键词">
                                         </div>
                                     </div>
@@ -315,7 +449,7 @@
                                             描述
                                         </label>
                                         <div class="col-lg-11">
-                                            <textarea name="" id="" cols="30" rows="4" placeholder="SEO描述" class="form-control"></textarea>
+                                            <textarea name="home_seo_config[describe]" id="" cols="30" rows="4" placeholder="SEO描述" class="form-control"></textarea>
                                         </div>
                                     </div>
 
@@ -325,7 +459,7 @@
                                             标题
                                         </label>
                                         <div class="col-lg-11">
-                                            <input type="text" name="" class="form-control"
+                                            <input type="text" name="home_seo_detail_config[title]" class="form-control"
                                                    placeholder="SEO标题">
                                         </div>
                                     </div>
@@ -335,7 +469,7 @@
                                             关键词
                                         </label>
                                         <div class="col-lg-11">
-                                            <input type="text" name="" class="form-control"
+                                            <input type="text" name="home_seo_detail_config[keyword]" class="form-control"
                                                    placeholder="SEO关键词">
                                         </div>
                                     </div>
@@ -345,7 +479,7 @@
                                             描述
                                         </label>
                                         <div class="col-lg-11">
-                                            <textarea name="" id="" cols="30" rows="4" placeholder="SEO描述" class="form-control"></textarea>
+                                            <textarea name="home_seo_detail_config[describe]" id="" cols="30" rows="4" placeholder="SEO描述" class="form-control"></textarea>
                                         </div>
                                     </div>
 
@@ -360,14 +494,14 @@
                                         <div class="col-lg-11">
 
                                             <label class="radio-inline">
-                                                <input type="radio" name="data_source" class="styled h-radio"
+                                                <input type="radio" name="other_config[data_source]" class="styled h-radio"
                                                        value="local"
                                                        checked>
                                                 <span class="h-span-val">本地</span>
                                             </label>
 
                                             <label class="radio-inline">
-                                                <input type="radio" name="data_source" class="styled h-radio"
+                                                <input type="radio" name="other_config[data_source]" class="styled h-radio"
                                                        value="api"
                                                 >
                                                 <span class="h-span-val">API</span>
@@ -380,7 +514,7 @@
                                             API请求列表地址
                                         </label>
                                         <div class="col-lg-11">
-                                            <input type="text" name="data_source_api_url" class="form-control"
+                                            <input type="text" name="other_config[data_source_api_url]" class="form-control"
                                                    placeholder="数据源API请求列表地址">
                                         </div>
                                     </div>
@@ -390,7 +524,7 @@
                                             API请求详情地址
                                         </label>
                                         <div class="col-lg-11">
-                                            <input type="text" name="data_source_api_url_detail" class="form-control"
+                                            <input type="text" name="other_config[data_source_api_url_detail]" class="form-control"
                                                    placeholder="数据源API请求详情地址">
                                         </div>
                                     </div>
@@ -400,7 +534,7 @@
                                             API字段映射
                                         </label>
                                         <div class="col-lg-11">
-                                        <textarea class="form-control" name="data_source_field_mapping" rows="10"
+                                        <textarea class="form-control" name="other_config[data_source_field_mapping]" rows="10"
                                                   placeholder="API字段映射，多个按回车键"></textarea>
                                             <span class="help-block">
                                             name=>title<br>
@@ -442,12 +576,12 @@
 @include(moduleAdminTemplate($moduleName)."public.js")
 
 <script>
-    $('input[name="data_source"]').click(function () {
+    $('input[name="other_config[data_source]"]').click(function () {
         dataSourceClick();
     });
 
     function dataSourceClick() {
-        var data_source = $('input[name="data_source"]:checked').val();
+        var data_source = $('input[name="other_config[data_source]"]:checked').val();
         if (data_source == 'api') {
             $('.data_source_api').show();
         } else {

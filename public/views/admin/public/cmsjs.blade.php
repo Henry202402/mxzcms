@@ -148,90 +148,55 @@
 
     }
     //更新
-    function update(identification,cloudtype) {
+    function update(identification,cloudtype,msg=null) {
 
-        layer.open({
-            type: 1,
-            skin: 'layui-layer-demo', //样式类名
-            closeBtn: 1, //不显示关闭按钮
-            anim: 2,
-            shadeClose: false, //开启遮罩关闭
-            content: '<div class="col-md-12">\n' +
-                '    <div class="card">\n' +
-                '        <div class="card-header card-default">\n' +
-                '            正在下载最新版本，请稍后...\n' +
-                '        </div>\n' +
-                '        <div class="card-body">\n' +
-                '            <div class="progress-info text-muted">完成 <span class="float-right" id="progress-info">0%</span></div>\n' +
-                '            <div class="progress">\n' +
-                '                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>\n' +
-                '            </div>\n' +
-                '        </div>\n' +
-                '    </div>\n' +
-                '</div>'
-        });
+        //检查版本限制
+        if(msg){
+            layer.closeAll();
+            layer.msg(msg);
+            return;
+        }else {
+            var params = "?identification="+identification+"&cloudtype="+cloudtype;
+            $.ajax({
+                headers: {
+                    'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                },
+                "method": "post",
+                "url": "{{url('admin/cms/checklimit')}}" + params,
+                "timeout": 0,
+                "dataType": 'json',
+                "cache": false,
+                "processData": false,
+                "contentType": false,
+            })
+                .done(function (data) {
+                    if(data.status==200){
 
-        var file_size = 0;
-        var progress = 0;
+                        layer.open({
+                            type: 1,
+                            skin: 'layui-layer-demo', //样式类名
+                            closeBtn: 1, //不显示关闭按钮
+                            anim: 2,
+                            shadeClose: false, //开启遮罩关闭
+                            content: '<div class="col-md-12">\n' +
+                                '    <div class="card">\n' +
+                                '        <div class="card-header card-default">\n' +
+                                '            正在下载最新版本，请稍后...\n' +
+                                '        </div>\n' +
+                                '        <div class="card-body">\n' +
+                                '            <div class="progress-info text-muted">完成 <span class="float-right" id="progress-info">0%</span></div>\n' +
+                                '            <div class="progress">\n' +
+                                '                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>\n' +
+                                '            </div>\n' +
+                                '        </div>\n' +
+                                '    </div>\n' +
+                                '</div>'
+                        });
 
-        var params = '?identification='+identification+'&action=prepare-download&cloudtype=' + cloudtype;
+                        var file_size = 0;
+                        var progress = 0;
 
-        $.ajax({
-            headers: {
-                'X-CSRF-TOKEN': "{{ csrf_token() }}"
-            },
-            "method": "post",
-            "url": "{{url('admin/cms/updateCmsVersion')}}" + params,
-            "timeout": 0,
-            "dataType": 'json',
-            "cache": false,
-            "processData": false,
-            "contentType": false,
-        })
-            .done(function (json) {
-
-                file_size = json.file_size;
-
-                var params = "?identification="+identification+"&action=start-download&cloudtype="+cloudtype;
-
-                $.ajax({
-                    headers: {
-                        'X-CSRF-TOKEN': "{{ csrf_token() }}"
-                    },
-                    "method": "post",
-                    "url": "{{url('admin/cms/updateCmsVersion')}}" + params,
-                    "timeout": 0,
-                    "dataType": 'json',
-                    "cache": false,
-                    "processData": false,
-                    "contentType": false,
-                })
-                    .done(function (json) {
-                        // set progress to 100 when got the response
-                        if(json.status == 200){
-                            setTimeout(function () {
-                                progress = 100;
-                                Finished(identification,cloudtype);
-                            }, 1000);
-                        }else {
-                            clearInterval(interval_id);
-                            layer.closeAll();
-                            popup({type: "error", msg: json.msg, delay: 2000});
-                        }
-                        console.log("Downloading finished");
-                        console.log(json);
-                    })
-                    .fail(showAjaxError);
-
-                interval_id = window.setInterval(function () {
-
-                    $('#progress-info').html(progress + "%");
-                    $('.progress-bar').css('width', progress + '%').attr('aria-valuenow', progress).html(progress + "%");
-
-                    if (progress >= 100) {
-                        //Finished(identification,cloudtype);
-                    } else {
-                        var params = '?identification='+identification+'&action=get-file-size&cloudtype=' + cloudtype;
+                        var params = '?identification='+identification+'&action=prepare-download&cloudtype=' + cloudtype;
 
                         $.ajax({
                             headers: {
@@ -247,21 +212,90 @@
                         })
                             .done(function (json) {
 
-                                /*let file_size2 = file_size * 10000;
-                                progress = Math.floor(json.size / file_size2) / 100 ;*/
-                                progress = (json.size / file_size).toFixed(2) * 100;
+                                file_size = json.file_size;
 
-                                // updateProgress(progress);
+                                var params = "?identification="+identification+"&action=start-download&cloudtype="+cloudtype;
 
-                                console.log("Progress: " + progress);
+                                $.ajax({
+                                    headers: {
+                                        'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                                    },
+                                    "method": "post",
+                                    "url": "{{url('admin/cms/updateCmsVersion')}}" + params,
+                                    "timeout": 0,
+                                    "dataType": 'json',
+                                    "cache": false,
+                                    "processData": false,
+                                    "contentType": false,
+                                })
+                                    .done(function (json) {
+                                        // set progress to 100 when got the response
+                                        if(json.status == 200){
+                                            setTimeout(function () {
+                                                progress = 100;
+                                                Finished(identification,cloudtype);
+                                            }, 1000);
+                                        }else {
+                                            clearInterval(interval_id);
+                                            layer.closeAll();
+                                            popup({type: "error", msg: json.msg, delay: 2000});
+                                        }
+                                        console.log("Downloading finished");
+                                        console.log(json);
+                                    })
+                                    .fail(showAjaxError);
+
+                                interval_id = window.setInterval(function () {
+
+                                    $('#progress-info').html(progress + "%");
+                                    $('.progress-bar').css('width', progress + '%').attr('aria-valuenow', progress).html(progress + "%");
+
+                                    if (progress >= 100) {
+                                        //Finished(identification,cloudtype);
+                                    } else {
+                                        var params = '?identification='+identification+'&action=get-file-size&cloudtype=' + cloudtype;
+
+                                        $.ajax({
+                                            headers: {
+                                                'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                                            },
+                                            "method": "post",
+                                            "url": "{{url('admin/cms/updateCmsVersion')}}" + params,
+                                            "timeout": 0,
+                                            "dataType": 'json',
+                                            "cache": false,
+                                            "processData": false,
+                                            "contentType": false,
+                                        })
+                                            .done(function (json) {
+
+                                                /*let file_size2 = file_size * 10000;
+                                                progress = Math.floor(json.size / file_size2) / 100 ;*/
+                                                progress = (json.size / file_size).toFixed(2) * 100;
+
+                                                // updateProgress(progress);
+
+                                                console.log("Progress: " + progress);
+                                            })
+                                            .fail(showAjaxError);
+                                    }
+
+                                }, 1000);
+
                             })
                             .fail(showAjaxError);
+                    }else {
+                        layer.closeAll();
+                        layer.msg(data.msg);
+                        return;
                     }
 
-                }, 1000);
+                })
+                .fail(function () {
 
-            })
-            .fail(showAjaxError);
+                });
+        }
+
 
     }
     function Finished(identification,cloudtype) {
@@ -374,7 +408,7 @@
         });
     }
 
-    function updateVersion(identification,cloudtype){
+    function updateVersion(identification,cloudtype,msg){
         $.confirm({
             title: '{{getTranslateByKey("common_tip")}}',
             content: '确定更新版本吗？',
@@ -385,7 +419,7 @@
                     btnClass: 'btn-primary',
                     keys: ['enter'],
                     action: function () {
-                        update(identification,cloudtype);
+                        update(identification,cloudtype,msg);
                     }
                 },
                 cancel: {

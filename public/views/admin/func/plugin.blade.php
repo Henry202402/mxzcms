@@ -125,7 +125,7 @@
 
                                             <div class="d-inline-block module-update-{{$install_data['identification']}} text-danger"
                                                  style="cursor: pointer;visibility: hidden;"
-                                                 onclick="updateVersion('{{$install_data['identification']}}','plugin')"
+                                                 onclick="updateVersion('{{$install_data['identification']}}','plugin','{{session()->get("plugin_".$install_data["identification"])}}')"
                                             >
                                                 &nbsp;&nbsp;
                                                 更新版本

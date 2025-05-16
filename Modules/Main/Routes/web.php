@@ -20,10 +20,9 @@ use Modules\Main\Http\Middleware\CheckHomeLogin;
 Route::middleware([CheckHome::class,\Modules\Main\Http\Middleware\AccessLog::class])->group(function () {
     Route::any('/', [HomeController::class, 'index']);
     Route::any('/index', [HomeController::class, 'index']);
-    Route::get('/about', [HomeController::class, 'about']);
-    Route::get('/contacts', [HomeController::class, 'contacts']);
     Route::get('/lang', [HomeController::class, 'lang']);
     Route::get('/list/{model}', [ModelController::class, 'list']);
+    Route::get('/page/{model}', [ModelController::class, 'list']);
     Route::get('/detail/{model}/{id}', [ModelController::class, 'detail']);
     Route::post('/handle/{model}', [ModelController::class, 'handle']);
 

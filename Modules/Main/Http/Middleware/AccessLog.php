@@ -12,8 +12,8 @@ class AccessLog {
         $routeArr = getURIByRoute($request);
         hook("Loger", [
             'module' => $routeArr['moduleName'],
-            'type' => 1,
-            'two_type' => 1,
+            'type' => "access",
+            'two_type' => "web",
             'params' => [],
             'remark' => "访问页面",
             'unique_id' => $userInfo['uid'] ?: '',

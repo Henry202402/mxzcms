@@ -4,20 +4,35 @@
 <div class="page js-page ">
     @include("themes.default.public.topMenu",['model'=>['home_page_title'=>true]])
 
-    @if(cacheGlobalSettingsByKey("home_screen")=="on")
-        <div class="header-back header-back-default header-back-full-page js-full-page"
-             @if(cacheGlobalSettingsByKey('home_screen_image')) style="background-image: url({{GetLocalFileByPath(cacheGlobalSettingsByKey('home_screen_image'))}})" @endif
-
-        >
-            {!! cacheGlobalSettingsByKey('home_screen_code') !!}
-        </div>
-    @endif
+    @foreach(hook("ShowAD",['moduleName'=>"AD",'pageData'=>['identification'=>'homepage','adtype'=>'banner']]) as $item)
+        @foreach($item as $item2)
+            <div class="header-back header-back-default header-back-full-page js-full-page"
+             style="background-image: url({{GetUrlByPath($item2->image)}});background-repeat: no-repeat;background-size: cover;background-position: center;">
+                <div class="header-back-container">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="page-info helper center">
+                                    @foreach(json_decode($item2->other_param,true) as $key=>$item3)
+                                         @if($key===0)
+                                                <h1 class="page-title">{{$item3['name']}}</h1>
+                                         @else
+                                                <h2 class="page-description">{{$item3['name']}}</h2>
+                                         @endif
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endforeach
+    @endforeach
 
     <div class="">
         @foreach($models as $index=>$model)
-            @if($model->list_template)
-                @include("themes.default.index.templates.".$model->list_template,[
-                    "cssClass"=>$index%2==0?"background-gradient-grey":"",
+            @if($model->home_config)
+                @include("themes.default.index.templates.".json_decode($model->home_config,true)['list_template'],[
                     "data"=>$model
                     ])
             @endif

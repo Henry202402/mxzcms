@@ -37,8 +37,8 @@ trait Func {
         if(Cache::get("homelangList")){
             $langList = Cache::get("homelangList");
         }else{
-            $langList = include public_path('views/themes/'.$theme.'/lang/'.$lang.'/lang.php');
-            Cache::put("homelangList",$langList);
+            $langList = file_get_contents(public_path('views/themes/'.$theme.'/lang/'.$lang.'/lang.json'));
+            Cache::put("homelangList",json_decode($langList,true));
         }
         return isset($langList[$langkey]) ? $langList[$langkey] : $langkey;
     }

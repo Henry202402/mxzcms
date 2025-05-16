@@ -77,8 +77,8 @@ class LoginController extends ModulesController {
                     //登录后台的事件
                     hook("Loger", [
                         'module' => 'Main',
-                        'type' => 3,
-                        'two_type' => 3,
+                        'type' => "operate",
+                        'two_type' => "passE",
                         'params' => [
                             'uid' => $first['uid'],
                             'username' => $first['username'],
@@ -103,8 +103,8 @@ class LoginController extends ModulesController {
             //登录后台的事件
             hook("Loger", [
                 'module' => 'Main',
-                'type' => 3,
-                'two_type' => 1,
+                'type' => "operate",
+                'two_type' => "loginS",
                 'params' => [
                     'uid' => $first['uid'],
                     'username' => $first['username'],

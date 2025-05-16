@@ -15,6 +15,5 @@ use Illuminate\Support\Facades\Route;
 use Modules\Main\Http\Middleware\CheckLoginByAdmin;
 
 Route::prefix('formtools')->middleware([CheckLoginByAdmin::class])->namespace('Api')->group(function () {
-    Route::get('/index', 'HomeController@index');
-
+    Route::get('/{access_identification}/release', 'HomeController@release');
 });

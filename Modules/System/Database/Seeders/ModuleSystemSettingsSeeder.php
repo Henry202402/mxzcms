@@ -208,38 +208,6 @@ class ModuleSystemSettingsSeeder extends Seeder
      'key' => 'page_width',
      'value' => 'container',
   ),
-  27 =>
-  array(
-     'module' => 'Main',
-     'type' => 'theme',
-     'key' => 'home_screen',
-     'value' => 'on',
-  ),
-  28 =>
-  array(
-     'module' => 'Main',
-     'type' => 'theme',
-     'key' => 'home_screen_code',
-     'value' => '<div class="header-back-container">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="page-info helper center">
-                                <h1 class="page-title">嗨，别来无恙！</h1>
-                                <h2 class="page-description">听闻远方有你，你若安好，便是晴天</h2>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>',
-  ),
-  29 =>
-  array(
-     'module' => 'Main',
-     'type' => 'theme',
-     'key' => 'home_screen_image',
-     'value' => NULL,
-  ),
   30 =>
   array(
      'module' => 'Main',
@@ -387,7 +355,9 @@ spider',
      'module' => 'Main',
      'type' => 'website',
      'key' => 'website_status_when',
-     'value' => '正常的',
+     'value' => '<h2>网站维护中...</h2>
+<h4>为了让您更好的使用系统，我们正在对服务器进行升级，升级期间暂时无法访问。</h4>
+<h4>给您带来的不便，敬请谅解！</h4>',
   ),
   51 =>
   array(

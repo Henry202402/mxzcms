@@ -47,10 +47,10 @@ class AsynController extends BaseController {
         // 执行一些任务或等待新数据
         hook("Loger", [
             'module' => $all['moduleName'],
-            'type' => 4,
-            'two_type' => 3,
+            'type' => "system",
+            'two_type' => "asyn",
             'params' => $all,
-            'remark' => "开始异步记录",
+            'remark' => "{$all['moduleName']}、{$all['actionName']}开始异步记录",
             'unique_id' => '',
             'requestid' => $all['requestid']
         ]);
@@ -63,10 +63,10 @@ class AsynController extends BaseController {
         //日志记录
         hook("Loger", [
             'module' => $all['moduleName'],
-            'type' => 4,
-            'two_type' => 3,
+            'type' => "system",
+            'two_type' => "asyn",
             'params' => $all,
-            'remark' => "异步记录结束,结果：{$res}",
+            'remark' => "{$all['moduleName']}、{$all['actionName']}异步记录结束,结果：{$res}",
             'unique_id' => '',
             'requestid' => $all['requestid']
         ]);

@@ -67,8 +67,8 @@ class UpdateUserInfo {
 
         hook("Loger", [
             'module' => $all['moduleName'],
-            'type' => 3,
-            'two_type' => 5,
+            'type' => "operate",
+            'two_type' => "edit" ,
             'params' => $array,
             'remark' => $remark,
             'unique_id' => $all['uid'],

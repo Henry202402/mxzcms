@@ -168,14 +168,14 @@
                                                     </div>
                                                 @else
                                                     <div class="d-inline-block text-success cursor"
-                                                         onclick="updateVersion('{{$modules_install_data['identification']}}','module')">
+                                                         onclick="updateVersion('{{$modules_install_data['identification']}}','module','{{session()->get("module_".$modules_install_data['identification'])}}')">
                                                         <span class="fa fa-refresh"></span>
                                                         更新
                                                     </div>
                                                 @endif
                                             @else
                                                 <div class="d-inline-block cursor"
-                                                     onclick="update('{{$modules_install_data['identification']}}','module')">
+                                                     onclick="update('{{$modules_install_data['identification']}}','module','{{session()->get("module_".$modules_install_data['identification'])}}')">
                                                     <span class="icon-cloud-download"></span>
                                                     安装
                                                 </div>

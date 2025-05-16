@@ -49,8 +49,8 @@ class ModulesController extends BaseController {
             $module = getURIByRoute($this->request)['moduleName'];
             hook("Loger", [
                 'module' => $module,
-                'type' => 4,
-                'two_type' => 2,
+                'type' => "system",
+                'two_type' => 'slow',
                 'params' => $array,
                 'remark' => $array['code'],
                 'unique_id' => "",

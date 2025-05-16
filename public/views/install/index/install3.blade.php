@@ -112,7 +112,7 @@
                         <tr>
                             <td class="text-left">网站描述：</td>
                             <td colspan="2">
-                                <textarea class="form-control col-md-6 col-sm-9 "  rows="10" name="website_desc">{{$cms_name}}是基于PHP laravel框架的内容管理系统，采用低耦合、模块化设计思想，适用各行各业使用。感谢广大企业、个人、开发者的支持。</textarea>
+                                <textarea class="form-control col-md-6 col-sm-9 "  rows="10" name="website_desc">{{$cms_name}} 是一款基于 Laravel 框架开发的模块化内容管理系统，提供直观易用的界面，支持插件、主题和模块扩展，适用于个人博客、企业官网、知识付费、电商平台等多种网站类型，轻松构建灵活、高效的内容管理平台，助您轻松打造个性化网站。</textarea>
                                 <div id="js-install-tip-website_desc" class="text-muted"></div>
                             </td>
 

@@ -17,8 +17,8 @@ class ExceptionHandler
         $array = dealErrorExceptionInfo($exception);
         hook("Loger",[
             'module' => $module?:"Main",
-            'type' => 4,
-            'two_type' => 1,
+            'type' => "system",
+            'two_type' => "error" ,
             'params' => $array,
             'remark' => "",
             'unique_id' => '',

@@ -20,4 +20,20 @@ class UpdateController extends ModulesController {
         return [];
     }
 
+    public function checklimit(){
+        $all = $this->request->all();
+        $data  = session()->get($all["cloudtype"]."_".$all["identification"]);
+        if($data){
+            return [
+                'status'=>0,
+                'msg' => $data
+            ];
+        }
+        return [
+            'status'=>200,
+            'msg' => ""
+        ];
+
+    }
+
 }

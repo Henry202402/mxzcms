@@ -16,7 +16,7 @@
                             </div>
 
                             <ul class="changelog-scroll-to-list">
-                                @foreach($list as $l)
+                                @foreach($data as $l)
                                     <li class="changelog-scroll-to-list-item">
                                         <a href="#" class="js-scroll-to" data-target="#v{{$l['id']}}">
                                             {{$l['title']}}
@@ -31,7 +31,7 @@
 
                     <!-- Changelog items -->
                     <div class="changelog-items">
-                        @foreach($list as $l)
+                        @foreach($data as $l)
                             <!-- Changelog item -->
                             <div id="v{{$l['id']}}" class="changelog-item js-changelog-item">
                                 <!-- Changelog item header -->

@@ -6,7 +6,7 @@
                     <div class="main-content">
                         <!-- Blog Page -->
                         <div class="blog">
-                            @foreach($list->chunk(3) as $li)
+                            @foreach($data->chunk(3) as $li)
                                 <div class="row">
                                     @foreach($li as $l)
                                         <div class="col-md-4 col-sm-4">
@@ -37,7 +37,7 @@
                         </div>
                         <div class="col-md-12">
                             @if ($model['page_num'] > 0)
-                                {{$list->appends($_GET)->links('themes.default.public.pagination',['data'=>['side_num'=>2,'page_position'=>$model['list_page_template']]])}}
+                                {{$data->appends($_GET)->links('themes.default.public.pagination',['data'=>['side_num'=>2,'page_position'=>$model['list_page_template']]])}}
                             @endif
                         </div>
                         <!-- End of Blog Page -->

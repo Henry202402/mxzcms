@@ -19,9 +19,9 @@ class Seo
             $seoconfig = call_user_func([new SeoController(),"GetSeo"],array_merge($pageData?:[],$data));
         }
 
-        return '<title>'.$seoconfig['title'].'  -- Powered By 梦小记CMS</title>
-    <meta name="description" content="'.$seoconfig['description'].'">
-    <meta name="keywords" content="'.$seoconfig['keywords'].'">';
+        return '<title>'.$seoconfig['title'].'</title>
+    <meta name="keywords" content="'.$seoconfig['keywords'].'">
+    <meta name="description" content="'.$seoconfig['description'].'">';
 
     }
 

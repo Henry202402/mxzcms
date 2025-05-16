@@ -8,6 +8,7 @@ use Mxzcms\Modules\session\SessionKey;
 
 class CheckHome {
     public function handle($request, Closure $next) {
+        if(!cacheGlobalSettingsByKey('website_status')) return response()->view('error.repair');
         $topMenu = hook('GetHomeMenu', ['moduleName' => 'System', 'position' => 'top'])[0];
         $bottomMenu = hook('GetHomeMenu', ['moduleName' => 'System', 'position' => 'bottom'])[0];
         $footerMenu = hook('GetHomeMenu', ['moduleName' => 'System', 'position' => 'footer'])[0];

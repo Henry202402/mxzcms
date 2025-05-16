@@ -29,7 +29,7 @@ class ModelController extends ModulesController {
 
     public function List($all) {
         $pageData = getURIByRoute($this->request);
-        $pageData['title'] = $all['modeldetaill']->name . "-列表";
+        $pageData['title'] = $all['modeldetaill']->name ;
 //        $pageData[''] = "列表";
         $pageData['model'] = $all['model'];
         $pageData['action'] = "model?action=List&model=" . $all['model'];
@@ -37,6 +37,7 @@ class ModelController extends ModulesController {
         foreach ($pageData['modeldetaill'] as $key => $modeldetaill) {
             if ($modeldetaill['is_show_list'] != 1) unset($pageData['modeldetaill'][$key]);
         }
+
         $leftJoin = [];
         $select = [];
         foreach ($pageData['modeldetaill'] as $k => $v) {
@@ -64,11 +65,20 @@ class ModelController extends ModulesController {
             $pageData['datas'] = $pageData['datas']->orderBy($tableName . ".sort", "desc");
         }
         $pageData['datas'] = $pageData['datas']->orderBy($tableName . ".id", "desc")
-            ->select(array_merge([$tableName . '.*'], $select))
-            ->paginate(getLen());
+            ->select(array_merge([$tableName . '.*'], $select));
+
+
         if ($all['moduleName']) $pageData['moduleName'] = $all['moduleName'];
-        unset($all);
-        return view("formtools::admin.model.list", [
+
+        if($all['modeldetaill']->type=="multi" || !$all['modeldetaill']->type){
+            $pageData['datas'] = $pageData['datas'] ->paginate(getLen());
+            return view("formtools::admin.model.list", [
+                "pageData" => $pageData
+            ]);
+        }
+        $pageData['datas'] = $pageData['datas'] ->first();
+
+        return view("formtools::admin.model.single", [
             "pageData" => $pageData
         ]);
     }
@@ -130,7 +140,11 @@ class ModelController extends ModulesController {
             ->csrf_field()->getData();
 
         $pageData = array_merge($formData, $pageData);
-
+        $pageData['status'] = $data->status;
+        $pageData['remark'] = $data->remark;
+        $pageData['seo_title'] = $data->seo_title;
+        $pageData['seo_keywords'] = $data->seo_keywords;
+        $pageData['seo_description'] = $data->seo_description;
         if ($all['moduleName']) $pageData['moduleName'] = $all['moduleName'];
         return view("formtools::admin.model.add&edit", [
             "pageData" => $pageData
@@ -167,8 +181,13 @@ class ModelController extends ModulesController {
         }
 
 
+        $insterdata['remark'] = $all['remark'];
+        $insterdata['seo_title'] = $all['seo_title'];
+        $insterdata['seo_keywords'] = $all['seo_keywords'];
+        $insterdata['seo_description'] = $all['seo_description'];
         $insterdata['updated_at'] = date("Y-m-d H:i:s", time());
         if ($all['id'] > 0) {
+            $insterdata['status'] = $all['status'];
             $res = DB::table($tableName)->where("id", $all['id'])->update($insterdata);
             if ($res) {
                 return redirect('admin/' . strtolower($pageData['moduleName']) . '/model?moduleName=' . $all['moduleName'] . '&action=List&model=' . $all['model'] . '&page=' . $all['page'])
@@ -178,6 +197,8 @@ class ModelController extends ModulesController {
             return back()->with("pageDataMsg", "修改失败");
         }
         $insterdata['created_at'] = date("Y-m-d H:i:s", time());
+        $insterdata['uid'] = session()->get('admin_info')->uid;
+        $insterdata['status'] = 1;
         $res = DB::table($tableName)->insertGetId($insterdata);
         if ($res) {
             return redirect('admin/' . strtolower($pageData['moduleName']) . '/model?moduleName=' . $all['moduleName'] . '&action=List&model=' . $all['model'])

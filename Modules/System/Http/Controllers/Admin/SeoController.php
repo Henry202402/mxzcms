@@ -132,23 +132,11 @@ class SeoController extends ModulesController {
         if($data['moduleName'] == "Main"){
             switch ($data['controller']){
                 case "Home\Model":
-                    switch ($data['action']){
-                        case "list":
-                            $seoconfig = [
-                                "title" => $this->replace($data,cacheGlobalSettingsByKey("seo_title")?:cacheGlobalSettingsByKey("website_name")),
-                                "keywords" => $this->replace($data,cacheGlobalSettingsByKey("seo_keywords")?:cacheGlobalSettingsByKey("website_keys")),
-                                "description" => $this->replace($data,cacheGlobalSettingsByKey("seo_website_desc")?:cacheGlobalSettingsByKey("website_desc"))
-                            ];
-                            break;
-                        case "detail":
-                            $seoconfig = [
-                                "title" => $this->replace($data,cacheGlobalSettingsByKey("seo_title_detail")?:cacheGlobalSettingsByKey("website_name")),
-                                "keywords" => $this->replace($data,cacheGlobalSettingsByKey("seo_keywords_detail")?:cacheGlobalSettingsByKey("website_keys")),
-                                "description" => $this->replace($data,cacheGlobalSettingsByKey("seo_website_desc_detail")?:cacheGlobalSettingsByKey("website_desc"))
-                            ];
-                            break;
-                    }
-
+                    $seoconfig = [
+                        "title" => $this->replace($data,'title'),
+                        "keywords" => $this->replace($data,'keyword'),
+                        "description" => $this->replace($data,'description')
+                    ];
                     break;
                 default:
                     $seoconfig = [
@@ -163,29 +151,94 @@ class SeoController extends ModulesController {
 
     }
 
-    private function replace($data,$string)
+    private function replace($data,$tdk=null)
     {
-        //"{{model_name}} 模型名称 {{data_title}} 页面标题 {{data_name}} 页面name {{model_home_page_title}} {{model_home_page_describe}}"
+
+        //" 动态字段
+        // {{model_name}} 模型名称
+        // {{detaill_title}} 页面标题
+        // {{detaill_name}} 页面name
+        // {{webname}} 网站名称
+        // {{model_home_page_title}}
+        // {{model_home_page_describe}}"
         if (isset($data['data']) && is_array($data['data'])) $data['data'] = (object)$data['data'];
         if (isset($data['model']) && is_array($data['model'])) $data['model'] = (object)$data['model'];
-        $string = str_replace("{{data_title}}", $data['data']->title, $string);
-        $string = str_replace("{{data_name}}", $data['data']->name, $string);
-        $string = str_replace("{{model_name}}", $data['model']->name, $string);
-        $string = str_replace("{{model_home_page_title}}", $data['model']->home_page_title, $string);
-        if($data['data']->content){
-            $string = str_replace(
-                "{{model_home_page_describe}}",
-                mb_substr(
-                    str_replace(
-                        array("<br>", "\r", "\n"),
-                    "",
-                    strip_tags($data['data']->content)
-                    ), 0, 190, 'utf8').'....',
-                $string
-            );
-        }else{
-            $string = str_replace("{{model_home_page_describe}}", $data['model']->home_page_describe, $string);
+        $string = "";
+        switch ($tdk){
+            case "title":
+                if($data['model']->type=="multi" && $data['action']=="list"){
+                    $home_seo_config = $data['model']->home_seo_config;
+                    $subject = $home_seo_config['title']?:cacheGlobalSettingsByKey("seo_title")?:$data['model']->name;
+
+                    $string = str_replace("{{model_name}}", $data['model']->name,$subject);
+
+                }else{
+                    if($data['data']->seo_title || $data['data']->name || $data['data']->title){
+                        $string = $data['data']->seo_title?:$data['data']->name?:$data['data']->title;
+                    }else{
+                        $home_seo_detail_config = $data['model']->home_seo_detail_config;
+                        $replace = $data['data']->title?:$data['data']->name?:$data['model']->name;
+                        $subject = $home_seo_detail_config['title']?cacheGlobalSettingsByKey("seo_title_detail"):$data['model']->name;
+
+                        $string = str_replace("{{detaill_title}}", $replace,$subject);
+                        if(!$string){
+                            $string = str_replace("{{model_name}}", $replace,$subject);
+                        }
+
+                    }
+                }
+
+
+                break;
+            case "keyword":
+                if($data['model']->type=="multi" && $data['action']=="list"){
+                    $home_seo_config = $data['model']->home_seo_config;
+                    $subject = $home_seo_config['keyword']?:cacheGlobalSettingsByKey("seo_keywords")?:cacheGlobalSettingsByKey("website_keys");
+                    $string = str_replace("{{model_name}}", $data['model']->name,$subject);
+
+                }else{
+                    if($data['data']->seo_keywords){
+                        $string = $data['data']->seo_keywords;
+                    }else{
+                        $home_seo_detail_config = $data['model']->home_seo_detail_config;
+                        $subject = $home_seo_detail_config['keyword']?:cacheGlobalSettingsByKey("seo_keywords_detail")?:cacheGlobalSettingsByKey("website_keys");
+                        $string = str_replace("{{detaill_title}}", $data['data']->title,$subject);
+                        if(!$string){
+                            $string = str_replace("{{detaill_name}}", $data['data']->name,$subject);
+                        }
+
+                        if(!$string){
+                            $string = str_replace("{{model_name}}", $data['model']->name,$subject);
+                        }
+                    }
+                }
+                break;
+            case "description":
+                if($data['model']->type=="multi" && $data['action']=="list"){
+                    $home_seo_config = $data['model']->home_seo_config;
+                    $subject = $home_seo_config['describe']?:cacheGlobalSettingsByKey("seo_website_desc")?:cacheGlobalSettingsByKey("website_desc");
+                    $string = str_replace("{{model_name}}", $data['model']->name,$subject);
+
+                }else{
+                    if($data['data']->seo_description){
+                        $string = $data['data']->seo_description;
+                    }else{
+                        if($data['data']->content){
+                            $string = mb_substr(
+                                    str_replace(
+                                        array("<br>", "\r", "\n"),
+                                        "",
+                                        strip_tags($data['data']->content)
+                                    ), 0, 190, 'utf8').'....';
+                        }
+                    }
+                }
+
+
+            default:
+
         }
+
         return $string;
     }
 

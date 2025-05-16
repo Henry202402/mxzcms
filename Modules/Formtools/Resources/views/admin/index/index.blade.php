@@ -74,6 +74,7 @@
                                 <th>模型标识</th>
                                 <th>一级菜单名称</th>
                                 <th>菜单icon</th>
+                                <th>模型类型</th>
                                 <th>显示前台</th>
                                 <th>前台顺序</th>
                                 <th>时间</th>
@@ -89,6 +90,7 @@
                                     <td>{{$d->identification}}</td>
                                     <td>{{$d->menuname}}</td>
                                     <td>{{$d->icon}}</td>
+                                    <td>{{$d->type=="single"?'单页模型':'多页模型'}}</td>
                                     <td>
                                         @if($d->show_home_page=="yes")
                                             <label class="label label-success">显示</label>

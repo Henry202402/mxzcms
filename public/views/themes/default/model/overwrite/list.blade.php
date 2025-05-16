@@ -2,7 +2,7 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12 dataList">
-                @foreach($list as $l)
+                @foreach($data as $l)
                     <!-- Note -->
                     <div class="note js-note {{['','green','blue','blue-light','purple','red'][rand(0,5)]}}">
                         <a href="{{url("detail/{$param['model']}/{$l['id']}")}}">
@@ -24,7 +24,7 @@
             </div>
             <div class="col-md-12">
                 @if ($model['page_num'] > 0 && $data_source=="local")
-                    {{$list->appends($_GET)->links('themes.default.public.pagination',['data'=>['side_num'=>2,'page_position'=>$model['list_page_template']]])}}
+                    {{$data->appends($_GET)->links('themes.default.public.pagination',['data'=>['side_num'=>2,'page_position'=>$model['list_page_template']]])}}
                 @endif
             </div>
         </div>

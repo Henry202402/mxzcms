@@ -175,7 +175,7 @@ class UPDATECMS
                 break;
             case "unzip-file":
                 $localFilePath = storage_path('download/cms/'.cache()->get("cms_update_version")['version'].'.zip');
-                $res = $this->unzipFile($localFilePath, base_path(),"callback_pre_extract");
+                $res = $this->unzipFile($localFilePath, base_path(),"callback_pre_extract",true);
                 //更新数据库
                 if ($res['status'] == 200){
                     //更新版本号
@@ -236,9 +236,35 @@ class UPDATECMS
                 //保存缓存
                 cache()->put('app_update_'.$all["cloudtype"].'_'.$all["identification"], $res['data'], 60 * 60 * 12);
             }
-
         }
 
+        //判断能否升级
+        session()->put($all["cloudtype"]."_".$all["identification"],null);
+        //判断版本限制
+        if($res['data']['cmslimit'] && version_compare($res['data']['cmslimit'], env("APP_VERSION")) > 0) {
+            session()->put($all["cloudtype"]."_".$all["identification"],"主程序版本过低，请先升级!");
+        }else{
+            //判断依赖插件
+            if($res['data']['pluginlimit'] && $all["cloudtype"]=="module"){
+                $pluginInfo =  explode("-",$res['data']['pluginlimit']);
+                $module = new \Modules\Main\Models\Modules();
+                $res = $module->where('identification', '=', $pluginInfo[0])
+                    ->where("cloud_type", "=", "plugin")
+                    ->first();
+                if(!$res){
+                    session()->put($all["cloudtype"]."_".$all["identification"],"请先安装依赖插件!");
+                }else{
+                    $file2 = module_path($pluginInfo[0], '/Config/config.php','plugin');
+                    if (!file_exists($file2)){
+                        session()->put($all["cloudtype"]."_".$all["identification"],"配置不完整，请重新安装依赖插件!!");
+                    }
+                    $plugin_data = include($file2);
+                    if($plugin_data['version'] && version_compare($pluginInfo[1],$plugin_data['version']) > 0) {
+                        session()->put($all["cloudtype"]."_".$all["identification"],"依赖插件版本太低，请先升级!");
+                    }
+                }
+            }
+        }
         return $return;
     }
     public function checkcms()
@@ -430,7 +456,7 @@ class UPDATECMS
         ];
     }
 
-    public function unzipFile($localFilePath, $toPath,$callback_pre_extract = null)
+    public function unzipFile($localFilePath, $toPath,$callback_pre_extract = null,$ismain=false)
     {
         ignore_user_abort();
         set_time_limit(0);
@@ -464,6 +490,20 @@ class UPDATECMS
 
             if (strpos($temp, 'Modules/') !== false) {
                 @unlink($temp.'_copy.php');
+                if($ismain){
+                    $ser = str_replace(base_path()."/",'',$temp);
+                    $ser = explode('/',$ser);
+                    if(!in_array($ser[1],["Main","Install"])){
+                        curl_request_ms(url("api/asynCall"),[
+                            'actionName'=>"migrate",
+                            'arguments'=>[
+                                '--path' => "Modules/{$ser[1]}/Database/Migrations/update",
+                                '--force' => 1,
+                            ],
+                            'moduleName'=>"{$ser[1]}"
+                        ]);
+                    }
+                }
             }elseif (strpos($temp, 'Plugins/') !== false){
 
                 if(file_exists($temp)){

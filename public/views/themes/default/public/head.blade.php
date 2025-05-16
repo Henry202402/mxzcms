@@ -16,4 +16,5 @@
     <script>
         var urlPre = "{{url('/')}}/";
     </script>
+    {!! cacheGlobalSettingsByKey('head_codes') !!}
 </head>

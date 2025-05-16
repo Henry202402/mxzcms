@@ -215,6 +215,12 @@ class FormTool {
         return $this;
     }
 
+    public function tips($tip)
+    {
+        $this->tips = $tip;
+        return $this;
+    }
+
     //是否已弹窗方式显示
     public function popup($popup = false) {
         if (!$popup && \Request()->popup) $popup = true;
@@ -340,6 +346,7 @@ class FormTool {
         $pageData['leftListActions'] = $this->leftListActions;
         $pageData['isShowMoreCheckbox'] = $this->isShowMoreCheckbox;
         $pageData['linkAppend'] = $this->linkAppend;
+        $pageData['tips'] = $this->tips;
         $pageData['popup'] = $this->popup;
 
         $pageData['datas'] = $datas;
@@ -359,6 +366,7 @@ class FormTool {
         $pageData['leftListActions'] = $this->leftListActions;
         $pageData['isShowMoreCheckbox'] = $this->isShowMoreCheckbox;
         $pageData['linkAppend'] = $this->linkAppend;
+        $pageData['tips'] = $this->tips;
         $pageData['popup'] = $this->popup;
 
         $pageData['datas'] = $datas;

@@ -17,5 +17,21 @@ return [
             ]
         ]
     ],
+    [
+        'icon' => 'icon-cog2',
+        'title' => '模块设置',
+        "controller" => "Setting",
+        "action" => "#",//顶级菜单必须为#，否则无法展开
+        'url' => '#', //顶级菜单必须为#，否则无法展开
+        'submenu' => [
+            [
+                'icon' => 'icon-cog2',
+                'title' => '基本设置',
+                "controller" => "Setting",
+                "action" => "index",
+                'url' => 'admin/formtools/setting',
+            ]
+        ]
+    ],
 
 ];

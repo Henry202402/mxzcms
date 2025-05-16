@@ -41,6 +41,103 @@
                                     @include(moduleAdminTemplate("formtools")."formtooltemplates.".$f['formtype'],compact( 'f'))
                                 @endforeach
 
+                                <div class="form-group row">
+                                    <label class="col-lg-1 control-label">
+                                        审核状态
+                                    </label>
+                                    <div class="col-lg-11">
+                                        <label class="radio-inline">
+                                            <input type="radio" class="styled"
+                                                   name="status"
+                                                   value=1
+                                                   @if($pageData['status']==1) checked @endif
+                                            > 通过
+                                        </label>
+                                        <label class="radio-inline">
+                                            <input type="radio" class="styled"
+                                                   name="status"
+                                                   value=0
+                                                   @if($pageData['status']==0) checked @endif
+                                            > 不通过
+                                        </label>
+                                        <label class="radio-inline">
+                                            <input type="radio" class="styled"
+                                                   name="status"
+                                                   value=2
+                                                   @if($pageData['status']==2) checked @endif
+                                            > 下架
+                                        </label>
+                                        <span class="help-block">审核状态</span>
+                                    </div>
+
+                                </div>
+
+                                <div class="form-group row">
+                                    <label class="col-lg-1 control-label">
+                                        审核备注
+                                    </label>
+                                    <div class="col-lg-11">
+                                        <input type="text" id="remark"
+                                               name="remark"
+                                               class="form-control"
+                                               placeholder="请输入审核备注"
+                                               value="{{$pageData['remark']}}"
+                                        >
+                                        <span class="help-block">审核备注</span>
+                                    </div>
+
+                                </div>
+
+                                <div class="form-group row">
+                                    <label class="col-lg-1 control-label">
+                                        SEO标题
+                                    </label>
+                                    <div class="col-lg-11">
+                                        <input type="text" id="seo_title"
+                                               name="seo_title"
+                                               class="form-control"
+                                               placeholder="请输入SEO标题"
+                                               value="{{$pageData['seo_title']}}"
+                                        >
+
+                                        <span class="help-block">不填写将自动使用 name 或者 title</span>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="form-group row">
+                                    <label class="col-lg-1 control-label">
+                                        SEO关键词
+                                    </label>
+                                    <div class="col-lg-11">
+                                        <input type="text" id="seo_keywords"
+                                               name="seo_keywords"
+                                               class="form-control"
+                                               placeholder="请输入SEO关键词"
+                                               value="{{$pageData['seo_keywords']}}"
+                                        >
+
+                                        <span class="help-block">不填写将自动使用通配SEO</span>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="form-group row">
+                                    <label class="col-lg-1 control-label">
+                                        SEO描述
+                                    </label>
+                                    <div class="col-lg-11">
+                                        <textarea name="seo_description"
+                                                  id="seo_description" cols="30" rows="4"
+                                                  placeholder="请输入SEO描述"
+                                                  class="form-control">{{$pageData['seo_description']}}</textarea>
+                                        <span class="help-block">不填写将自动使用通配SEO</span>
+                                    </div>
+
+                                </div>
+
                                 <div class="form-group">
                                     <label class="col-lg-1 control-label"></label>
                                     <div class="col-lg-11">

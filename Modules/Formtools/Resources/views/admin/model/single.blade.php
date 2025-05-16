@@ -36,83 +36,70 @@
                 <div class="">
                     <div class="table-responsive panel panel-default">
                         <div class="panel-heading">
-                            <a class="label pull-right m-t-xs" style="margin-top: -8px;"
-                               href="{{url("admin/".$moduleName."/model?moduleName={$pageData['moduleName']}&action=Add&model=".$pageData['model'])}}">
-                                <button type="button" class="btn bg-info">
-                                    新增
-                                </button>
-                            </a>
-                            数据列表
+                            @if(!$pageData['datas']->id)
+                                <a class="label pull-right m-t-xs" style="margin-top: -8px;"
+                                   href="{{url("admin/".$moduleName."/model?moduleName={$pageData['moduleName']}&action=Add&model=".$pageData['model'])}}">
+                                    <button type="button" class="btn bg-info">
+                                        新增
+                                    </button>
+                                </a>
+                            @endif
+                            单页模型
                         </div>
                         <table class="table table-striped m-b-none col-sm-12">
-                            <thead>
-                            <tr>
-                                <th>ID</th>
-                                @foreach($pageData['modeldetaill'] as $f)
-                                    <th>{{$f['name']?:$f['remark']}}</th>
-                                @endforeach
-                                <th>创建时间</th>
-                                <th>操作</th>
-                            </tr>
-                            </thead>
-                            <tbody>
 
-                            @forelse($pageData['datas'] as $d)
+                            @if($pageData['datas']->id)
                                 <tr>
-                                    <td>{{$d->id}}</td>
-                                    @foreach($pageData['modeldetaill'] as $f)
+                                    <th width="120">创建时间</th>
+                                    <td>{{$pageData['datas']->created_at}}</td>
+                                </tr>
+                                @foreach($pageData['modeldetaill'] as $f)
+                                    <tr>
+                                        <th style="vertical-align: top;">{{$f['name']?:$f['remark']}}</th>
                                         <td>
                                             @if($f['datas'])
-                                                {{$f['datas'][toArray($d)[$f['identification']]]}}
+                                                {{$f['datas'][toArray($pageData['datas'])[$f['identification']]]}}
                                             @elseif(in_array($f['formtype'],['upload','uploadAjax', 'image', 'imageAjax']))
-                                                @if(in_array(strtolower(end(explode('.',toArray($d)[$f['identification']]))),['jpg','jpeg','png']))
-                                                    <img src="{{GetUrlByPath(toArray($d)[$f['identification']])}}"
+                                                @if(in_array(strtolower(end(explode('.',toArray($pageData['datas'])[$f['identification']]))),['jpg','jpeg','png']))
+                                                    <img src="{{GetUrlByPath(toArray($pageData['datas'])[$f['identification']])}}"
                                                          class="cursor-pointer" width="30"
-                                                         onclick="clickImage('{{GetUrlByPath(toArray($d)[$f['identification']])}}')">
-                                                @elseif(toArray($d)[$f['identification']])
+                                                         onclick="clickImage('{{GetUrlByPath(toArray($pageData['datas'])[$f['identification']])}}')">
+                                                @elseif(toArray($pageData['datas'])[$f['identification']])
                                                     <i class="cursor-pointer icon-file-download2"
-                                                       onclick="fileDownload('{{GetUrlByPath(toArray($d)[$f['identification']])}}')"
+                                                       onclick="fileDownload('{{GetUrlByPath(toArray($pageData['datas'])[$f['identification']])}}')"
                                                        style="font-size: 25px;"></i>
                                                 @endif
                                             @else
-                                                {{toArray($d)[$f['identification']]}}
+                                                {!! toArray($pageData['datas'])[$f['identification']]  !!}
                                             @endif
                                         </td>
-                                    @endforeach
-                                    <td>{{$d->created_at}}</td>
-                                    <td>
+                                    </tr>
+                                @endforeach
+                                <tr>
+                                    <td colspan="2">
 
-                                        <a href="{{url("admin/".$moduleName."/model?action=Edit&moduleName={$pageData['moduleName']}&model=".$pageData['model']."&id=".$d->id.'&page='.$pageData['datas']->currentPage())}}">
+                                        <a href="{{url("admin/".$moduleName."/model?action=Edit&moduleName={$pageData['moduleName']}&model=".$pageData['model']."&id=".$pageData['datas']->id)}}">
                                             <button type="button" class="h-button-edit btn btn-success btn-xs">
                                                 编辑
                                             </button>
                                         </a>
-                                        <a onclick="del('{{url("admin/{$moduleName}/model?action=Del&moduleName={$pageData['moduleName']}&model={$pageData['model']}&id={$d->id}&page={$pageData["datas"]->currentPage()}")}}')"
+                                        <a onclick="del('{{url("admin/{$moduleName}/model?action=Del&moduleName={$pageData['moduleName']}&model={$pageData['model']}&id={$pageData['datas']->id}")}}')"
                                            class="btn btn-danger btn-xs ">
                                             删除
                                         </a>
 
                                     </td>
                                 </tr>
-                            @empty
+                            @else
                                 <tr>
-                                    <td colspan="20">
-                                        暂无数据
-                                    </td>
+                                    <td colspan="2">暂无数据</td>
                                 </tr>
-                            @endforelse
+                            @endif
 
-
-                            </tbody>
                         </table>
                     </div>
                 </div>
                 <!-- /bordered striped table -->
-
-                <div class="col-sm-12 text-right text-center-xs">
-                    {{ $pageData['datas']->appends($_GET?:[])->links($moduleName.'::admin.public.pagination',["data"=>$pageData['datas']]) }}
-                </div>
-
 
                 @include(moduleAdminTemplate($moduleName)."public.footer")
 

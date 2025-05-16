@@ -189,53 +189,6 @@
                         </div>
                     </div>
 
-                    <div class="form-group ">
-                        <h4>首页大屏</h4>
-                    </div>
-
-                    <div class="form-group ">
-
-                        <div class="form-inline">
-                            <div class="radio radio-inline radio-success">
-                                <input id="home_screen" type="radio" name="home_screen" value="off" @if(cacheGlobalSettingsByKey("home_screen")=="off") checked @endif >
-                                <label for="home_screen"> 关闭 </label>
-                            </div>
-                            <div class="radio radio-inline radio-success">
-                                <input id="home_screen2" type="radio" name="home_screen" value="on" @if(cacheGlobalSettingsByKey("home_screen")=="on") checked @endif  >
-                                <label for="home_screen2"> 开启 </label>
-                            </div>
-
-
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>大屏背景图片</label>
-                        <div class="fileinput-new" data-provides="fileinput">
-                            <div class="fileinput-preview" data-trigger="fileinput" style="width: 200px; height:200px;">
-                                @if(cacheGlobalSettingsByKey('home_screen_image'))
-                                    <img src="{{GetLocalFileByPath(cacheGlobalSettingsByKey('home_screen_image'))}}" style="width: 180px; height:180px;">
-                                @endif
-                            </div>
-                            <span class="btn btn-success  btn-file">
-                                                        <span class="fileinput-new">{{getTranslateByKey("common_select")}}</span>
-                                                        <span class="fileinput-exists">{{getTranslateByKey("common_change")}}</span>
-                                                        <input type="file" id="image" name="home_screen_image">
-                                                    </span>
-                            <a href="#" class="btn btn-danger fileinput-exists" data-dismiss="fileinput">{{getTranslateByKey("common_delete")}}</a>
-                        </div>
-                    </div>
-
-
-
-                    <div class="form-group ">
-                        <label>大屏区域源码(模板参考跳转入口)</label>
-                        <textarea name="home_screen_code" style="height: 400px;" class="form-control ">{{cacheGlobalSettingsByKey('home_screen_code')}}</textarea>
-                    </div>
-
-
-
-
                     <button type="button" id="diy_button" class="btn btn-primary margin-l-5 mx-sm-3">保存</button>
                     {{--<button type="button" id="ton" onclick="history.go(-1);" class="btn btn-default ">{{getTranslateByKey("common_back")}}</button>--}}
 
