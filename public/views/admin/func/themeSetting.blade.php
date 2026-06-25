@@ -15,15 +15,15 @@
 
         <ul id="respMenu" class="ace-responsive-menu" data-menu-style="horizontal">
             <li>
-                <a href="{{url("admin/theme")}}"> <i class="fa fa-arrow-circle-left"></i>返回主题列表</a>
+                <a href="{{url("admin/theme")}}"> <i class="fa fa-arrow-circle-left"></i>{{getTranslateByKey("return_theme_list")}}</a>
             </li>
 
             <li>
-                <a href="{{url("admin/theme/themeMenuList?m=".$_GET['m'])}}"><i class="fa fa-pencil-square"></i> 菜单管理</a>
+                <a href="{{url("admin/theme/themeMenuList?m=".$_GET['m'])}}"><i class="fa fa-pencil-square"></i> {{getTranslateByKey("menu_management")}}</a>
             </li>
 
             <li>
-                <a href="{{url("admin/theme/diy?m=".$_GET['m'])}}"><i class="fa fa-gears"></i> 页面配置</a>
+                <a href="{{url("admin/theme/diy?m=".$_GET['m'])}}"><i class="fa fa-gears"></i> {{getTranslateByKey("page_configuration")}}</a>
             </li>
 
         </ul>
@@ -34,8 +34,8 @@
     <div class="col-lg-6 align-self-center ">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{url("admin/index")}}">{{getTranslateByKey("common_home_page")}}</a></li>
-            <li class="breadcrumb-item"><a href="{{url("admin/theme")}}">主题配置</a></li>
-            <li class="breadcrumb-item active">主题预览</li>
+            <li class="breadcrumb-item"><a href="{{url("admin/theme")}}">{{getTranslateByKey("theme_configuration")}}</a></li>
+            <li class="breadcrumb-item active">{{getTranslateByKey("theme_preview")}}</li>
         </ol>
     </div>
 </div>

@@ -1,12 +1,35 @@
+@php
+    $navigationRecord = frontendRecordData($detailRecord ?? $data ?? []);
+    $prevItem = $navigationRecord['prev_item'] ?? null;
+    $nextItem = $navigationRecord['next_item'] ?? null;
+    $prevId = $navigationRecord['prev_id'] ?? null;
+    $nextId = $navigationRecord['next_id'] ?? ($navigationRecord['last_id'] ?? null);
+    $prevTitle = is_array($prevItem) ? ($prevItem['title'] ?? $prevItem['name'] ?? null) : null;
+    $nextTitle = is_array($nextItem) ? ($nextItem['title'] ?? $nextItem['name'] ?? null) : null;
+@endphp
+
 <div class="article-navigation">
-    @if($data['prev_id'])
-        <a href="{{url("detail/{$param['model']}/{$data['prev_id']}")}}" class="article-navigation-prev">上一篇</a>
+    @if($prevId)
+        <a href="{{url("detail/{$param['model']}/{$prevId}")}}" class="article-navigation-prev">
+            <span class="article-navigation__label">{{ themeTrans('article.previous') }}</span>
+            <strong class="article-navigation__title">{{ $prevTitle ?: 'ID #' . $prevId }}</strong>
+        </a>
     @else
-        <a class="article-navigation-prev">暂无</a>
+        <span class="article-navigation-prev is-disabled">
+            <span class="article-navigation__label">{{ themeTrans('article.previous') }}</span>
+            <strong class="article-navigation__title">{{ themeTrans('common.none') }}</strong>
+        </span>
     @endif
-    @if($data['last_id'])
-        <a href="{{url("detail/{$param['model']}/{$data['last_id']}")}}" class="article-navigation-next">下一篇</a>
+
+    @if($nextId)
+        <a href="{{url("detail/{$param['model']}/{$nextId}")}}" class="article-navigation-next">
+            <span class="article-navigation__label">{{ themeTrans('article.next') }}</span>
+            <strong class="article-navigation__title">{{ $nextTitle ?: 'ID #' . $nextId }}</strong>
+        </a>
     @else
-        <a class="article-navigation-next">暂无</a>
+        <span class="article-navigation-next is-disabled">
+            <span class="article-navigation__label">{{ themeTrans('article.next') }}</span>
+            <strong class="article-navigation__title">{{ themeTrans('common.none') }}</strong>
+        </span>
     @endif
 </div>

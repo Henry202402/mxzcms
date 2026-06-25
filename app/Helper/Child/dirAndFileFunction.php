@@ -12,13 +12,127 @@ use Modules\System\Services\ServiceModel;
  * Time: 17:50
  */
 
-function module_path($name, $path = '',$type="Module") {
-    if ($type=='theme'){
-        return public_path('views/themes/'.$name.'/'.$path);
-    }else{
-        return base_path(ucfirst($type)."s/{$name}/{$path}");
+function package_root_relative(string $type = 'module'): string {
+    switch (strtolower($type)) {
+        case 'plugin':
+            $candidates = ['plugins', 'Plugins'];
+            break;
+        case 'module':
+            $candidates = ['modules', 'Modules'];
+            break;
+        default:
+            $candidates = [strtolower($type) . 's', ucfirst(strtolower($type)) . 's'];
+            break;
     }
 
+    foreach ($candidates as $candidate) {
+        if (is_dir(base_path($candidate))) {
+            return $candidate;
+        }
+    }
+
+    return $candidates[0] ?? ($candidates[1] ?? '');
+}
+
+function package_root_path(string $type = 'module', string $path = ''): string {
+    $root = base_path(package_root_relative($type));
+    if ($path === '') {
+        return $root;
+    }
+
+    return rtrim($root, '\\/') . DIRECTORY_SEPARATOR . ltrim($path, '\\/');
+}
+
+function package_directory_name(string $name, string $type = 'module'): string {
+    $name = trim($name);
+    if ($name === '') {
+        return '';
+    }
+
+    $root = package_root_path($type);
+    if (is_dir($root)) {
+        foreach (scandir($root) ?: [] as $entry) {
+            if ($entry === '.' || $entry === '..') {
+                continue;
+            }
+            if (strcasecmp($entry, $name) === 0) {
+                return $entry;
+            }
+        }
+
+        foreach (scandir($root) ?: [] as $entry) {
+            if ($entry === '.' || $entry === '..') {
+                continue;
+            }
+
+            $configFile = rtrim($root, '\\/') . DIRECTORY_SEPARATOR . $entry . DIRECTORY_SEPARATOR . 'Config' . DIRECTORY_SEPARATOR . 'config.php';
+            if (!is_file($configFile)) {
+                continue;
+            }
+
+            $configContent = file_get_contents($configFile);
+            if ($configContent === false || $configContent === '') {
+                continue;
+            }
+
+            preg_match("/['\"]identification['\"]\s*=>\s*['\"]([^'\"]+)['\"]/", $configContent, $identificationMatches);
+            preg_match("/['\"]directory['\"]\s*=>\s*['\"]([^'\"]+)['\"]/", $configContent, $directoryMatches);
+            $identification = trim((string) ($identificationMatches[1] ?? ''));
+            $directory = trim((string) ($directoryMatches[1] ?? ''));
+            if (($identification !== '' && strcasecmp($identification, $name) === 0)
+                || ($directory !== '' && strcasecmp($directory, $name) === 0)) {
+                return $entry;
+            }
+        }
+    }
+
+    $candidates = array_values(array_unique([
+        $name,
+        strtolower($name),
+        ucfirst($name),
+    ]));
+
+    foreach ($candidates as $candidate) {
+        if (is_dir($root . DIRECTORY_SEPARATOR . $candidate)) {
+            return $candidate;
+        }
+    }
+
+    return $name;
+}
+
+function package_relative_path(string $type = 'module', string $path = ''): string {
+    $root = package_root_relative($type);
+    if ($path === '') {
+        return $root;
+    }
+
+    return rtrim($root, '\\/') . '/' . ltrim($path, '\\/');
+}
+
+function modules_base_path(string $path = ''): string {
+    return package_root_path('module', $path);
+}
+
+function plugins_base_path(string $path = ''): string {
+    return package_root_path('plugin', $path);
+}
+
+function modules_relative_path(string $path = ''): string {
+    return package_relative_path('module', $path);
+}
+
+function plugins_relative_path(string $path = ''): string {
+    return package_relative_path('plugin', $path);
+}
+
+function module_path($name, $path = '', $type = "Module") {
+    if ($type == 'theme') {
+        return public_path('views/themes/' . $name . '/' . $path);
+    }
+
+    $directory = package_directory_name((string) $name, $type);
+    return package_root_path($type, trim($directory . '/' . $path, '/'));
 }
 
 //file文件
@@ -114,7 +228,7 @@ function UploadFile($request,
         default :
 
             //判断插件是否存在
-            if (is_dir(PLUGIN_PATH . __E("upload_driver"))) {
+            if (is_dir(plugins_base_path(__E("upload_driver")))) {
 
                 //触发上传驱动事件
 
@@ -545,6 +659,37 @@ function mk_dir($dir, $mode = 0755) {
     return @mkdir($dir, $mode);
 }
 
+function should_backup_update_extract_file(string $filename): bool
+{
+    $normalized = str_replace('\\', '/', $filename);
+    $configRoot = str_replace('\\', '/', base_path('config')) . '/';
+    if (preg_match('#/Config/config\.php$#i', $normalized)) {
+        return true;
+    }
+
+    if (preg_match('#/config\.json$#i', $normalized)) {
+        return true;
+    }
+
+    return strpos($normalized, $configRoot) === 0 && preg_match('#\.php$#i', $normalized);
+}
+
+function update_extract_backup_copy_path(string $filename): string
+{
+    return $filename . (preg_match('#/config\.json$#i', str_replace('\\', '/', $filename)) ? '_copy.json' : '_copy.php');
+}
+
+function backup_update_extract_file(string $filename): void
+{
+    $copyPath = update_extract_backup_copy_path($filename);
+    @copy($filename, $copyPath);
+    $temp = cache()->get("update_backup") ?: [];
+    if (!in_array($filename, $temp, true)) {
+        $temp[] = $filename;
+        cache()->put("update_backup", $temp);
+    }
+}
+
 function callback_pre_extract($p_event,$p_header)
 {
     // 获取将要解压缩的文件名
@@ -559,18 +704,8 @@ function callback_pre_extract($p_event,$p_header)
         // 获取当前文件的修改时间
         $currentMtime = filemtime($filename);
 
-        if (strpos($filename, 'Config/config.php') !== false) {
-            copy($filename,$filename."_copy.php");
-            $temp = cache()->get("update_backup")?:[];
-            array_push($temp,$filename);
-            cache()->put("update_backup",$temp);
-        }
-
-        if (strpos($filename, 'config.json') !== false) {
-            copy($filename,$filename."_copy.json");
-            $temp = cache()->get("update_backup")?:[];
-            array_push($temp,$filename);
-            cache()->put("update_backup",$temp);
+        if (should_backup_update_extract_file($filename)) {
+            backup_update_extract_file($filename);
         }
 
         // 比对修改时间

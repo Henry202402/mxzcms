@@ -222,6 +222,55 @@ class ModuleSystemSettingsSeeder extends Seeder
      'key' => 'preloader',
      'value' => 'off',
   ),
+  36 =>
+  array(
+     'module' => 'Main',
+     'type' => 'theme',
+     'key' => 'nav_hover_color',
+     'value' => '#60a5fa',
+  ),
+  37 =>
+  array(
+     'module' => 'Main',
+     'type' => 'theme',
+     'key' => 'nav_dropdown_bgcolor',
+     'value' => '#0f172a',
+  ),
+  38 =>
+  array(
+     'module' => 'Main',
+     'type' => 'theme',
+     'key' => 'nav_dropdown_color',
+     'value' => '#e2e8f0',
+  ),
+  39 =>
+  array(
+     'module' => 'Main',
+     'type' => 'theme',
+     'key' => 'logo_animation_speed',
+     'value' => '6s',
+  ),
+  40 =>
+  array(
+     'module' => 'Main',
+     'type' => 'theme',
+     'key' => 'logo_hover_pause',
+     'value' => 'no',
+  ),
+  41 =>
+  array(
+     'module' => 'Main',
+     'type' => 'theme',
+     'key' => 'nav_radius',
+     'value' => '18px',
+  ),
+  42 =>
+  array(
+     'module' => 'Main',
+     'type' => 'theme',
+     'key' => 'nav_shadow_style',
+     'value' => 'soft',
+  ),
   32 =>
   array(
      'module' => 'Main',
@@ -329,7 +378,21 @@ spider',
      'key' => 'website_reg_rqstd',
      'value' => 'phone,email',
   ),
-  47 =>
+  460 =>
+  array(
+     'module' => 'Main',
+     'type' => 'website',
+     'key' => 'website_reg_fields',
+     'value' => 'phone,email',
+  ),
+  461 =>
+  array(
+     'module' => 'Main',
+     'type' => 'website',
+     'key' => 'website_reg_required',
+     'value' => 'phone,email',
+  ),
+  49 =>
   array(
      'module' => 'Main',
      'type' => 'website',

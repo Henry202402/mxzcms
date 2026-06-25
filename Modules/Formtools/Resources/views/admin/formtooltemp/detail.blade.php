@@ -1,17 +1,42 @@
 @include(moduleAdminTemplate($pageData['moduleName'])."public.header")
 <!-- ============================================================== -->
 <body>
-@include(moduleAdminTemplate($pageData['moduleName'])."public.nav")
+<style>
+    .formtool-group-card {
+        margin: 0 0 18px;
+        padding: 18px 20px 6px;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        background: #fff;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+    .formtool-group-card--legend {
+        border-color: #dbeafe;
+        background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    }
+    .formtool-group-card .text-bold {
+        margin-top: 0;
+        margin-bottom: 12px;
+        color: #0f172a;
+    }
+</style>
+@if(!$pageData['popup'])
+    @include(moduleAdminTemplate($pageData['moduleName'])."public.nav")
+@endif
 <!-- Page container -->
 <div class="page-container">
     <!-- Page content -->
     <div class="page-content">
-    @include(moduleAdminTemplate($pageData['moduleName'])."public.left")
+    @if(!$pageData['popup'])
+        @include(moduleAdminTemplate($pageData['moduleName'])."public.left")
+    @endif
     <!-- Main content -->
         <div class="content-wrapper">
             <!-- Content area -->
             <div class="content">
-                @include(moduleAdminTemplate($pageData['moduleName'])."public.page",['breadcrumb'=>[$pageData['title'],$pageData['subtitle']]])
+                @if(!$pageData['popup'])
+                    @include(moduleAdminTemplate($pageData['moduleName'])."public.page",['breadcrumb'=>[$pageData['title'],$pageData['subtitle']]])
+                @endif
                 <div class="panel panel-flat">
                     <div class="panel-heading">
                         <form class="form-horizontal" action="{{$pageData['formaction']}}"
@@ -19,69 +44,25 @@
                               enctype="multipart/form-data">
                             <fieldset class="content-group">
                                 <legend class="text-bold">{{$pageData['subtitle']}}</legend>
-                                @foreach($pageData['fields'] as $f)
-                                    @if($f['datas'])
-                                        <div class="form-group row">
-                                            <label class="col-lg-1 control-label">{{$f['name']}}</label>
-                                            <div class="col-lg-11">
-                                                @if($f['formtype']=="select")
-                                                    <select class="form-control" name="{{$f['identification']}}"
-                                                            id="{{$f['identification']}}"
-                                                        {{$f['disabled']}}
-                                                    >
-                                                        @foreach($f['datas'] as $k=>$v)
-                                                            <option value="{{$k}}"
-                                                                {{toArray($pageData['detail'])[$f['identification']]==$k?'selected':''}}
-                                                            >{{$v}}</option>
-                                                        @endforeach
-                                                    </select>
-                                                @elseif($f['formtype']=="radio" || $f['formtype']=="checkbox")
-                                                    @foreach($f['datas'] as $k=>$v)
-                                                        <label class="{{$f['formtype']}}-inline">
-                                                            <input type="{{$f['formtype']}}" name="{{$f['identification']}}"
-                                                                   value="{{$v['value']}}"
-                                                                   @if(in_array($v['value'],explode(",",toArray($pageData['detail'])[$f['identification']])))
-                                                                          checked
-                                                                   @endif
-                                                                {{$f['disabled']}}
-                                                            >{{$v['name']}}
-                                                        </label>
-                                                    @endforeach
-                                                @else
-                                                    <input type="text" id="{{$f['identification']}}"
-                                                           name="{{$f['identification']}}"
-                                                           class="form-control"
-                                                           placeholder="{{$f['placeholder']?:$f['name']}}"
-                                                           value="{{$f['datas'][toArray($pageData['detail'])[$f['identification']]]}}"
-                                                        {{$f['disabled']}}
-                                                    >
-                                                @endif
-
-                                            </div>
+                                @php($detailData = isset($pageData['detail']) ? toArray($pageData['detail']) : [])
+                                @if($pageData['tips'])
+                                    <div class="alert alpha-orange-600 border-orange alert-styled-left">
+                                        <button type="button" class="close" data-dismiss="alert"><span>×</span><span class="sr-only">Close</span></button>
+                                        {{$pageData['tips']}}
+                                    </div>
+                                @endif
+                                @foreach(($pageData['fieldGroups'] ?? []) as $group)
+                                    @php($heading = $group['heading'] ?? null)
+                                    <div class="formtool-group-card @if(($heading['formtype'] ?? '') === 'legend') formtool-group-card--legend @endif">
+                                        @if($heading)
+                                            @include('formtools::admin.formtooltemplates.groupHeading', ['f' => $heading])
+                                        @endif
+                                        <div class="row">
+                                            @foreach(($group['fields'] ?? []) as $f)
+                                                @include('formtools::admin.formtooltemp.detailField', compact('f', 'detailData'))
+                                            @endforeach
                                         </div>
-                                    @elseif(in_array($f['formtype'],['upload', 'image']))
-                                        <div class="form-group row">
-                                            <label class="col-lg-1 control-label">{{$f['name']}}</label>
-                                            <div class="col-lg-11">
-                                                <div class="media no-margin-top">
-                                                    <div class="media-left">
-                                                        @if(in_array(end(explode('.',toArray($pageData['detail'])[$f['identification']])),['jpg','jpeg','png']))
-                                                            <img src="{{GetUrlByPath(toArray($pageData['detail'])[$f['identification']])}}"
-                                                                 class="cursor-pointer" width="30"
-                                                                 onclick="clickImage('{{GetUrlByPath(toArray($pageData['detail'])[$f['identification']])}}')">
-                                                        @else
-                                                            <i class="cursor-pointer icon-file-download2"
-                                                               onclick="fileDownload('{{GetUrlByPath(toArray($pageData['detail'])[$f['identification']])}}')"
-                                                               style="font-size: 25px;"></i>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @else
-                                        @include(moduleAdminTemplate("formtools")."formtooltemplates.".$f['formtype'],compact( 'f'))
-                                    @endif
-
+                                    </div>
                                 @endforeach
                                 <div class="form-group">
                                     <label class="col-lg-1 control-label"></label>
@@ -128,6 +109,11 @@
         window.location.href = src;
     }
 </script>
+@foreach(($pageData['inlineScripts'] ?? []) as $inlineScript)
+    <script>
+{!! $inlineScript !!}
+    </script>
+@endforeach
 {{--必须放在最后--}}
 </body>
 </html>

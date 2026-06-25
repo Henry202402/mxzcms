@@ -2,6 +2,8 @@
 
 namespace Modules\System\Listeners;
 
+use App\Support\PackageManifest\PackageManifest;
+
 class AdminSidebarMenu {
 
     public function handle(\App\Events\AdminSidebarMenu $event) {
@@ -15,8 +17,8 @@ class AdminSidebarMenu {
         $data = event(new \Modules\Formtools\Events\GetFormToolsMenu(['moduleName' => $moduleName]))[0];
         $menus = array_merge($menus ?: [], $data ?: []);
 
-        $config = include module_path($moduleName, 'Config/config.php');
-        if ($config['auth'] == 'y') {
+        $config = PackageManifest::load($moduleName, PackageManifest::PACKAGE_MODULE) ?: [];
+        if (($config['ui']['auth'] ?? ($config['auth'] ?? 'n')) == 'y') {
             $roleArray = session(\Modules\System\Http\Controllers\Common\SessionKey::CurrentUserPermissionGroupInfo);
             $roleModule = $roleArray['role_array'][$moduleName] ?: [];;
             foreach ($menus as $key => $menu) {

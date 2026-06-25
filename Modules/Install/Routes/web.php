@@ -6,6 +6,7 @@ Route::prefix('install')->group(function() {
     Route::any('/', 'InstallController@index');
     Route::any("/start", "InstallController@start");
     Route::any("/checkDbPwd", "InstallController@checkDbPwd");
+    Route::any("/rewrite-check", "InstallController@checkRewrite");
     Route::any("/saveDBInfo", "InstallController@saveDBInfo");
     Route::any("/setDbConfig", "InstallController@setDbConfig");
     Route::any("/installModule", "InstallController@installModule");

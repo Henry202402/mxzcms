@@ -97,8 +97,8 @@
 @include("member::home.public.js")
 <script src="{{moduleHomeResource($moduleName,'home/assets/js/user.js')}}"></script>
 <!-- plugin js -->
-<script src="{{asset("assets/member")}}/js/moment.min.js"></script>
-<script src="{{asset("assets/member")}}/js/jquery-ui.min.js"></script>
+<script src="{{commonAsset('lib/moment/moment.min.js')}}"></script>
+<script src="{{commonAsset('lib/jquery-ui/jquery-ui.min.js')}}"></script>
 <script src="{{asset("assets/member")}}/js/main.min.js"></script>
 <script src="{{asset("assets/member")}}/js/main.min1.js"></script>
 <script src="{{asset("assets/member")}}/js/main.min2.js"></script>

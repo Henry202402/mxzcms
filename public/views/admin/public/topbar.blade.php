@@ -5,7 +5,7 @@
                 {{--                <a class="navbar-brand" href="#">Navbar</a>--}}
                 <a class="admin-logo" href="{{url('admin/index')}}" style="width: auto!important;">
                     <h1 style="color: #000;">
-                        管理后台
+                        {{getTranslateByKey("admin_panel")}}
                     </h1>
                 </a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse"
@@ -54,7 +54,7 @@
                             <ul class="dropdown-menu top-dropdown" id="dropdown-menu">
                                 <li>
                                     <a class="dropdown-item" href="{{url('admin/myinfo')}}"><i class="icon-user"></i>
-                                        个人信息</a>
+                                        {{getTranslateByKey("profile")}}</a>
                                 </li>
                                 <li>
                                     <a class="dropdown-item" href="{{url('admin/logout')}}"><i class="icon-logout"></i>

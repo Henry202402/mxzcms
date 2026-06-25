@@ -72,6 +72,7 @@ return new class extends Migration {
                     $table->integer('access_count')->default(0)->nullable()->after('id')->comment('访问次数统计');
                 });
             }
+
             if (!Schema::hasColumn($item, 'uid')) {
                 Schema::table($item, function (Blueprint $table) {
                     $table->integer('uid')->nullable()->after('id')->comment('发布者uid');

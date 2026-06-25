@@ -9,7 +9,10 @@ class GetHomeMenu {
     public function handle(\Modules\System\Events\GetHomeMenu $event) {
         //事件逻辑 ...
         $data = $event->data;
-        $list['child'] = ServiceModel::getHomeMenuList(['position' => $data['position']]);
+        $list['child'] = ServiceModel::getHomeMenuList([
+            'position' => $data['position'],
+            'lang' => $data['lang'] ?? '',
+        ]);
         $list = self::dealUrl($list);
         return $list['child'];
     }

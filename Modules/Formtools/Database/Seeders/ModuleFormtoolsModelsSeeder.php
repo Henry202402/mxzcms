@@ -3,6 +3,7 @@
 namespace Modules\Formtools\Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Modules\Formtools\Support\FormTemplateResolver;
 
 class ModuleFormtoolsModelsSeeder extends Seeder
 {
@@ -18,7 +19,7 @@ class ModuleFormtoolsModelsSeeder extends Seeder
 
         \DB::table('module_formtools_models')->delete();
 
-        \DB::table('module_formtools_models')->insert(array (
+        $legacyRows = array (
   0 => 
   array(
      'id' => 1,
@@ -243,8 +244,86 @@ class ModuleFormtoolsModelsSeeder extends Seeder
      'created_at' => '2024-03-06 09:44:32',
      'updated_at' => '2024-03-06 11:54:37',
   ),
-));
+);
+
+        \DB::table('module_formtools_models')->insert($this->normalizeRows($legacyRows));
 
 
+    }
+
+    private function normalizeRows(array $legacyRows): array
+    {
+        return array_map(function (array $row) {
+            $adminConfig = FormTemplateResolver::normalizeAdminConfig([
+                'form_template' => $row['form_template'] ?? '',
+            ]);
+
+            $homeConfig = FormTemplateResolver::normalizeHomeConfig([
+                'list_template' => $row['list_template'] ?? '',
+                'custom_list_template' => $row['custom_list_template'] ?? '',
+                'detail_template' => $row['detail_template'] ?? '',
+                'custom_detail_template' => $row['custom_detail_template'] ?? '',
+                'page_num' => $row['page_num'] ?? 20,
+                'list_page_template' => $row['list_page_template'] ?? 'center',
+                'detail_page_title' => '',
+                'detail_page_describe' => '',
+                'detail_page_show_type' => 'color',
+                'detail_page_bg_color' => '#ffffff',
+                'detail_page_bg_img' => '',
+                'home_page_title' => $row['home_page_title'] ?? '',
+                'home_page_title_size' => '',
+                'home_page_title_color' => '#222222',
+                'home_page_describe' => $row['home_page_describe'] ?? '',
+                'home_page_describe_size' => '',
+                'home_page_describe_color' => '#666666',
+                'show_home_type' => 'color',
+                'home_page_bg_color' => '#ffffff',
+                'home_page_bg_img' => $row['home_page_bg_img'] ?? '',
+            ]);
+
+            $otherConfig = [
+                'data_source' => $row['data_source'] ?? 'local',
+                'data_source_api_url' => $row['data_source_api_url'] ?? '',
+                'data_source_api_url_detail' => $row['data_source_api_url_detail'] ?? '',
+                'data_source_field_mapping' => $row['data_source_field_mapping'] ?? '',
+            ];
+
+            return [
+                'id' => $row['id'],
+                'name' => $row['name'],
+                'identification' => $row['identification'],
+                'access_identification' => $row['access_identification'],
+                'menuname' => $row['menuname'] ?? '',
+                'module' => $row['module'] ?? '',
+                'fields' => $row['fields'],
+                'icon' => $row['icon'] ?? 'icon-list-numbered',
+                'type' => $row['type'] ?? $this->guessModelType($row['identification'] ?? ''),
+                'supermodel' => $row['supermodel'] ?? null,
+                'remark' => $row['remark'] ?? '',
+                'admin_config' => json_encode($adminConfig, JSON_UNESCAPED_UNICODE),
+                'home_config' => json_encode($homeConfig, JSON_UNESCAPED_UNICODE),
+                'home_seo_config' => json_encode([
+                    'title' => '',
+                    'keyword' => '',
+                    'describe' => '',
+                ], JSON_UNESCAPED_UNICODE),
+                'home_seo_detail_config' => json_encode([
+                    'title' => '',
+                    'keyword' => '',
+                    'describe' => '',
+                ], JSON_UNESCAPED_UNICODE),
+                'other_config' => json_encode($otherConfig, JSON_UNESCAPED_UNICODE),
+                'show_home_page' => $row['show_home_page'] ?? 'no',
+                'home_page_num' => $row['home_page_num'] ?? null,
+                'home_page_sort' => $row['home_page_sort'] ?? 0,
+                'created_at' => $row['created_at'] ?? null,
+                'updated_at' => $row['updated_at'] ?? null,
+            ];
+        }, $legacyRows);
+    }
+
+    private function guessModelType(string $identification): string
+    {
+        return in_array($identification, ['about_us', 'contact_us'], true) ? 'single' : 'multi';
     }
 }

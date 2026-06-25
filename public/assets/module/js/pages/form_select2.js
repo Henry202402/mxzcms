@@ -394,12 +394,17 @@ $(function() {
         tags: ['red', 'green', 'blue', 'orange', 'white', 'black', 'purple', 'cyan', 'teal']
     });
 
-    // Add jQuery UI Sortable support
-    $(".select-multiple-drag").select2("container").find("ul.select2-choices").sortable({
-        containment: 'parent',
-        start: function() { $(".select-multiple-drag").select2("onSortStart"); },
-        update: function() { $(".select-multiple-drag").select2("onSortEnd"); }
-    });
+    // Add jQuery UI Sortable support when the plugin is available
+    if ($.fn.sortable) {
+        var dragContainer = $(".select-multiple-drag").select2("container").find("ul.select2-choices");
+        if (dragContainer.length) {
+            dragContainer.sortable({
+                containment: 'parent',
+                start: function() { $(".select-multiple-drag").select2("onSortStart"); },
+                update: function() { $(".select-multiple-drag").select2("onSortEnd"); }
+            });
+        }
+    }
 
 
     //

@@ -24,6 +24,9 @@ Route::middleware([CheckHome::class,\Modules\Main\Http\Middleware\AccessLog::cla
     Route::get('/list/{model}', [ModelController::class, 'list']);
     Route::get('/page/{model}', [ModelController::class, 'list']);
     Route::get('/detail/{model}/{id}', [ModelController::class, 'detail']);
+    Route::post('/detail/{model}/{id}/good', [ModelController::class, 'good']);
+    Route::get('/detail/{model}/{id}/download/{field}/{index?}', [ModelController::class, 'download']);
+    Route::get('/handle/{model}', [ModelController::class, 'handle']);
     Route::post('/handle/{model}', [ModelController::class, 'handle']);
 
     Route::group(['namespace' => 'Home'], function () {

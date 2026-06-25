@@ -7,45 +7,18 @@
     </style>
 
 
-    @if(!$f['showtype'] || $f['showtype']=='row')
-        <div class="form-group row">
-            <label class="control-label col-lg-1">@if($f['required'])<span style="color:red;">*</span> @endif{{$f['name']}}</label>
-            <div class="col-lg-11">
-                <input type="hidden" name="{{$f['identification']}}" id="{{$f['identification']}}"
-                       {{$f['disabled']}} value="{{$f['value']}}"
-                       @if($f['required']) required @endif >
-                <input type="file" id="{{$f['identification']}}Input" class="file-styled-primary">
-                <div id="{{$f['identification']}}Div" style="display:flex;margin-top: 10px;">
-                <span style="width: 90%;" class="progress">
-                    <div class="bar" style="width: 0%;"></div>
-                </span>
-                    <span style="width: 10%;margin-left: 10px;" class="number">0</span>
-                </div>
-                @if($f['notes'])
-                    <span class="help-block">{{ $f['notes'] }}</span>
-                @endif
-            </div>
-        </div>
-    @elseif($f['showtype']=='column')
-        <div class="col-md-6" style="margin-bottom: 15px;">
-            <label>
-                @if($f['required'])<span style="color:red;">*</span> @endif{{$f['name']}}
-            </label>
-            <input type="hidden" name="{{$f['identification']}}" id="{{$f['identification']}}"
-                   {{$f['disabled']}} value="{{$f['value']}}"
-                   @if($f['required']) required @endif >
-            <input type="file" id="{{$f['identification']}}Input" class="file-styled-primary">
-            <div id="{{$f['identification']}}Div" style="display:flex;margin-top: 10px;">
-                <span style="width: 90%;" class="progress">
-                    <div class="bar" style="width: 0%;"></div>
-                </span>
-                <span style="width: 10%;margin-left: 10px;" class="number">0</span>
-            </div>
-            @if($f['notes'])
-                <span class="help-block">{{ $f['notes'] }}</span>
-            @endif
-        </div>
-    @endif
+    @include('formtools::admin.formtooltemplates.fieldWrapperStart', compact('f'))
+    <input type="hidden" name="{{$f['identification']}}" id="{{$f['identification']}}"
+           {{$f['disabled']}} value="{{$f['value']}}"
+           @if($f['required']) required @endif >
+    <input type="file" id="{{$f['identification']}}Input" class="file-styled-primary">
+    <div id="{{$f['identification']}}Div" style="display:flex;margin-top: 10px;">
+        <span style="width: 90%;" class="progress">
+            <div class="bar" style="width: 0%;"></div>
+        </span>
+        <span style="width: 10%;margin-left: 10px;" class="number">0</span>
+    </div>
+    @include('formtools::admin.formtooltemplates.fieldWrapperEnd', compact('f'))
     <script>
         $(function () {
             $(".file-styled-primary").uniform({

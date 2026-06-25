@@ -1,6 +1,10 @@
 <header id="page-topbar">
     <div class="navbar-header">
         <div class="container-fluid">
+            @php
+                $homeUser = session('home_info');
+                $memberLogo = GetLocalFileByPath(cacheGlobalSettingsByKey('member_weblogo')) ?: GetLocalFileByPath(cacheGlobalSettingsByKey('weblogo'));
+            @endphp
             <div class="float-end">
 
                 {{--<div class="dropdown d-none d-sm-inline-block">
@@ -55,8 +59,8 @@
                     <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
                             data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <img class="rounded-circle header-profile-user"
-                             src="{{GetUrlByPath(session("home_info")['avatar'])}}" alt="个人头像">
-                        <span class="d-none d-xl-inline-block ms-1">{{session("home_info")['username']}}</span>
+                             src="{{GetUrlByPath($homeUser['avatar'])}}" alt="个人头像">
+                        <span class="d-none d-xl-inline-block ms-1">{{ $homeUser['nickname'] ?: $homeUser['username'] }}</span>
                         <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
                     </button>
                     <div class="dropdown-menu dropdown-menu-end">
@@ -64,6 +68,12 @@
                         <a class="dropdown-item" href="{{url("member/mine")}}"><i
                                     class="bx bx-user font-size-16 align-middle me-1"></i>
                             个人资料</a>
+                        <a class="dropdown-item" href="{{url("member/password")}}"><i
+                                    class="bx bx-shield-quarter font-size-16 align-middle me-1"></i>
+                            账号安全</a>
+                        <a class="dropdown-item" href="{{url("/")}}" target="_blank"><i
+                                    class="bx bx-home font-size-16 align-middle me-1"></i>
+                            返回前台</a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-danger" href="{{url("logout")}}"><i
                                     class="bx bx-power-off font-size-16 align-middle me-1 text-danger"></i> 退出</a>
@@ -76,25 +86,30 @@
                 <div class="navbar-brand-box">
                     <a href="{{url("/")}}" class="logo logo-dark">
                                         <span class="logo-sm">
-                                            <img src="{{GetLocalFileByPath(cacheGlobalSettingsByKey('member_weblogo'))}}"
+                                            <img src="{{ $memberLogo }}"
                                                  alt="logo" height="40">
                                         </span>
                         <span class="logo-lg">
-                                            <img src="{{GetLocalFileByPath(cacheGlobalSettingsByKey('member_weblogo'))}}"
+                                            <img src="{{ $memberLogo }}"
                                                  alt="logo" height="40">
                                         </span>
                     </a>
 
                     <a href="{{url("/")}}" class="logo logo-light">
                                         <span class="logo-sm">
-                                            <img src="{{GetLocalFileByPath(cacheGlobalSettingsByKey('member_weblogo'))}}"
+                                            <img src="{{ $memberLogo }}"
                                                  alt="logo" height="40">
                                         </span>
                         <span class="logo-lg">
-                                            <img src="{{GetLocalFileByPath(cacheGlobalSettingsByKey('member_weblogo'))}}"
+                                            <img src="{{ $memberLogo }}"
                                                  alt="logo" height="40">
                                         </span>
                     </a>
+                </div>
+
+                <div class="mx-member-topbar-intro d-none d-lg-flex">
+                    <span class="mx-member-topbar-title">会员中心</span>
+                    <span class="mx-member-topbar-subtitle">资料、安全、消息、资产统一管理</span>
                 </div>
 
                 <button type="button" class="btn btn-sm px-3 font-size-16 header-item toggle-btn waves-effect"

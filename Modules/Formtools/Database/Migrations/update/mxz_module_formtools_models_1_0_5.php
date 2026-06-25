@@ -39,6 +39,11 @@ return new class extends Migration {
                 $table->text('admin_config')->default(null)->nullable()->after('remark')->comment('后台配置json');
             });
         }
+        if (!Schema::hasColumn('module_formtools_models', 'type')) {
+            Schema::table('module_formtools_models', function (Blueprint $table) {
+                $table->string('type',255)->default(null)->nullable()->after('icon')->comment('模型类型，multi多数据  single单条');
+            });
+        }
 
         //处理字段数据
         $datas = DB::table("module_formtools_models")->get();

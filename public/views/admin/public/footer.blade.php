@@ -1,5 +1,5 @@
 <footer class="footer">
-    <span>Copyright &copy; {{date("Y")}} {{cacheGlobalSettingsByKey('website_name')}}</span>
+    <span>Copyright &copy; {{date("Y")}} {{cacheGlobalSettingsByKey('base_name')}}</span>
     <span class="small text-secondary">Powered By  <a @if(cacheGlobalSettingsByKey('use_of_cloud')==1) href="https://www.mxzcms.com" @endif class="text-secondary" target="_blank">{{config("app.name")}}</a></span>
 </footer>
 

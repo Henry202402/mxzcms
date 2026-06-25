@@ -1,21 +1,27 @@
 @include(moduleAdminTemplate($pageData['moduleName'])."public.header")
 <body>
-@include(moduleAdminTemplate($pageData['moduleName'])."public.nav")
+@if(!$pageData['popup'])
+    @include(moduleAdminTemplate($pageData['moduleName'])."public.nav")
+@endif
 <div class="page-container">
     <div class="page-content">
-        @include(moduleAdminTemplate($pageData['moduleName'])."public.left")
+        @if(!$pageData['popup'])
+            @include(moduleAdminTemplate($pageData['moduleName'])."public.left")
+        @endif
         <div class="content-wrapper">
             <div class="content" style="margin-top: 1rem;">
-                @include(moduleAdminTemplate($pageData['moduleName'])."public.page",['breadcrumb'=>[$pageData['title'],$pageData['subtitle']]])
+                @if(!$pageData['popup'])
+                    @include(moduleAdminTemplate($pageData['moduleName'])."public.page",['breadcrumb'=>[$pageData['title'],$pageData['subtitle']]])
+                @endif
                 @if($pageData['searchFields'])
                     <form class="bs-example form-horizontal" method="get">
                         <div class="form-group">
                             @foreach($pageData['searchFields'] as $f)
                                 @if(!in_array($f['formtype'],['hidden']))
                                     <div class="col-lg-2 mt-5">
-                                        @endif
-                                        @include(moduleAdminTemplate("formtools")."formsearchtemplates.".$f['formtype'],compact( 'f'))
-                                        @if(!in_array($f['formtype'],['hidden']))
+                                @endif
+                                @include(moduleAdminTemplate("formtools")."formsearchtemplates.".$f['formtype'],compact('f'))
+                                @if(!in_array($f['formtype'],['hidden']))
                                     </div>
                                 @endif
                             @endforeach
@@ -36,8 +42,14 @@
                     <div class="table-responsive panel panel-default">
                         <div class="panel-heading">
                             @foreach($pageData['listActions'] as $act)
-                                <a class="label  {{$act['cssClass']}}  pull-right m-t-xs" style="margin-right: 10px"
-                                   href="{{rtrim($act['actionUrl'].'?'.http_build_query(array_merge($act['param']?:[],[$f['actionby']=>toArray($d)[$f['actionby']]])),"?")}}">
+                                @php($topActionUrl = rtrim($act['actionUrl'].'?'.http_build_query($act['param'] ?? []), "?"))
+                                <a class="label {{$act['cssClass']}} pull-right m-t-xs" style="margin-right: 10px;padding: 3px 8px;font-size: 12px;"
+                                   @if($act['popup'])
+                                       onclick="popupPage('{{$topActionUrl}}')"
+                                   @else
+                                       href="{{$topActionUrl}}"
+                                   @endif
+                                   @if(!empty($act['target'])) target="{{$act['target']}}" @endif>
                                     {{$act['actionName']}}
                                 </a>
                             @endforeach
@@ -53,79 +65,100 @@
                             </thead>
                             <tbody>
                             @forelse($pageData['datas'] as $d)
-                                <tr class="pid_{{$d->id}}">
+                                @php($rowData = toArray($d))
+                                @php($rowClassId = $rowData['id'] ?? '')
+                                <tr class="pid_{{$rowClassId}}">
                                     @foreach($pageData['fields'] as $f)
                                         @if($f['identification']!="rightaction")
                                             @if($f['callback'])
-                                                <td class="{{is_array($f['cssClass'])?$f['cssClass'][toArray($d)[$f['identification']]]:$f['cssClass']}}"
-                                                    @if($f['jsfunction']) onclick="{{$f['jsfunction']}}('{{toArray($d)[$f['identification']]}}')" @endif>
+                                                <td class="{{is_array($f['cssClass'])?$f['cssClass'][$rowData[$f['identification']]]:$f['cssClass']}}"
+                                                    @if($f['jsfunction']) onclick="{{$f['jsfunction']}}('{{$rowData[$f['identification']]}}')" @endif>
                                                     @if($f['datas'])
-                                                        <label class="label {{toArray($d)[$f['identification'].'CssClass']?:'label-info'}}">{{$f['callback']($f['datas'][toArray($d)[$f['identification']]])}}</label>
+                                                        <label class="label {{$rowData[$f['identification'].'CssClass']?:'label-info'}}">{{$f['callback']($f['datas'][$rowData[$f['identification']]])}}</label>
                                                     @elseif(strpos($f['identification'], ',') !== false)
                                                         @foreach(explode(',',$f['identification']) as $name)
-                                                            {{toArray($d)[$name]}}<br>
+                                                            {{$rowData[$name]}}<br>
                                                         @endforeach
                                                     @else
-                                                        {{$f['callback'](toArray($d)[$f['identification']])}}
+                                                        {{$f['callback']($rowData[$f['identification']])}}
                                                     @endif
                                                 </td>
-                                            @elseif(in_array($f['formtype'],['upload', 'image']))
+                                            @elseif(in_array($f['formtype'],['upload', 'uploadAjax', 'image', 'imageAjax'], true))
+                                                @php($fileValue = $rowData[$f['identification']] ?? '')
                                                 <td>
-                                                    @if(in_array(end(explode('.',toArray($d)[$f['identification']])),['jpg','jpeg','png']))
-                                                        <img src="{{GetUrlByPath(toArray($d)[$f['identification']])}}"
+                                                    @if($fileValue && in_array(strtolower(end(explode('.',$fileValue))),['jpg','jpeg','png']))
+                                                        <img src="{{GetUrlByPath($fileValue)}}"
                                                              class="cursor-pointer" width="30"
-                                                             onclick="clickImage('{{GetUrlByPath(toArray($d)[$f['identification']])}}')">
-                                                    @else
+                                                             onclick="clickImage('{{GetUrlByPath($fileValue)}}')">
+                                                    @elseif($fileValue)
                                                         <i class="cursor-pointer icon-file-download2"
-                                                           onclick="fileDownload('{{GetUrlByPath(toArray($d)[$f['identification']])}}')"
+                                                           onclick="fileDownload('{{GetUrlByPath($fileValue)}}')"
                                                            style="font-size: 25px;"></i>
+                                                    @else
+                                                        -
                                                     @endif
                                                 </td>
                                             @else
-                                                <td class="{{is_array($f['cssClass'])?$f['cssClass'][toArray($d)[$f['identification']]]:$f['cssClass']}}"
-                                                    @if($f['jsfunction']) onclick="{{$f['jsfunction']}}('{{toArray($d)[$f['identification']]}}')" @endif>
+                                                <td class="{{is_array($f['cssClass'])?$f['cssClass'][$rowData[$f['identification']]]:$f['cssClass']}}"
+                                                    @if($f['jsfunction']) onclick="{{$f['jsfunction']}}('{{$rowData[$f['identification']]}}')" @endif>
                                                     @if($f['datas'])
-                                                        <label class="label {{toArray($d)[$f['identification'].'CssClass']?:'label-info'}}">{{$f['datas'][toArray($d)[$f['identification']]]}}</label>
+                                                        <label class="label {{$rowData[$f['identification'].'CssClass']?:'label-info'}}">{{$f['datas'][$rowData[$f['identification']]]}}</label>
                                                     @elseif(strpos($f['identification'], ',') !== false)
                                                         @foreach(explode(',',$f['identification']) as $name)
-                                                            @if(toArray($d)[$name])
-                                                                {{toArray($d)[$name]}}<br>
+                                                            @if($rowData[$name])
+                                                                {{$rowData[$name]}}<br>
                                                             @endif
                                                         @endforeach
                                                     @else
-                                                        {{toArray($d)[$f['identification']]}}
+                                                        {{$rowData[$f['identification']]}}
                                                     @endif
-
                                                 </td>
                                             @endif
-
-
-
-
                                         @elseif($f['identification']=="rightaction")
+                                            @php($rowActionId = $rowData[$f['actionby']] ?? ($rowData['id'] ?? ''))
                                             <td>
-
-                                                    @if(!in_array(toArray($d)[$f['actionby']],$f['notIdArray']?:[]))
-                                                        @foreach($f['datas'] as $act)
-                                                            @if(!$act["show"] || ($act["show"] && toArray($d)[$act["show"]['field']] == $act["show"]['value']))
-                                                                @if(!in_array(toArray($d)[$f['actionby']],$act['notIdArray']?:[]))
+                                                @if(!in_array($rowData[$f['actionby']],$f['notIdArray']?:[]))
+                                                    @foreach($f['datas'] as $act)
+                                                        @if(!$act["show"] || ($act["show"] && $rowData[$act["show"]['field']] == $act["show"]['value']))
+                                                            @if(!in_array($rowData[$f['actionby']],$act['notIdArray']?:[]))
+                                                                @if($act['actionType']=="modal")
+                                                                    <button type="button" class="btn {{$act['cssClass']}} btn-sm" data-toggle="modal" data-target="#modal_default_{{$rowActionId}}">{{$act['actionName']}}</button>
+                                                                    <div id="modal_default_{{$rowActionId}}" class="modal fade">
+                                                                        <div class="modal-dialog">
+                                                                            <div class="modal-content">
+                                                                                <div class="modal-header">
+                                                                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                                                                    <h5 class="modal-title">{{$rowData[$act['titleField']]?:$act['titleField']}}的详情</h5>
+                                                                                </div>
+                                                                                <div class="modal-body" id="modal_default_content_{{$rowActionId}}" style="height: 600px;overflow: auto">
+                                                                                    {!! $rowData[$act['field']] !!}
+                                                                                </div>
+                                                                                <div class="modal-footer">
+                                                                                    <button type="button" class="btn btn-link" data-dismiss="modal">关闭</button>
+                                                                                    <button type="button" class="btn btn-info" onclick="exportImg('modal_default_content_{{$rowActionId}}')">导出为图片</button>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                @else
+                                                                    @php($rowActionUrl = rtrim($act['actionUrl'].'?'.http_build_query(array_merge($act['param']?:[],[$f['actionby']=>$rowData[$f['actionby']]])),"?"))
                                                                     <a
-                                                                            @if($act['confirm'])
-                                                                            onclick="confirm('{{$act['actionUrl']}}?{{http_build_query(array_merge($act['param']?:[],[$f['actionby']=>toArray($d)[$f['actionby']]]))}}')"
-                                                                            @elseif($act['jsfunction'])
-                                                                                onclick="{{$act['jsfunction']['name']}}({{toArray($d)[$act["jsfunction"]['param']['field']]}})"
-                                                                            @else
-                                                                            href="{{$act['actionUrl']}}?{{http_build_query(array_merge($act['param']?:[],[$f['actionby']=>toArray($d)[$f['actionby']]]))}}">
+                                                                        @if($act['popup'])
+                                                                            onclick="popupPage('{{$rowActionUrl}}')"
+                                                                        @elseif($act['confirm'])
+                                                                            onclick="formtoolConfirmNavigate('{{$rowActionUrl}}')"
+                                                                        @else
+                                                                            href="{{$rowActionUrl}}"
                                                                         @endif
-
-                                                                        <button type="button"
-                                                                                class="h-button-edit btn {{$act['cssClass']}} btn-xs">
+                                                                        @if(!empty($act['target'])) target="{{$act['target']}}" @endif>
+                                                                        <button type="button" class="h-button-edit btn {{$act['cssClass']}} btn-xs">
                                                                             {{$act['actionName']}}
                                                                         </button>
                                                                     </a>
                                                                 @endif
                                                             @endif
-                                                        @endforeach
+                                                        @endif
+                                                    @endforeach
                                                 @endif
                                             </td>
                                         @endif
@@ -150,29 +183,25 @@
     </div>
     @include(moduleAdminTemplate($pageData['moduleName'])."public.js")
     <script>
-        function confirm(url) {
+        function formtoolConfirmNavigate(url) {
             layer.confirm('确定要操作吗？', {
                 title: "操作提示",
-                btn: ['确定', '取消'] //可以无限个按钮
-            }, function (index, layero) {
-                //按钮【按钮一】的回调
+                btn: ['确定', '取消']
+            }, function () {
                 window.location.href = url;
-            }, function (index) {
-                //按钮【按钮二】的回调
             });
         }
 
         function clickImage(src, w = 300) {
             if (w <= 0) w = 300;
             if (!src) return
-            //自定义页
             layer.open({
                 title: "",
                 type: 1,
-                skin: 'layui-layer-demo', //样式类名
-                closeBtn: 0, //不显示关闭按钮
+                skin: 'layui-layer-demo',
+                closeBtn: 0,
                 anim: 7,
-                shadeClose: true, //开启遮罩关闭
+                shadeClose: true,
                 content: "<img width='" + w + "' src='" + src + "'>"
             });
         }
@@ -182,7 +211,6 @@
         }
 
         function showAndhide(id) {
-
             if ($(".subpid_path_" + id).is(":hidden")) {
                 $(".subpid_path_" + id).show();
             } else {
@@ -190,6 +218,24 @@
             }
         }
 
+        function popupPage(url) {
+            var popupPageOpen = layer.open({
+                title: '',
+                type: 2,
+                content: url,
+                closeBtn: 1,
+                area:['50%','65%'],
+            });
+            $('.layui-layer-iframe').css({
+                'transform': 'translateZ(10000px)',
+                'scrollbar-width': 'none',
+            });
+        }
     </script>
+@foreach(($pageData['inlineScripts'] ?? []) as $inlineScript)
+    <script>
+{!! $inlineScript !!}
+    </script>
+@endforeach
 </body>
 </html>

@@ -3,74 +3,124 @@
 namespace Modules\Main\Libs;
 
 use Illuminate\Support\Facades\Artisan;
+use RuntimeException;
 
 class CMSBOOSTRAP
 {
-    static public function boostrap()
+    /**
+     * Legacy entry kept for compatibility with existing calls.
+     */
+    public static function boostrap(): void
+    {
+        self::bootstrap();
+    }
+
+    public static function bootstrap(): void
     {
         $self = new self();
-        $self->checkEnv();
-        //设置错误级别
-        error_reporting(E_ERROR); // E_ERROR  E_WARNING  E_PARSE  E_NOTICE  E_ALL
+        $self->ensureSupportedFunctions();
+        self::ensureDirectories();
+        $self->ensureEnvFile();
+        $self->configureErrorReporting();
     }
-    static public function checkEnvValue()
+
+    public static function checkEnvValue(): void
     {
-        config("app.key") || Artisan::call('key:generate');
+        self::ensureApplicationKey();
     }
-    static public function checkDir()
+
+    public static function checkDir(): void
     {
-        $dirList = [
-            base_path("bootstrap/cache"),
-            storage_path("logs"),
-            storage_path("backup"),
-            storage_path("download"),
-            storage_path("download/cms"),
-            storage_path("download/module"),
-            storage_path("download/plugin"),
-            storage_path("download/theme"),
-            storage_path("framework"),
-            storage_path("framework/sessions"),
-            storage_path("framework/views"),
-            storage_path("framework/cache")
+        self::ensureDirectories();
+    }
+
+    public static function ensureApplicationKey(): void
+    {
+        if (config('app.key')) {
+            return;
+        }
+
+        $envPath = base_path('.env');
+        if (!file_exists($envPath)) {
+            return;
+        }
+        if (!is_writable($envPath)) {
+            throw new RuntimeException('.env is not writable, unable to generate APP_KEY automatically');
+        }
+
+        try {
+            Artisan::call('key:generate', ['--force' => true]);
+        } catch (\Throwable $exception) {
+            throw new RuntimeException('generate APP_KEY failed: ' . $exception->getMessage(), 0, $exception);
+        }
+    }
+
+    public static function ensureDirectories(): void
+    {
+        foreach (self::directoryList() as $dir) {
+            if (!is_dir($dir) && !mkdir($dir, 0777, true) && !is_dir($dir)) {
+                throw new RuntimeException('create directory failed: ' . $dir);
+            }
+            if (!is_writable($dir)) {
+                @chmod($dir, 0777);
+            }
+        }
+    }
+
+    private static function directoryList(): array
+    {
+        return [
+            base_path('bootstrap/cache'),
+            public_path('views/modules'),
+            storage_path('logs'),
+            storage_path('backup'),
+            storage_path('download'),
+            storage_path('download/cms'),
+            storage_path('download/module'),
+            storage_path('download/plugin'),
+            storage_path('download/theme'),
+            storage_path('framework'),
+            storage_path('framework/sessions'),
+            storage_path('framework/views'),
+            storage_path('framework/cache'),
         ];
-        foreach ($dirList as $dir) {
-            is_dir($dir) || mkdir($dir, 0777, true);
-            is_writable($dir) || chmod($dir, 0777);
-        }
     }
-    private function checkEnv()
+
+    private function ensureEnvFile(): void
     {
-        $this->checkFunction();
-        if (!file_exists(base_path(".env"))) {
-            $env = file_get_contents(base_path(".env.example"));
-            file_put_contents(base_path(".env"), $env);
+        if (file_exists(base_path('.env'))) {
+            return;
         }
+
+        $envExamplePath = base_path('.env.example');
+        if (!file_exists($envExamplePath)) {
+            throw new RuntimeException('.env.example is not exists');
+        }
+
+        $env = file_get_contents($envExamplePath);
+        if ($env === false) {
+            throw new RuntimeException('read .env.example failed');
+        }
+
+        file_put_contents(base_path('.env'), $env);
     }
-    private function checkFunction()
+
+    private function ensureSupportedFunctions(): void
     {
-        if (!function_exists('file_get_contents')) {
-            throw new \Exception("file_get_contents function is not exists");
+        foreach (['file_get_contents', 'file_put_contents', 'getenv', 'fopen', 'chmod', 'unlink', 'symlink'] as $function) {
+            if (!function_exists($function)) {
+                throw new RuntimeException($function . ' function is not exists');
+            }
         }
-        if (!function_exists('file_put_contents')) {
-            throw new \Exception("file_put_contents function is not exists");
-        }
-        if (!function_exists('getenv')) {
-            throw new \Exception("getenv function is not exists");
-        }
-        if (!function_exists('fopen')) {
-            throw new \Exception("fopen function is not exists");
-        }
-        if (!function_exists('chmod')) {
-            throw new \Exception("chmod function is not exists");
-        }
-        if (!function_exists('unlink')) {
-            throw new \Exception("unlink function is not exists");
-        }
-        if (!function_exists('symlink')) {
-            throw new \Exception("symlink function is not exists");
-        }
-
-
     }
 
+    private function configureErrorReporting(): void
+    {
+        // Keep production-style suppression in normal runtime, but expose full errors in debug mode.
+        $debug = config('app.debug');
+        if (!is_bool($debug)) {
+            $debug = filter_var($_ENV['APP_DEBUG'] ?? getenv('APP_DEBUG') ?: false, FILTER_VALIDATE_BOOLEAN);
+        }
+        error_reporting($debug ? E_ALL : E_ERROR);
+    }
 }

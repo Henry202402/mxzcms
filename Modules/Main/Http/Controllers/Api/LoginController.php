@@ -18,7 +18,7 @@ class LoginController extends ModulesController {
         if (!$loginRegister['open_login']) return returnArr(0, '未开放登录');
         $all = $this->request->all();
         //用户登录
-        $check = hook('UserLogin', ['moduleName' => 'System', 'all' => $all, 'loginRegister' => $loginRegister, 'api_login' => $all['api_login']])[0];
+        $check = hook('UserLogin', ['moduleName' => 'System', 'all' => $all, 'loginRegister' => $loginRegister, 'api_login' => $all['api_login'] ?? 0])[0];
         if ($check['status'] != 200) return returnArr(0, $check['msg']);
         return $check;
     }
@@ -31,17 +31,22 @@ class LoginController extends ModulesController {
         //用户注册
         $check = hook('UserRegister', ['moduleName' => 'System', 'all' => $all, 'loginRegister' => $loginRegister])[0];
         if ($check['status'] != 200) return returnArr(0, $check['msg']);
-        return returnArr(200, '注册成功', ['url' => url("login")]);
+        return returnArr(200, '注册成功', ['url' => !empty($loginRegister['open_login']) ? url("login") : url('/')]);
     }
 
     //忘记密码
     public function forgot() {
         $all = $this->request->all();
+        $loginRegister = hook('GetHomeBasicConfig', ['moduleName' => 'System'])[0]['login_register'];
+        if (empty($loginRegister['open_email_verify']) && empty($loginRegister['open_phone_verify'])) {
+            return returnArr(0, '未开启找回密码验证方式');
+        }
         if (!$all['new_password']) return returnArr(0, '新密码不能为空');
         if (!$all['confirm_password']) return returnArr(0, '确认密码不能为空');
         if ($all['new_password'] !== $all['confirm_password']) return returnArr(0, '两次密码不一致');
 
         if ($all['verify_type'] == 'phone') {
+            if (empty($loginRegister['open_phone_verify'])) return returnArr(0, '未开启手机找回');
             if (!$all['phone']) return returnArr(0, '手机不能为空');
             if (!$all['phone_captcha']) return returnArr(0, '手机验证码不能为空');
             //验证手机号和验证码
@@ -52,6 +57,7 @@ class LoginController extends ModulesController {
             if ($checkEmailCode['status'] != 200) return returnArr(0, $checkEmailCode['msg']);
             $user = ServiceModel::apiGetOne(Member::TABLE_NAME, ['phone' => $all['phone']]);
         } elseif ($all['verify_type'] == 'email') {
+            if (empty($loginRegister['open_email_verify'])) return returnArr(0, '未开启邮箱找回');
             if (!$all['email']) return returnArr(0, '邮箱不能为空');
             if (!$all['email_captcha']) return returnArr(0, '邮箱验证码不能为空');
 

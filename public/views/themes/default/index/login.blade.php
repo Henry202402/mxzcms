@@ -1,55 +1,58 @@
 @include("themes.default.public.head")
 @include("themes.default.public.preloader")
 
-<div class="page js-page login-page">
+<div class="page js-page mx-auth-page">
+    <div class="mx-auth-shell">
+        <div class="mx-auth-card mx-auth-card--compact">
+            <a href="{{url('/')}}" class="mx-auth-brand mx-auth-brand--dark">
+                <img src="{{GetLocalFileByPath(cacheGlobalSettingsByKey('weblogo'))}}" alt="logo">
+                <span>{{ cacheGlobalSettingsByKey('website_name') ?: 'MXZCMS' }}</span>
+            </a>
 
-    <div class="login">
-        <div class="login-content">
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="login-wrapper">
-                            <div class="helper center">
-                                <a href="{{url("/")}}" class="logo-image animated">
-                                    <img src="{{GetLocalFileByPath(cacheGlobalSettingsByKey('weblogo'))}}" alt="logo">
-                                </a>
+            <div class="mx-auth-card__header">
+                <h2>{{ themeTrans('login.submit') }}</h2>
+                <p>欢迎回来，请先登录你的账户。</p>
+            </div>
+
+            <form action="{{url('login')}}" method="post" class="mx-auth-form">
+                {{csrf_field()}}
+                @if(session("errormsg"))
+                    <div class="mx-auth-alert mx-auth-alert--error">{{session("errormsg")}}</div>
+                @endif
+
+                <div class="mx-auth-field">
+                    <label>{{ themeTrans('login.identifier_placeholder') }}</label>
+                    <input type="text" class="form-control" name="name" placeholder="{{ themeTrans('login.identifier_placeholder') }}" autocomplete="off" required>
+                </div>
+
+                <div class="mx-auth-field">
+                    <label>{{ themeTrans('login.password_placeholder') }}</label>
+                    <input type="password" class="form-control" name="password" placeholder="{{ themeTrans('login.password_placeholder') }}" autocomplete="off" required>
+                </div>
+
+                @if($open_code_verify)
+                    <div class="mx-auth-field">
+                        <label>{{ themeTrans('login.captcha_placeholder') }}</label>
+                        <div class="mx-auth-inline-field">
+                            <input type="text" class="form-control" name="captcha" placeholder="{{ themeTrans('login.captcha_placeholder') }}" required autocomplete="off">
+                            <div class="mx-auth-inline-field__addon">
+                                {!! hook('GetSendCode', ['moduleName' => 'System', 'object_type' => 'captcha', 'operate_type' => 'send'])[0] !!}
                             </div>
-
-                            <form action="{{url("login")}}" method="post" class="login-form">
-                                {{csrf_field()}}
-                                <div class="login-inputs">
-                                    @if(session("errormsg"))
-                                        <span class="help-block form-error h-center"
-                                              style="color: #ff3625;">{{session("errormsg")}}</span>
-                                    @endif
-                                    <input type="text" class="form-control" name="name" placeholder="邮箱/手机号/用户名"
-                                           autocomplete="off" required>
-                                    <input type="password" class="form-control" name="password" placeholder="密码"
-                                           autocomplete="off" required>
-                                    @if($open_code_verify)
-                                        <div class="helper display-flex">
-                                            <input type="text" class="form-control" name="captcha"
-                                                   placeholder="验证码" required
-                                                   autocomplete="off">
-                                            {!! hook('GetSendCode', ['moduleName' => 'System', 'object_type' => 'captcha', 'operate_type' => 'send'])[0] !!}
-                                        </div>
-                                    @endif
-                                </div>
-                                <button type="submit" class="button green full">登录</button>
-                            </form>
-                            @if($open_register)
-                                <ul class="login-helpers">
-                                    <li class="login-helper-item">还没有账号? <a href="{{url("register")}}">注册</a></li>
-                                    <li class="login-helper-item"><a href="{{url("forgot")}}">忘记密码</a></li>
-                                </ul>
-                            @endif
                         </div>
                     </div>
-                </div>
+                @endif
+
+                <button type="submit" class="button green full">{{ themeTrans('login.submit') }}</button>
+            </form>
+
+            <div class="mx-auth-links">
+                @if($open_register)
+                    <a href="{{url('register')}}">{{ themeTrans('login.no_account') }} {{ themeTrans('login.register') }}</a>
+                @endif
+                <a href="{{url('forgot')}}">{{ themeTrans('login.forgot_password') }}</a>
             </div>
         </div>
     </div>
-
 </div>
 @include("themes.default.public.js")
 </body>

@@ -11,6 +11,8 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 class GetCronJob {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    public $data;
+
     /**
      * Create a new event instance.
      *

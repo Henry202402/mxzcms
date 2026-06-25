@@ -64,7 +64,7 @@ trait Func {
     }
 
     public static function getPluginsConfig($pluginName) {
-        $configArray = include PLUGIN_PATH . "/{$pluginName}/Config/config.php";
+        $configArray = include module_path($pluginName, "Config/config.php", "plugin");
         $config = [];
         foreach ($configArray['config'] as $key => $item) {
             $config[$key] = $item['value'];

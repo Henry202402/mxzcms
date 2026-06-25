@@ -5,25 +5,18 @@
             background: #328046;
         }
     </style>
-    <div class="form-group row">
-        <label class="control-label col-lg-1">@if($f['required'])<span style="color:red;">*</span> @endif{{$f['name']}}</label>
-        <div class="col-lg-11">
-            <input type="hidden" name="{{$f['identification']}}" id="{{$f['identification']}}"
-                   {{$f['disabled']}} value="{{$f['value']}}"
-                   @if($f['required']) required @endif >
-            <input type="file" id="{{$f['identification']}}Input" class="file-styled-primary" accept="image/*">
-{{--            <span class="help-block">支持格式: gif, png, jpg，jpeg. 最大文件 2Mb</span>--}}
-            @if($f['notes'])
-                <span class="help-block">{{ $f['notes'] }}</span>
-            @endif
-            <div id="{{$f['identification']}}Div" style="display:flex;margin-top: 10px;">
-                <span style="width: 90%;" class="progress">
-                    <div class="bar" style="width: 0%;"></div>
-                </span>
-                <span style="width: 10%;margin-left: 10px;" class="number">0</span>
-            </div>
-        </div>
+    @include('formtools::admin.formtooltemplates.fieldWrapperStart', compact('f'))
+    <input type="hidden" name="{{$f['identification']}}" id="{{$f['identification']}}"
+           {{$f['disabled']}} value="{{$f['value']}}"
+           @if($f['required']) required @endif >
+    <input type="file" id="{{$f['identification']}}Input" class="file-styled-primary" accept="image/*">
+    <div id="{{$f['identification']}}Div" style="display:flex;margin-top: 10px;">
+        <span style="width: 90%;" class="progress">
+            <div class="bar" style="width: 0%;"></div>
+        </span>
+        <span style="width: 10%;margin-left: 10px;" class="number">0</span>
     </div>
+    @include('formtools::admin.formtooltemplates.fieldWrapperEnd', compact('f'))
     <script>
         $(function () {
             $(".file-styled-primary").uniform({

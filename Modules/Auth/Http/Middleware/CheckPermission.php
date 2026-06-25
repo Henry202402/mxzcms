@@ -2,6 +2,7 @@
 
 namespace Modules\Auth\Http\Middleware;
 
+use App\Support\PackageManifest\PackageManifest;
 use Closure;
 use Modules\Auth\Models\GroupUser;
 use Modules\System\Http\Controllers\Common\SessionKey;
@@ -26,8 +27,9 @@ class CheckPermission {
         $roleArray = $groupListInfo[$group['group_id']];
         $roleModule = $groupListInfo[$group['group_id']]['role_array'][$moduleName] ?: [];
 
-        $config = include module_path($moduleName, 'Config/config.php');//模块是否需要权限
-        if ($config['auth'] == 'y' && $roleArray['type'] != 'admin' && !in_array($route['uri'], $roleModule)) {
+        $config = PackageManifest::load($moduleName, PackageManifest::PACKAGE_MODULE) ?: [];
+        $requireAuth = $config['ui']['auth'] ?? ($config['auth'] ?? 'n');
+        if ($requireAuth == 'y' && $roleArray['type'] != 'admin' && !in_array($route['uri'], $roleModule)) {
             return back()->with('pageDataMsg', '没权限')->with('pageDataStatus', '0');
         }
         session([SessionKey::CurrentUserPermissionGroupInfo => $roleArray]);

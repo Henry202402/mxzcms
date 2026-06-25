@@ -2,6 +2,24 @@
 
 use Illuminate\Support\Str;
 
+$defaultSessionCookie = Str::slug(env('APP_NAME', 'laravel'), '_').'_session';
+$sessionCookie = env('SESSION_COOKIE');
+$legacySessionCookie = env('COOKIE_NAME');
+
+$installed = is_file(base_path('public/install.lock'));
+$defaultDriver = (string) env('SESSION_DRIVER', 'file');
+if (!$installed) {
+    $defaultDriver = 'file';
+}
+
+if (!is_string($sessionCookie) || trim($sessionCookie) === '') {
+    $sessionCookie = null;
+}
+
+if (!is_string($legacySessionCookie) || trim($legacySessionCookie) === '') {
+    $legacySessionCookie = null;
+}
+
 return [
 
     /*
@@ -18,7 +36,7 @@ return [
     |
     */
 
-    'driver' => env('SESSION_DRIVER', 'file'),
+    'driver' => $defaultDriver,
 
     /*
     |--------------------------------------------------------------------------
@@ -46,7 +64,7 @@ return [
     |
     */
 
-    'encrypt' => false,
+    'encrypt' => env('SESSION_ENCRYPT', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -126,10 +144,7 @@ return [
     |
     */
 
-    'cookie' => env(
-        'SESSION_COOKIE',
-        Str::slug(env('APP_NAME', 'laravel'), '_').'_session'
-    ),
+    'cookie' => $sessionCookie ?: ($legacySessionCookie ?: $defaultSessionCookie),
 
     /*
     |--------------------------------------------------------------------------

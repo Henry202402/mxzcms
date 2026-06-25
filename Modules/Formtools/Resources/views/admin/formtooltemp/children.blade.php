@@ -1,5 +1,8 @@
 @if($d->children)
     @foreach($d->children as $dd)
+        @php($rowData = toArray($dd))
+        @php($rowActionField = $pageData['fields']['rightaction']['actionby'] ?? 'id')
+        @php($rowActionId = $rowData[$rowActionField] ?? ($rowData['id'] ?? ''))
         <tr class="
         @foreach(explode(',',$dd->pid_path) as $pid)
                 subpid_path_{{$pid}}
@@ -9,43 +12,46 @@
             @foreach($pageData['fields'] as $f)
                 @if($f['identification']!="rightaction")
                     @if($f['callback'])
-                        <td style="padding-left: {{$level*30}}px" class="{{is_array($f['cssClass'])?$f['cssClass'][toArray($dd)[$f['identification']]]:$f['cssClass']}}"
-                            @if($f['jsfunction']) onclick="{{$f['jsfunction']}}('{{toArray($dd)[$f['identification']]}}')" @endif>
+                        <td style="padding-left: {{$level*30}}px" class="{{is_array($f['cssClass'])?$f['cssClass'][$rowData[$f['identification']]]:$f['cssClass']}}"
+                            @if($f['jsfunction']) onclick="{{$f['jsfunction']}}('{{$rowData[$f['identification']]}}')" @endif>
                             @if($f['datas'])
-                                <label class="label {{toArray($dd)[$f['identification'].'CssClass']?:'label-info'}}">{{$f['callback']($f['datas'][toArray($dd)[$f['identification']]])}}</label>
+                                <label class="label {{$rowData[$f['identification'].'CssClass']?:'label-info'}}">{{$f['callback']($f['datas'][$rowData[$f['identification']]])}}</label>
                             @elseif(strpos($f['identification'], ',') !== false)
                                 @foreach(explode(',',$f['identification']) as $name)
-                                    {{toArray($dd)[$name]}}<br>
+                                    {{$rowData[$name]}}<br>
                                 @endforeach
                             @else
-                                {{$f['callback'](toArray($dd)[$f['identification']])}}
+                                {{$f['callback']($rowData[$f['identification']])}}
                             @endif
                         </td>
-                    @elseif($f['formtype']=='file')
+                    @elseif(in_array($f['formtype'], ['upload', 'uploadAjax', 'image', 'imageAjax'], true))
+                        @php($fileValue = $rowData[$f['identification']] ?? '')
                         <td style="padding-left: {{$level*30}}px">
-                            @if(in_array(end(explode('.',toArray($dd)[$f['identification']])),['jpg','jpeg','png']))
-                                <img src="{{GetUrlByPath(toArray($dd)[$f['identification']])}}"
+                            @if($fileValue && in_array(strtolower(end(explode('.',$fileValue))),['jpg','jpeg','png']))
+                                <img src="{{GetUrlByPath($fileValue)}}"
                                      class="cursor-pointer" width="30"
-                                     onclick="clickImage('{{GetUrlByPath(toArray($dd)[$f['identification']])}}')">
-                            @else
+                                     onclick="clickImage('{{GetUrlByPath($fileValue)}}')">
+                            @elseif($fileValue)
                                 <i class="cursor-pointer icon-file-download2"
-                                   onclick="fileDownload('{{GetUrlByPath(toArray($dd)[$f['identification']])}}')"
+                                   onclick="fileDownload('{{GetUrlByPath($fileValue)}}')"
                                    style="font-size: 25px;"></i>
+                            @else
+                                -
                             @endif
                         </td>
                     @else
-                        <td style="padding-left: {{$level*30}}px" class="{{is_array($f['cssClass'])?$f['cssClass'][toArray($dd)[$f['identification']]]:$f['cssClass']}}"
-                            @if($f['jsfunction']) onclick="{{$f['jsfunction']}}('{{toArray($dd)[$f['identification']]}}')" @endif>
+                        <td style="padding-left: {{$level*30}}px" class="{{is_array($f['cssClass'])?$f['cssClass'][$rowData[$f['identification']]]:$f['cssClass']}}"
+                            @if($f['jsfunction']) onclick="{{$f['jsfunction']}}('{{$rowData[$f['identification']]}}')" @endif>
                             @if($f['datas'])
-                                <label class="label {{toArray($dd)[$f['identification'].'CssClass']?:'label-info'}}">{{$f['datas'][toArray($dd)[$f['identification']]]}}</label>
+                                <label class="label {{$rowData[$f['identification'].'CssClass']?:'label-info'}}">{{$f['datas'][$rowData[$f['identification']]]}}</label>
                             @elseif(strpos($f['identification'], ',') !== false)
                                 @foreach(explode(',',$f['identification']) as $name)
-                                    @if(toArray($dd)[$name])
-                                        {{toArray($dd)[$name]}}<br>
+                                    @if($rowData[$name])
+                                        {{$rowData[$name]}}<br>
                                     @endif
                                 @endforeach
                             @else
-                                {{toArray($dd)[$f['identification']]}}
+                                {{$rowData[$f['identification']]}}
                             @endif
 
                         </td>
@@ -53,22 +59,45 @@
 
                 @elseif($f['identification']=="rightaction")
                     <td>
-                        @if(!in_array(toArray($dd)[$f['actionby']],$f['notIdArray']?:[]))
+                        @if(!in_array($rowData[$f['actionby']],$f['notIdArray']?:[]))
                             @foreach($f['datas'] as $act)
-                                @if(!$act["show"] || ($act["show"] && toArray($dd)[$act["show"]['field']] == $act["show"]['value']))
-                                    @if(!in_array(toArray($dd)[$f['actionby']],$act['notIdArray']?:[]))
-                                        <a
-                                                @if($act['confirm'])
-                                                onclick="confirm('{{$act['actionUrl']}}?{{http_build_query(array_merge($act['param']?:[],[$f['actionby']=>toArray($dd)[$f['actionby']]]))}}')"
+                                @if(!$act["show"] || ($act["show"] && $rowData[$act["show"]['field']] == $act["show"]['value']))
+                                    @if(!in_array($rowData[$f['actionby']],$act['notIdArray']?:[]))
+                                        @if($act['actionType']=="modal")
+                                            <button type="button" class="h-button-edit btn {{$act['cssClass']}} btn-xs" data-toggle="modal" data-target="#modal_default_{{$rowActionId}}">{{$act['actionName']}}</button>
+                                            <div id="modal_default_{{$rowActionId}}" class="modal fade">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                                            <h5 class="modal-title">{{$rowData[$act['titleField']]?:$act['titleField']}}的详情</h5>
+                                                        </div>
+                                                        <div class="modal-body" id="modal_default_content_{{$rowActionId}}" style="height: 600px;overflow: auto">
+                                                            {!! $rowData[$act['field']] !!}
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-link" data-dismiss="modal">关闭</button>
+                                                            <button type="button" class="btn btn-info" onclick="exportImg('modal_default_content_{{$rowActionId}}')">导出为图片</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @else
+                                            @php($rowActionUrl = rtrim($act['actionUrl'].'?'.http_build_query(array_merge($act['param']?:[],[$f['actionby']=>$rowData[$f['actionby']]])),"?"))
+                                            <a
+                                                @if($act['popup'])
+                                                    onclick="popupPage('{{$rowActionUrl}}')"
+                                                @elseif($act['confirm'])
+                                                    onclick="formtoolConfirmNavigate('{{$rowActionUrl}}')"
                                                 @else
-                                                href="{{$act['actionUrl']}}?{{http_build_query(array_merge($act['param']?:[],[$f['actionby']=>toArray($dd)[$f['actionby']]]))}}">
-                                            @endif
-
-                                            <button type="button"
-                                                    class="h-button-edit btn {{$act['cssClass']}} btn-xs">
-                                                {{$act['actionName']}}
-                                            </button>
-                                        </a>
+                                                    href="{{$rowActionUrl}}"
+                                                @endif
+                                                @if(!empty($act['target'])) target="{{$act['target']}}" @endif>
+                                                <button type="button" class="h-button-edit btn {{$act['cssClass']}} btn-xs">
+                                                    {{$act['actionName']}}
+                                                </button>
+                                            </a>
+                                        @endif
                                     @endif
                                 @endif
                             @endforeach

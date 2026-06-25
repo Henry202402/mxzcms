@@ -1,32 +1,41 @@
 <div id="content">
     <div class="container">
-        <div class="row">
-            <div class="col-md-12 dataList">
-                @foreach($data as $l)
-                    <!-- Note -->
-                    <div class="note js-note {{['','green','blue','blue-light','purple','red'][rand(0,5)]}}">
-                        <a href="{{url("detail/{$param['model']}/{$l['id']}")}}">
-                            <h4 class="note-title">
-                                {{$l['title']}}
-                            </h4>
-                        </a>
-                        <div class="note-description"
-                             style="-webkit-line-clamp: 2;overflow: hidden;height: 40px;line-height: 20px;">
-                            {!! strip_tags($l['content']) !!}
-                        </div>
+        @php
+            $pageNum = data_get($model, 'home_config.page_num', $model['page_num'] ?? 0);
+            $pagePosition = data_get($model, 'home_config.list_page_template', $model['list_page_template'] ?? 'center');
+        @endphp
 
-                        <div style="font-size: 13px;color: #99a3b1;margin-top: 5px;">
-                            <span class="blog-grid-date">{{$l['created_at']}}</span>
-                        </div>
-                    </div>
-                    <!-- End of Note -->
-                @endforeach
+        <div class="mx-list-shell">
+            @include('themes.default.public.listHero', ['model' => $model, 'listContext' => $listContext ?? []])
+
+            <div class="mx-list-panel">
+                <div class="mx-note-list">
+                    @forelse($data as $l)
+                        <article class="mx-note-card">
+                            <h3 class="mx-note-card__title">
+                                <a href="{{url("detail/{$param['model']}/{$l['id']}")}}">{{$l['title'] ?? '未命名内容'}}</a>
+                            </h3>
+                            <p class="mx-note-card__desc">
+                                {{ \Illuminate\Support\Str::limit(trim(strip_tags($l['content'] ?? '')), 160) ?: '当前内容暂未填写摘要，点击查看完整详情。' }}
+                            </p>
+                            <div class="mx-note-card__meta">
+                                @if(!empty($l['created_at']))
+                                    <span><i class="fa fa-clock-o"></i> {{$l['created_at']}}</span>
+                                @endif
+                                @if(!empty($l['author']))
+                                    <span><i class="fa fa-user-o"></i> {{$l['author']}}</span>
+                                @endif
+                            </div>
+                        </article>
+                    @empty
+                        <div class="mx-empty mx-list-empty">当前模型还没有可展示的数据，请先在后台内容管理中新增内容。</div>
+                    @endforelse
+                </div>
             </div>
-            <div class="col-md-12">
-                @if ($model['page_num'] > 0 && $data_source=="local")
-                    {{$data->appends($_GET)->links('themes.default.public.pagination',['data'=>['side_num'=>2,'page_position'=>$model['list_page_template']]])}}
-                @endif
-            </div>
+
+            @if ($pageNum > 0 && $data_source=="local")
+                {{$data->appends($_GET)->links('themes.default.public.pagination',['data'=>['side_num'=>2,'page_position'=>$pagePosition]])}}
+            @endif
         </div>
     </div>
 </div>

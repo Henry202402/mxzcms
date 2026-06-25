@@ -12,7 +12,7 @@
                         <!-- Changelog Scroll To -->
                         <div class="changelog-scroll-to">
                             <div style="position: relative;top: -8px;">
-                                定位 <i class="pe-7s-angle-down"></i>
+                                {{ themeTrans('milestone.locate') }} <i class="pe-7s-angle-down"></i>
                             </div>
 
                             <ul class="changelog-scroll-to-list">

@@ -15,7 +15,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        CMSBOOSTRAP::boostrap();
+        CMSBOOSTRAP::bootstrap();
         $this->app->register(RouteServiceProvider::class);
         $this->app->register(CaptchaServiceProvider::class);
     }
@@ -27,7 +27,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        CMSBOOSTRAP::checkEnvValue();
+        CMSBOOSTRAP::ensureApplicationKey();
     }
 
 

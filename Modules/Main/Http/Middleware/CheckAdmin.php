@@ -23,7 +23,11 @@ class CheckAdmin {
             return $next($request);
         }
         if (empty($userInfo)) {
-            return redirect('admin/login/' . cacheGlobalSettingsByKey('admin_login_entrance'));
+            $entrance = (string) cacheGlobalSettingsByKey('admin_login_entrance');
+            if ($entrance !== '') {
+                abort(404, '页面不存在');
+            }
+            return redirect('admin/login');
         }
 
         $checkPass = Member::query()

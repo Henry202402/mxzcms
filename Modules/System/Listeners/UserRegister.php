@@ -18,13 +18,22 @@ class UserRegister {
         $loginRegister = $event->data['loginRegister'];
         if (!$loginRegister['open_register']) return returnArr(0, "未开放注册");
 
-        if ($if = ifCondition([
+        $requiredFields = [
             'username' => '用户名不能为空',
             'password' => '密码不能为空',
             'confirm_password' => '确认密码不能为空',
-            'email' => '邮箱不能为空',
-            'phone' => '手机号不能为空',
-        ], $all)) return $if;
+        ];
+        if (!empty($loginRegister['required_nickname'])) {
+            $requiredFields['nickname'] = '昵称不能为空';
+        }
+        if (!empty($loginRegister['required_email'])) {
+            $requiredFields['email'] = '邮箱不能为空';
+        }
+        if (!empty($loginRegister['required_phone'])) {
+            $requiredFields['phone'] = '手机号不能为空';
+        }
+
+        if ($if = ifCondition($requiredFields, $all)) return $if;
 
         if ($loginRegister['agreementList'] && !$all['agree']) return returnArr(0, "请勾选协议");
 

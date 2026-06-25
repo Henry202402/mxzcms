@@ -2,10 +2,13 @@
 
 namespace Modules\Install\Http\Controllers;
 
+use App\Support\Installer\DatabasePreflight;
+use App\Support\Installer\InstallLogger;
+use App\Support\Installer\InstallerInspector;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 use Modules\Main\Http\Controllers\Admin\FuncController;
 use Modules\Main\Models\Member;
 use Modules\Main\Services\ServiceModel;
@@ -29,20 +32,36 @@ class InstallController extends ModulesController {
 
     //检查是否安装
     public static function checkInstall() {
-        $temp = true;
-        if(!is_file(public_path() . '/install.lock')){
-            $temp = false;
-//            try {
-//                if (Schema::hasTable("modules")){
-//                    file_put_contents(public_path() . '/install.lock',date("Y-m-d H:i:s"));
-//                }else{
-//                    $temp = false;
-//                }
-//            }catch (\Exception $exception){
-//                $temp = false;
-//            }
+        $lockPath = public_path('install.lock');
+        if (is_file($lockPath)) {
+            return true;
         }
-        return $temp;
+
+        try {
+            if (!is_file(base_path('.env'))) {
+                return false;
+            }
+
+            $dbHost = (string) env('DB_HOST');
+            $dbDatabase = (string) env('DB_DATABASE');
+            $dbUsername = (string) env('DB_USERNAME');
+            if ($dbHost === '' || $dbDatabase === '' || $dbUsername === '') {
+                return false;
+            }
+
+            $installed = Schema::hasTable('modules')
+                || Schema::hasTable('members')
+                || Schema::hasTable('settings');
+
+            if (!$installed) {
+                return false;
+            }
+
+            // @file_put_contents($lockPath, date('Y-m-d H:i:s'));
+            // return true;
+        } catch (\Throwable $exception) {
+            return false;
+        }
     }
 
     //事件目录列表
@@ -53,20 +72,20 @@ class InstallController extends ModulesController {
             $pluginList = \cache()->get(\Mxzcms\Modules\cache\CacheKey::PluginsActive) ?: [];
             foreach ($pluginList as $plugin) {
                 if ($plugin['status']) {
-                    $array[] = base_path('Plugins/' . $plugin['identification'] . '/Listeners');
+                    $array[] = plugins_base_path($plugin['identification'] . '/Listeners');
                 }
             }
             $moduleList = \cache()->get(\Mxzcms\Modules\cache\CacheKey::ModulesActive) ?: [];
             foreach ($moduleList as $module) {
                 if ($module['status']) {
-                    $array[] = base_path('Modules/' . $module['identification'] . '/Listeners');
+                    $array[] = modules_base_path($module['identification'] . '/Listeners');
                 }
             }
         } else {
             $array = [
-                base_path('Modules/System/Listeners'),
-                base_path('Modules/Auth/Listeners'),
-                base_path('Modules/Formtools/Listeners'),
+                modules_base_path('System/Listeners'),
+                modules_base_path('Auth/Listeners'),
+                modules_base_path('Formtools/Listeners'),
             ];
         }
         return $array;
@@ -78,142 +97,16 @@ class InstallController extends ModulesController {
         $params['install'] = isset($params['install']) ? $params['install'] : 1;
         switch (intval($params['install'])) {
             case 2: //检测环境
-                $data = [];
-                $data['phpversion'] = @phpversion();
-                $data['os'] = PHP_OS;
-                $tmp = function_exists('gd_info') ? gd_info() : [];
-                // $server             = $_SERVER["SERVER_SOFTWARE"];
-                // $host               = $this->request->host();
-                // $name               = $_SERVER["SERVER_NAME"];
-                // $max_execution_time = ini_get('max_execution_time');
-                // $allow_reference    = (ini_get('allow_call_time_pass_reference') ? '<font color=green>[√]On</font>' : '<font color=red>[×]Off</font>');
-                // $allow_url_fopen    = (ini_get('allow_url_fopen') ? '<font color=green>[√]On</font>' : '<font color=red>[×]Off</font>');
-                // $safe_mode          = (ini_get('safe_mode') ? '<font color=red>[×]On</font>' : '<font color=green>[√]Off</font>');
-
-                $err = 0;
-                if (empty($tmp['GD Version'])) {
-                    $gd = '<font color=red>[×]Off</font>';
-                    $err++;
-                } else {
-                    $gd = '<font color=green>[√]On</font> ' . $tmp['GD Version'];
-                }
-
-                if (version_compare($data['phpversion'], '8.0.0', '>=') && version_compare($data['phpversion'], '8.2.2', '<=')) {
-                    $data['phpversion_msg'] = '<i class="fa fa-check correct"></i> ' . $data['phpversion'];
-                } else {
-                    $data['phpversion_msg'] = '<i class="fa fa-remove error"></i> ' . $data['phpversion'];
-                    $err++;
-                }
-
-                if (class_exists('pdo')) {
-                    $data['pdo'] = '<i class="fa fa-check correct"></i> 已开启';
-                } else {
-                    $data['pdo'] = '<i class="fa fa-remove error"></i> 未开启';
-                    $err++;
-                }
-
-                if (extension_loaded('pdo_mysql')) {
-                    $data['pdo_mysql'] = '<i class="fa fa-check correct"></i> 已开启';
-                } else {
-                    $data['pdo_mysql'] = '<i class="fa fa-remove error"></i> 未开启';
-                    $err++;
-                }
-
-                if (extension_loaded('curl')) {
-                    $data['curl'] = '<i class="fa fa-check correct"></i> 已开启';
-                } else {
-                    $data['curl'] = '<i class="fa fa-remove error"></i> 未开启';
-                    $err++;
-                }
-
-                if (extension_loaded('gd')) {
-                    $data['gd'] = '<i class="fa fa-check correct"></i> 已开启';
-                } else {
-                    $data['gd'] = '<i class="fa fa-remove error"></i> 未开启';
-                    if (function_exists('imagettftext')) {
-                        $data['gd'] .= '<br><i class="fa fa-remove error"></i> FreeType Support未开启';
-                    }
-                    $err++;
-                }
-
-                if (extension_loaded('mbstring')) {
-                    $data['mbstring'] = '<i class="fa fa-check correct"></i> 已开启';
-                } else {
-                    $data['mbstring'] = '<i class="fa fa-remove error"></i> 未开启';
-                    if (function_exists('imagettftext')) {
-                        $data['mbstring'] .= '<br><i class="fa fa-remove error"></i> FreeType Support未开启';
-                    }
-                    $err++;
-                }
-
-                if (extension_loaded('fileinfo')) {
-                    $data['fileinfo'] = '<i class="fa fa-check correct"></i> 已开启';
-                } else {
-                    $data['fileinfo'] = '<i class="fa fa-remove error"></i> 未开启';
-                    $err++;
-                }
-
-                if (ini_get('file_uploads')) {
-                    $data['upload_size'] = '<i class="fa fa-check correct"></i> ' . ini_get('upload_max_filesize');
-                } else {
-                    $data['upload_size'] = '<i class="fa fa-remove error"></i> 禁止上传';
-                }
-
-                if (function_exists('session_start')) {
-                    $data['session'] = '<i class="fa fa-check correct"></i> 支持';
-                } else {
-                    $data['session'] = '<i class="fa fa-remove error"></i> 不支持';
-                    $err++;
-                }
-
-                if (version_compare($data['phpversion'], '8.0.0', '>=') && version_compare($data['phpversion'], '8.2.2', '<') && ini_get('always_populate_raw_post_data') != -1) {
-                    $data['always_populate_raw_post_data'] = '<i class="fa fa-remove error"></i> 未关闭';
-                    $data['show_always_populate_raw_post_data_tip'] = true;
-                    $err++;
-                } else {
-                    $data['always_populate_raw_post_data'] = '<i class="fa fa-check correct"></i> 已关闭';
-                }
-
-                $folders = [
-                    "app",
-                    "bootstrap/cache",
-                    "config",
-                    "Modules",
-                    "Plugins",
-                    "public",
-                    "storage",
-                    "vendor",
-                    ".env"
-                ];
-                $newFolders = [];
-                foreach ($folders as $dir) {
-                    $testDir = base_path() . "/" . $dir;
-                    self::sp_dir_create($testDir);
-                    if (!is_file($testDir)) {
-                        if (self::sp_testwrite($testDir)) {
-                            $newFolders[$dir]['w'] = true;
-                        } else {
-                            $newFolders[$dir]['w'] = false;
-                            $err++;
-                        }
-                    } else {
-                        if (is_writable($testDir)) {
-                            $newFolders[$dir]['w'] = true;
-                        } else {
-                            $newFolders[$dir]['w'] = false;
-                            $err++;
-                        }
-                    }
-
-                    if (is_readable($testDir)) {
-                        $newFolders[$dir]['r'] = true;
-                    } else {
-                        $newFolders[$dir]['r'] = false;
-                        $err++;
-                    }
-                }
-                $data['folders'] = $newFolders;
-                view()->share(['data' => $data]);
+                $data = InstallerInspector::inspectForLegacyView();
+                view()->share([
+                    'data' => $data,
+                    'installCheckSummary' => $this->buildInstallerCheckSummary($data['checks'] ?? []),
+                ]);
+                break;
+            case 3: //创建数据
+                view()->share([
+                    'installDefaults' => $this->getInstallFormDefaults(),
+                ]);
                 break;
             case 4: //创建数据 - 提交
 
@@ -221,6 +114,7 @@ class InstallController extends ModulesController {
                  * 设置数据库配置
                  */
                 if (isset($params['dbhost'])) $env['DB_HOST'] = $params['dbhost'];
+                if (isset($params['dbport'])) $env['DB_PORT'] = $params['dbport'];
                 if (isset($params['dbname'])) $env['DB_DATABASE'] = $params['dbname'];
                 if (isset($params['dbuser'])) $env['DB_USERNAME'] = $params['dbuser'];
                 if (isset($params['dbpw'])) $env['DB_PASSWORD'] = $params['dbpw'];
@@ -249,6 +143,10 @@ class InstallController extends ModulesController {
                     }
                 }
                 $install['settings'] = $settings;
+                $install['settings'][] = [
+                    'key' => 'admin_login_entrance',
+                    'value' => $this->getInstallFormDefaults()['admin_login_entrance'],
+                ];
 
                 /**
                  * 设置管理员信息
@@ -258,11 +156,18 @@ class InstallController extends ModulesController {
                     'email' => $params['manager_email'],
                     'password' => $params['manager_pwd'],
                 ];
+                session()->put('install_form_defaults', [
+                    'manager' => $params['manager'],
+                    'manager_email' => $params['manager_email'],
+                    'manager_pwd' => $params['manager_pwd'],
+                    'admin_login_entrance' => $this->getInstallFormDefaults()['admin_login_entrance'],
+                ]);
 
                 /**
                  * SQL文件处理
                  */
-                $con = mysqli_connect($params['dbhost'], $params['dbuser'], $params['dbpw']) or die('不能连接数据库 $DB_HOST');
+                $dbPort = (int) ($params['dbport'] ?? env('DB_PORT', 3306));
+                $con = mysqli_connect($params['dbhost'], $params['dbuser'], $params['dbpw'], null, $dbPort) or die('不能连接数据库 $DB_HOST');
                 $sql = "CREATE DATABASE IF NOT EXISTS `{$env['DB_DATABASE']}` DEFAULT CHARACTER SET " . $params['dbcharset'];
                 mysqli_query($con, $sql);
 
@@ -278,30 +183,31 @@ class InstallController extends ModulesController {
     //测试数据库
     public function checkDbPwd(Request $request) {
         if ($request->isMethod('POST')) {
-            $dbConfig = $request->all();
-            $dbConfig['type'] = "mysql";
-            try {
-                config(['database.connections.mysql.host' => $dbConfig['hostname']]);
-                config(['database.connections.mysql.username' => $dbConfig['username']]);
-                config(['database.connections.mysql.password' => $dbConfig['password']]);
-                config(['database.connections.mysql.database' => '']);
-                DB::connection()->getPdo();
-                $msg = '账号密码验证成功！';
-                if ($dbConfig['database']) {
-                    try {
-                        DB::select('use ' . $dbConfig['database']);
-                        return ['msg' => $msg . '数据库已存在！', 'status' => 200];
-                    } catch (\Exception $e) {
-                        return ['msg' => $msg . '数据库不存在将自动创建！', 'status' => 40000];
-                    }
-                }
-                return ['msg' => $msg, 'status' => 200];
-            } catch (\Exception $e) {
-                return ['msg' => '数据库账号或密码不正确！' . $e->getMessage(), 'status' => 40000];
-            }
+            return DatabasePreflight::check($request->all());
         } else {
             return ['msg' => '非法请求方式!', 'status' => 40000];
         }
+    }
+
+    public function checkRewrite(Request $request) {
+        $requestUri = (string) $request->server('REQUEST_URI', '');
+        $scriptName = (string) $request->server('SCRIPT_NAME', '');
+        $path = trim((string) $request->path(), '/');
+        $containsIndexPhp = stripos($requestUri, 'index.php') !== false;
+        $supported = $path === 'install/rewrite-check' && !$containsIndexPhp;
+
+        return response()->json([
+            'status' => $supported ? 200 : 40000,
+            'msg' => $supported
+                ? '已通过干净路由访问到安装探测接口，rewrite 规则生效。'
+                : '当前请求仍带有 index.php 或未通过干净路由进入，rewrite 可能未开启或规则未生效。',
+            'data' => [
+                'supported' => $supported,
+                'request_uri' => $requestUri,
+                'path' => $path,
+                'script_name' => $scriptName,
+            ],
+        ]);
     }
 
     //保存数据库信息
@@ -309,6 +215,7 @@ class InstallController extends ModulesController {
         $all = $request->all();
         $env = [
             'DB_HOST' => $all['dbhost'],
+            'DB_PORT' => $all['dbport'] ?? env('DB_PORT', 3306),
             'DB_USERNAME' => $all['dbuser'],
             'DB_PASSWORD' => $all['dbpw'],
             'DB_DATABASE' => $all['dbname'],
@@ -325,12 +232,19 @@ class InstallController extends ModulesController {
 
     public function start(Request $request) {
         if (self::checkInstall()) {
+            InstallLogger::log('install_start_blocked', [
+                'reason' => 'already_installed',
+            ]);
             return ['msg' => "CMS已经安装过，如需重新安装，请删除Public目录下install.lock文件。", 'status' => 40000];
         }
 
         try {
+            InstallLogger::log('install_start', [
+                'db_host' => env('DB_HOST'),
+                'db_database' => env('DB_DATABASE'),
+            ]);
             $migrate = Artisan::call('migrate', [
-                '--path' => "Modules/Install/Database/Migrations/install",
+                '--path' => modules_relative_path('Install/Database/Migrations/install'),
                 '--force' => 1,
             ]);
             Artisan::call('db:seed', [
@@ -338,9 +252,15 @@ class InstallController extends ModulesController {
                 '--force' => 1,
             ]);
             $installError = session('install.error');
+            InstallLogger::log('install_success', [
+                'install_error' => $installError,
+            ]);
             return ['status' => 200, 'msg' => "安装完成!", 'data' => ['done' => 1, 'error' => $installError]];
 
         } catch (\Exception $exception) {
+            InstallLogger::log('install_fail', [
+                'error' => $exception->getMessage(),
+            ]);
             return ['msg' => $exception->getMessage(), 'status' => 40000];
         }
 
@@ -388,7 +308,7 @@ class InstallController extends ModulesController {
             $add["avatar"] = "avatar/avatar.jpg";
             $add['username'] = $admin['username'];
             $add['nickname'] = $admin['username'];
-            $add['password'] = ServiceModel::getPassword($admin['password']);
+            $add['password'] = $this->hashInstallAdminPassword((string) $admin['password']);
             $add['status'] = 1;
             $add['email'] = $admin['email'];
             if ($find) {
@@ -412,7 +332,7 @@ class InstallController extends ModulesController {
      * 数据库配置项重写
      */
     private function writeDatabaseConfig($params = []) {
-        $limit_unique = ['DB_PREFIX', 'DB_DATABASE', 'DB_USERNAME', 'DB_PASSWORD'];
+        $limit_unique = ['DB_PREFIX', 'DB_DATABASE', 'DB_USERNAME', 'DB_PASSWORD', 'DB_PORT'];
         $update_env = [];
         foreach ($params as $key => $value) {
             if (in_array($key, $limit_unique)) $update_env[$key] = $value;
@@ -420,31 +340,88 @@ class InstallController extends ModulesController {
         modifyEnv($update_env);//更新ENV配置文件中的数据库配置项
     }
 
-    private static function sp_dir_create($path, $mode = 0777) {
-        if (is_dir($path)) return true;
-        $temp = explode('/', $path);
-        $cur_dir = '';
-        $max = count($temp) - 1;
-        for ($i = 0; $i < $max; $i++) {
-            $cur_dir .= $temp[$i] . '/';
-            if (@is_dir($cur_dir)) continue;
-            @mkdir($cur_dir, 0777, true);
-            @chmod($cur_dir, 0777);
+    private function buildInstallerCheckSummary(array $checks): array
+    {
+        $summary = [
+            'total' => 0,
+            'passed' => 0,
+            'failed_required' => 0,
+            'failed_optional' => 0,
+            'failed_items' => [],
+        ];
+
+        foreach ($checks as $group => $items) {
+            foreach (($items ?: []) as $item) {
+                $summary['total']++;
+                if (($item['status'] ?? '') === 'pass') {
+                    $summary['passed']++;
+                    continue;
+                }
+
+                if (($item['required'] ?? true)) {
+                    $summary['failed_required']++;
+                } else {
+                    $summary['failed_optional']++;
+                }
+
+                $summary['failed_items'][] = [
+                    'group' => $group,
+                    'title' => $item['title'] ?? $item['key'] ?? 'unknown',
+                    'message' => $item['message'] ?? '不通过',
+                    'required' => $item['required'] ?? true,
+                ];
+            }
         }
-        return is_dir($path);
+
+        return $summary;
     }
 
-    private static function sp_testwrite($d) {
-        $tfile = "_test.txt";
-        $fp = @fopen($d . "/" . $tfile, "w");
-        if (!$fp) {
-            return false;
+    private function getInstallFormDefaults(): array
+    {
+        $defaults = session('install_form_defaults') ?: [];
+        if (empty($defaults['manager_pwd'])) {
+            $defaults['manager_pwd'] = $this->generateRandomPassword();
         }
-        fclose($fp);
-        $rs = @unlink($d . "/" . $tfile);
-        if ($rs) {
-            return true;
+
+        if (empty($defaults['manager'])) {
+            $defaults['manager'] = 'admin';
         }
-        return false;
+
+        if (!array_key_exists('manager_email', $defaults)) {
+            $defaults['manager_email'] = '';
+        }
+
+        if (empty($defaults['admin_login_entrance'])) {
+            $defaults['admin_login_entrance'] = strtolower($this->generateRandomPassword(10));
+        }
+
+        session()->put('install_form_defaults', $defaults);
+
+        return $defaults;
+    }
+
+    private function generateRandomPassword(int $length = 12): string
+    {
+        $raw = Str::random($length + 4);
+        $password = preg_replace('/[^A-Za-z0-9]/', '', $raw) ?: Str::random($length);
+
+        return substr($password, 0, $length);
+    }
+
+    private function hashInstallAdminPassword(string $password): string
+    {
+        $passwordKey = $this->getInstallPasswordKey();
+
+        return md5($passwordKey . md5($password));
+    }
+
+    private function getInstallPasswordKey(): string
+    {
+        $passwordKey = (string) Setting::query()
+            ->where('module', 'Main')
+            ->where('key', 'password_key')
+            ->value('value');
+
+        return $passwordKey !== '' ? $passwordKey : 'mxz_';
     }
 }

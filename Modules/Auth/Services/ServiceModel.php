@@ -31,13 +31,24 @@ class ServiceModel {
 
 
     public static function groupUser($all) {
+        $keyword = trim((string) ($all['keyword'] ?? ''));
         return GroupUser::query()
             ->from(GroupUser::TABLE_NAME . ' as role')
             ->where('role.group_id', $all['group_id'])
             ->leftJoin(Group::TABLE_NAME . ' as group', 'group.group_id', '=', 'role.group_id')
             ->leftJoin(Member::TABLE_NAME . ' as user', 'user.uid', '=', 'role.uid')
+            ->when($keyword !== '', function ($query) use ($keyword) {
+                $query->where(function ($subQuery) use ($keyword) {
+                    $subQuery->where('user.username', 'like', '%' . $keyword . '%')
+                        ->orWhere('user.phone', 'like', '%' . $keyword . '%');
+                    if (ctype_digit($keyword)) {
+                        $subQuery->orWhere('user.uid', (int) $keyword);
+                    }
+                });
+            })
             ->select([
                 'role.id',
+                'role.uid',
                 'role.created_at',
                 'group.type',
                 'group.group_name',

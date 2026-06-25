@@ -3,6 +3,7 @@
 namespace Modules\System\Listeners;
 
 use Illuminate\Http\Request;
+use Plugins\Logger\Lib\Logger;
 
 class ExceptionHandler
 {
@@ -15,11 +16,16 @@ class ExceptionHandler
             $module=explode('\\',\request()->route()->getAction()['namespace'])[1];
         }
         $array = dealErrorExceptionInfo($exception);
+        $logContext = Logger::normalizeSystemContext('error', $exception, [
+            'module' => $module ?: 'Main',
+            'requestid' => \request()->requestid ?? '',
+            'path' => url()->full(),
+        ]);
         hook("Loger",[
             'module' => $module?:"Main",
             'type' => "system",
             'two_type' => "error" ,
-            'params' => $array,
+            'params' => $logContext,
             'remark' => "",
             'unique_id' => '',
             'requestid' => \request()->requestid

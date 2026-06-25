@@ -21,46 +21,185 @@ class TaskController extends CommonController {
             'title' => '定时任务',
             'controller' => 'Secure',
             'action' => 'scheduledTasksList',
+            'data' => [],
+            'noAddList' => [],
+            'moduleList' => [],
         ];
+        $existingTasks = \Modules\System\Services\ServiceModel::scheduledTasksList();
         $res = hook('GetCronJob', []);
+        if (!is_array($res)) {
+            $res = [];
+        }
 
         $route = getURIByRoute($this->request);
-        $moduleName = $route['moduleName'];
-        foreach ($res as $key => $m) {
-            if ($m[0] == $moduleName) {
-                $pageData['data'] = $m[1];
-                unset($res[$key]);
-                break;
-            }
-        }
+        $moduleName = $route['moduleName'] ?? '';
+        $pageData['data'] = is_array($existingTasks) ? $existingTasks : [];
 
         $addModuleList = [];
         foreach ($pageData['data'] as $d) {
-            if ($d['module_class'] && $d['module_class_method']) $addModuleList[] = "{$d['module_class']}@{$d['module_class_method']}";
+            if (!empty($d['module_class']) && !empty($d['module_class_method'])) {
+                $addModuleList[] = "{$d['module_class']}@{$d['module_class_method']}";
+            }
         }
 
         $noAddList = [];
+        $noAddMap = [];
         foreach ($res as $key => $m) {
+            if (!is_array($m) || empty($m[0]) || empty($m[1]) || !is_array($m[1])) {
+                continue;
+            }
             foreach ($m[1] as $mv) {
-                if (!is_array($mv)) $mv = explode('@', $mv);
-                if(!$mv[0] || !$mv[1]) continue;
+                if (!is_array($mv)) {
+                    $mv = explode('@', $mv);
+                }
+                if (empty($mv[0]) || empty($mv[1])) {
+                    continue;
+                }
                 $str = "{$mv[0]}@{$mv[1]}";
-                if (!in_array($str, $addModuleList)) {
-                    $remark = urlencode($mv[2]);
+                $uniqueKey = strtolower($m[0]) . '@' . $str;
+                if (!in_array($str, $addModuleList) && !isset($noAddMap[$uniqueKey])) {
+                    $remark = urlencode($mv[2] ?? '');
                     $base = base64_encode("{$m[0]}@{$mv[0]}@{$mv[1]}@{$remark}");
                     $noAddList[] = [strtolower($m[0]), $mv[0], $mv[1], $mv[2], $base];
+                    $noAddMap[$uniqueKey] = true;
                 }
             }
         }
 
         $pageData['noAddList'] = $noAddList;
         $moduleInfo = Cache::get(\Mxzcms\Modules\cache\CacheKey::ModulesActive);
-        foreach ($moduleInfo as $m) {
-            $pageData['moduleList'][strtolower($m['identification'])] = $m['name'];
+        if (is_array($moduleInfo)) {
+            foreach ($moduleInfo as $m) {
+                if (!is_array($m) || empty($m['identification'])) {
+                    continue;
+                }
+                $pageData['moduleList'][strtolower($m['identification'])] = $m['name'] ?? $m['identification'];
+            }
         }
+
+        $moduleFilterOptions = [];
+        foreach ($pageData['moduleList'] as $moduleKey => $moduleLabel) {
+            $moduleFilterOptions[] = [
+                'value' => $moduleKey,
+                'label' => $moduleLabel,
+            ];
+        }
+
+        usort($moduleFilterOptions, function ($a, $b) {
+            return strcmp($a['label'], $b['label']);
+        });
+
+        $statusMap = \Modules\System\Services\ServiceModel::taskStatus();
+        $filters = [
+            'module' => strtolower(trim((string) $request->input('module', ''))),
+            'status' => trim((string) $request->input('status', '')),
+            'keyword' => trim((string) $request->input('keyword', '')),
+        ];
+
+        $taskList = [];
+        foreach ($pageData['data'] as $d) {
+            $cycleOptions = \Modules\System\Services\ServiceModel::type_msg($d['day'], $d['hour'], $d['minute']);
+            $taskList[] = [
+                'id' => $d['id'],
+                'module' => $d['module'],
+                'module_label' => $pageData['moduleList'][$d['module']] ?? strtoupper($d['module']),
+                'name' => $d['name'],
+                'status' => (int) $d['status'],
+                'status_label' => $statusMap[$d['status']] ?? '未知',
+                'cycle_label' => $cycleOptions[$d['type']] ?? '未配置',
+                'last_execution_time' => $d['last_execution_time'],
+                'last_execution_display' => !empty($d['last_execution_time']) && $d['last_execution_time'] !== '0000-00-00 00:00:00' ? $d['last_execution_time'] : '未执行',
+                'remark' => $d['remark'] ?: '暂无备注',
+                'target' => !empty($d['module_class']) && !empty($d['module_class_method']) ? "{$d['module_class']}@{$d['module_class_method']}" : '-',
+                'raw' => $d,
+            ];
+        }
+
+        $filteredTaskList = array_values(array_filter($taskList, function ($task) use ($filters) {
+            if ($filters['module'] !== '' && strtolower((string) $task['module']) !== $filters['module']) {
+                return false;
+            }
+            if ($filters['status'] !== '' && (string) $task['status'] !== $filters['status']) {
+                return false;
+            }
+            if ($filters['keyword'] !== '') {
+                $searchText = implode(' ', [
+                    $task['name'],
+                    $task['remark'],
+                    $task['target'],
+                    $task['module_label'],
+                    $task['cycle_label'],
+                ]);
+                if (stripos($searchText, $filters['keyword']) === false) {
+                    return false;
+                }
+            }
+            return true;
+        }));
+
+        $pendingTaskList = [];
+        foreach ($pageData['noAddList'] as $d) {
+            $pendingTaskList[] = [
+                'module' => $d[0],
+                'module_label' => $pageData['moduleList'][$d[0]] ?? strtoupper($d[0]),
+                'target' => $d[1] . '@' . $d[2],
+                'remark' => $d[3] ?: '暂无说明',
+                'info' => $d[4],
+            ];
+        }
+
+        $filteredPendingTaskList = array_values(array_filter($pendingTaskList, function ($task) use ($filters) {
+            if ($filters['module'] !== '' && strtolower((string) $task['module']) !== $filters['module']) {
+                return false;
+            }
+            if ($filters['keyword'] !== '') {
+                $searchText = implode(' ', [
+                    $task['module_label'],
+                    $task['target'],
+                    $task['remark'],
+                ]);
+                if (stripos($searchText, $filters['keyword']) === false) {
+                    return false;
+                }
+            }
+            return true;
+        }));
+
+        $taskOverview = [
+            [
+                'name' => '已添加任务',
+                'value' => count($taskList),
+                'desc' => '当前模块已经接入数据库管理的定时任务数量',
+            ],
+            [
+                'name' => '启用中',
+                'value' => count(array_filter($taskList, function ($task) {
+                    return $task['status'] === 1;
+                })),
+                'desc' => '状态为正常的任务会按计划周期参与执行',
+            ],
+            [
+                'name' => '未执行过',
+                'value' => count(array_filter($taskList, function ($task) {
+                    return $task['last_execution_display'] === '未执行';
+                })),
+                'desc' => '用于快速发现新建但尚未跑过的任务',
+            ],
+            [
+                'name' => '待添加任务',
+                'value' => count($pendingTaskList),
+                'desc' => 'Hook 已提供但尚未加入管理列表的方法数量',
+            ],
+        ];
 
         return $this->adminView('task.scheduledTasksList', [
             'pageData' => $pageData,
+            'taskOverview' => $taskOverview,
+            'taskFilters' => $filters,
+            'taskModuleOptions' => $moduleFilterOptions,
+            'taskList' => $filteredTaskList,
+            'pendingTaskList' => $filteredPendingTaskList,
+            'taskStatusMap' => $statusMap,
         ]);
     }
 

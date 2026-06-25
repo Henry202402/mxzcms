@@ -6,6 +6,8 @@
  * */
 function hook($event, array $data=[], $callback=null) {
     if(!is_array($data)) throw new Exception("hook parameters data must be array");
+    $data['moduleName'] = $data['moduleName'] ?? '';
+    $data['cloudType'] = $data['cloudType'] ?? '';
     //模块名称
     if ($data['moduleName']) {
         //目录类型

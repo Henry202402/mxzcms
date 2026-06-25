@@ -4,7 +4,9 @@
             <label class="control-label col-lg-1 col-md-1">@if($f['required'])<span style="color:red;">*</span> @endif{{$f['name']}}</label>
             <div class="col-lg-11 col-md-11">
                 @foreach($f['datas'] as $r)
-                    <button type="button" class="btn btn-sm btn-danger" onclick="{{$r['click']}}()">{{$r['name']}}</button>
+                    @php($click = trim((string) ($r['click'] ?? '')))
+                    @php($onclick = \Illuminate\Support\Str::endsWith($click, ')') ? $click : ($click !== '' ? ($click . '()') : ''))
+                    <button type="button" class="btn btn-sm btn-danger" @if($onclick) onclick="{{$onclick}}" @endif>{{$r['name']}}</button>
                 @endforeach
                 @if($f['notes'])
                     <div>
@@ -19,7 +21,9 @@
                 @if($f['required'])<span style="color:red;">*</span> @endif{{$f['name']}}
             </label>
             @foreach($f['datas'] as $r)
-                <button type="button" class="btn btn-sm btn-danger" onclick="{{$r['click']}}()">{{$r['name']}}</button>
+                @php($click = trim((string) ($r['click'] ?? '')))
+                @php($onclick = \Illuminate\Support\Str::endsWith($click, ')') ? $click : ($click !== '' ? ($click . '()') : ''))
+                <button type="button" class="btn btn-sm btn-danger" @if($onclick) onclick="{{$onclick}}" @endif>{{$r['name']}}</button>
             @endforeach
             @if($f['notes'])
                 <div>

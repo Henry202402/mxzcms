@@ -320,7 +320,7 @@
         $('#addDayIntDiv').append(contact);
     }
 </script>
-<script type="text/javascript" src="{{url('views/modules/editor/assets/tinymce/tinymce.min.js')}}"></script>
+<script type="text/javascript" src="{{moduleHomeResource('Editor')}}/js/tinymce/tinymce.min.js"></script>
 <script>
     var vip = tinymce.init({
         selector: '#vip_rule',
@@ -420,7 +420,7 @@
             }
         },
         // toolbar: "undo redo  styleselect | bold italic | alignleft | aligncenter | alignright | numlist | lineheight | link | image ",
-        plugins: " uickbars print nonbreaking preview searchreplace autolink fullscreen image link media codesample table charmap hr advlist lists wordcount imagetools indent2em code codesample",
+        plugins: " quickbars print nonbreaking preview searchreplace autolink fullscreen image link media codesample table charmap hr advlist lists wordcount imagetools indent2em code codesample",
         toolbar: "undo redo styleselect | bold italic | alignleft | aligncenter | alignright | lineheight | codesample | code",
         width: "100%",
         quickbars_insert_toolbar: '',
@@ -525,7 +525,7 @@
             }
         },
         // toolbar: "undo redo  styleselect | bold italic | alignleft | aligncenter | alignright | numlist | lineheight | link | image ",
-        plugins: " uickbars print nonbreaking preview searchreplace autolink fullscreen image link media codesample table charmap hr advlist lists wordcount imagetools indent2em code codesample",
+        plugins: " quickbars print nonbreaking preview searchreplace autolink fullscreen image link media codesample table charmap hr advlist lists wordcount imagetools indent2em code codesample",
         toolbar: "undo redo styleselect | bold italic | alignleft | aligncenter | alignright | lineheight | codesample | code",
         width: "100%",
         quickbars_insert_toolbar: '',

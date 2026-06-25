@@ -15,14 +15,14 @@
                     <div class="text-center">
                         <div class="alert {{ $data['status']?'alert-info':'alert-danger' }} alert-dismissable">
                             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-                            浏览器页面将在<b id="loginTime">{{ $data['jumpTime'] }}</b>秒后跳转......
+                            {!! str_replace(':seconds', '<b id="loginTime">'.$data['jumpTime'].'</b>', getTranslateByKey('browser_jump_after')) !!}
                         </div>
                         <div class="form-group m-b-0">
                             <div class="input-group">
                                 {{--<input type="password" class="form-control" placeholder="Enter Email">--}}
-                                <span class="input-group-btn"> <button type="button" class="btn h-btn {{ $data['status']?'btn-success':'btn-danger' }}">点击立即跳转</button> </span>
+                                <span class="input-group-btn"> <button type="button" class="btn h-btn {{ $data['status']?'btn-success':'btn-danger' }}">{{getTranslateByKey('click_jump_now')}}</button> </span>
 
-                                <span class="input-group-btn" style="margin-left: 30px"> <a href="{{url('admin/logout')}}"><button type="button" class="btn btn-danger">退出</button></a> </span>
+                                <span class="input-group-btn" style="margin-left: 30px"> <a href="{{url('admin/logout')}}"><button type="button" class="btn btn-danger">{{getTranslateByKey('logout')}}</button></a> </span>
                             </div>
                         </div>
 
@@ -44,7 +44,7 @@
 
 <script type="text/javascript">
     $(function(){
-        //循环倒计时，并跳转
+        // Countdown and redirect
         var url = "{{ $data['url'] }}";
         var loginTime = parseInt($('#loginTime').text());
         console.log(loginTime);
@@ -57,7 +57,7 @@
             }
         },1000);
     })
-    //点击跳转
+    // Jump immediately
     $('.h-btnw').click(function () {
          url = "{{ $data['url'] }}";
         window.location.href=url;

@@ -1,77 +1,39 @@
 <div id="content">
     <div class="container">
-        <div class="layout with-right-sidebar js-layout">
-            <div class="row">
-                <div class="col-md-9">
-                    <div class="main-content">
-                        <!-- Article -->
-                        <article class="article">
+        @php($record = frontendRecordData($detailRecord ?? $data ?? []))
+        <div class="mx-detail-shell">
+            @include('themes.default.public.detailHero', [
+                'model' => $model,
+                'data' => $data,
+                'detailRecord' => $record,
+            ])
 
-                            <!-- Article Title -->
-                            <h2 class="article-title">
-                                {{$data['title']}}
-                            </h2>
-                            <!-- End of Article Title -->
+            <div class="mx-detail-shell mx-detail-shell--sidebar">
+                <article class="mx-detail-main">
+                    @include('themes.default.public.detailContent', [
+                        'detailRecord' => $record,
+                        'detailFields' => $model['frontend_schema']['detail'] ?? [],
+                        'model' => $model,
+                    ])
+                    @include("themes.default.public.articleNavigation")
+                </article>
 
-                            <!-- Article Meta -->
-                            <ul class="article-meta">
-                                <li>
-                                    <span class="article-meta-date article-meta-item">{{$data['created_at']}}</span>
-                                </li>
-                                {{--<li>
-                                    <span class="article-meta-author article-meta-item"><a
-                                                href="#">John Doe</a></span>
-                                </li>
-                                <li>
-                                    <span class="article-meta-category article-meta-item"><a href="blog-grid.html">Startups</a></span>
-                                </li>
-                                <li>
-                                    <span class="article-meta-views article-meta-item">966</span>
-                                </li>
-                                <li>
-                                    <span class="article-meta-likes article-meta-item">15</span>
-                                </li>
-                                <li>
-                                    <span class="article-meta-comments article-meta-item"><a href="#"
-                                                                                             class="js-scroll-to"
-                                                                                             data-target="#article-comments"
-                                                                                             data-speed="600">50</a></span>
-                                </li>--}}
-                            </ul>
-                            <!-- End of Article Meta -->
-
-                            <!-- Article Content -->
-                            <div class="article-content">
-                                {!! $data['content'] !!}
+                <aside class="mx-detail-side">
+                    <h3 class="mx-detail-side__title">关联内容</h3>
+                    <div class="mx-detail-related">
+                        @foreach($list as $key => $l)
+                            <div class="mx-detail-related__item">
+                                <span class="mx-detail-related__index">{{ $key + 1 }}</span>
+                                <div class="mx-detail-related__content">
+                                    <a href="{{url("detail/{$param['model']}/{$l['id']}")}}">{{ $l['title'] ?? ($l['name'] ?? ('内容 #' . $l['id'])) }}</a>
+                                    @if(!empty($l['created_at']))
+                                        <span class="mx-detail-related__meta">{{ $l['created_at'] }}</span>
+                                    @endif
+                                </div>
                             </div>
-                            <!-- End of Article Content -->
-
-                            <!-- Article Navigation -->
-                            @include("themes.default.public.articleNavigation")
-                            <!-- End of Article Navigation -->
-                        </article>
-                        <!-- End of Article -->
+                        @endforeach
                     </div>
-                </div>
-                <div class="col-md-3 hidden-sm hidden-xs">
-                    <div class="sidebar js-sidebar-fixed">
-                        <!-- Vertical Menu -->
-                        <nav class="menu-vertical-wrapper">
-                            <ul class="menu-vertical  js-menu-vertical" data-prepend-to=".js-layout"
-                                data-select="Menu" style="line-height: 22px;">
-                                @foreach($list as $key=>$l)
-                                    <li style="padding-top: 10px;">
-                                        <a href="{{url("detail/{$param['model']}/{$l['id']}")}}"
-                                           style="padding-bottom: 10px;">
-                                            {{$key+1}}、{{$l['title']}}
-                                        </a>
-                                    </li>
-                                @endforeach
-                            </ul>
-                        </nav>
-
-                    </div>
-                </div>
+                </aside>
             </div>
         </div>
     </div>

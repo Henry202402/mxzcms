@@ -4,12 +4,12 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{cacheGlobalSettingsByKey('website_name')}}{{getTranslateByKey("login_title")}}</title>
+    <title>{{cacheGlobalSettingsByKey('base_name')}}{{getTranslateByKey("login_title")}}</title>
     <link rel="icon" type="image/ico" sizes="48x48" href="{{GetLocalFileByPath(cacheGlobalSettingsByKey('webicon'))}}">
 
     <link href="{{ADMIN_ASSET}}other/jqueryToast/css/toast.style.css" rel="stylesheet">
     <!-- Common Plugins -->
-    <link href="{{ADMIN_ASSET}}lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{commonAsset('lib/bootstrap/admin/css/bootstrap.min.css')}}" rel="stylesheet">
 
     <!-- Custom Css-->
     <link href="{{ADMIN_ASSET}}css/style.css" rel="stylesheet">
@@ -35,7 +35,7 @@
             <div class="row justify-content-center">
                 <div class="col-lg-4 col-11">
                     <div class="misc-header text-center" style="font-size: 35px;">
-                        管理后台
+                        {{getTranslateByKey("admin_panel")}}
                     </div>
                     <div class="misc-box">
                         <form role="form" method="post" autocomplete="off" action="{{url("admin/login/handle")}}">
@@ -90,7 +90,7 @@
                 </div>
             </div>
             <div class="row justify-content-center text-center misc-footer">
-                <p>Copyright &copy; {{date("Y")}} {{cacheGlobalSettingsByKey('website_name')}}</p> <br>
+                <p>Copyright &copy; {{date("Y")}} {{cacheGlobalSettingsByKey('base_name')}}</p> <br>
 {{--                <p class="small text-secondary">Powered By  {{config()->get("app.name")}}</p>--}}
             </div>
         </div>
@@ -101,7 +101,7 @@
 
 </body>
 </html>
-<script src="{{ADMIN_ASSET}}lib/jquery/dist/jquery.min.js"></script>
+<script src="{{commonAsset('lib/jquery/admin/jquery.min.js')}}"></script>
 <script type="text/javascript" src="{{ADMIN_ASSET}}other/jqueryToast/js/toast.script.js"></script>
 <script>
 
@@ -116,7 +116,7 @@
     @endif
 
     if(toastMsg){
-        $.Toast("温馨提示!", toastMsg, toastType, {
+        $.Toast(@json(getTranslateByKey('common_toast_title')), toastMsg, toastType, {
             // append to body
             appendTo: "body",
             // is stackable?

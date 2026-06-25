@@ -40,8 +40,8 @@
     <div class="col-lg-6 align-self-center ">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{url('admin/index')}}">{{getTranslateByKey("common_home_page")}}</a></li>
-            <li class="breadcrumb-item"><a href="{{url('admin/plugin')}}">插件管理</a></li>
-            <li class="breadcrumb-item active">插件配置</li>
+            <li class="breadcrumb-item"><a href="{{url('admin/plugin')}}">{{getTranslateByKey("plugin_management")}}</a></li>
+            <li class="breadcrumb-item active">{{getTranslateByKey("plugin_configuration")}}</li>
         </ol>
     </div>
 </div>

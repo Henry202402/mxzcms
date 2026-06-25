@@ -6,24 +6,43 @@
 <body>
 
 @include("install.header")
+@php
+    $defaults = $installDefaults ?? [];
+    $defaultManagerPassword = old('manager_pwd', $defaults['manager_pwd'] ?? '');
+    $adminLoginEntrance = $defaults['admin_login_entrance'] ?? '';
+    $adminLoginUrl = $adminLoginEntrance ? url('/admin/login/' . $adminLoginEntrance) : url('/admin/login');
+    $dbPort = old('dbport', env('DB_PORT', 3306));
+@endphp
 
-<section class="container pb-5">
-    <div class="row">
-        <div class="col-md-12 col-sm-12">
-            <div class="step mt-3">
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><em>1</em> 检测环境</li>
-                        <li class="breadcrumb-item active"><em>2</em> 创建数据</li>
-                        <li class="breadcrumb-item" aria-current="page"><em>3</em> 完成安装</li>
-                    </ol>
-                </nav>
-            </div>
-            <form id="js-install-form" action="{{url('/install?install=4')}}" method="post">
-                {{csrf_field()}}
-                <input type="hidden" name="force" value="0"/>
-                <div class="server">
-                    <table class="table small">
+<section class="container install-shell">
+    <div class="install-step-nav">
+        <div class="install-step-nav__item">
+            <div><span class="install-step-nav__step">1</span><span class="install-step-nav__label">环境检测</span></div>
+            <div class="install-step-nav__desc">确认运行环境、扩展与目录权限。</div>
+        </div>
+        <div class="install-step-nav__item is-active">
+            <div><span class="install-step-nav__step">2</span><span class="install-step-nav__label">创建数据</span></div>
+            <div class="install-step-nav__desc">填写数据库、站点信息与创始人账户。</div>
+        </div>
+        <div class="install-step-nav__item">
+            <div><span class="install-step-nav__step">3</span><span class="install-step-nav__label">完成安装</span></div>
+            <div class="install-step-nav__desc">执行安装并再次确认后台路径与密码。</div>
+        </div>
+    </div>
+
+    <div class="install-panel mt-4">
+        <div class="install-panel__body">
+            <div class="install-form-grid">
+                <div>
+                    <form id="js-install-form" action="{{url('/install?install=4')}}" method="post">
+                        {{csrf_field()}}
+                        <input type="hidden" name="force" value="0"/>
+                        <div class="alert alert-info install-alert">
+                            <div class="font-weight-bold">安装信息预填已就绪</div>
+                            <div class="small mt-2">系统已为创始人账号生成随机密码，并预生成一条隐藏后台入口。你可以直接使用，也可以修改后再开始初始化。</div>
+                        </div>
+                        <div class="server">
+                            <table class="table small install-table">
                         <tr>
                             <td class="td1" colspan="3" >数据库信息</td>
                         </tr>
@@ -51,6 +70,16 @@
                                 <input type="text" name="dbpw" id="dbpw" value="{{env('DB_PASSWORD')}}" class="form-control col-md-6 col-sm-9" autoComplete="off"
                                        onblur="checkDbPwd()">
                                 <div id="js-install-tip-dbpw" class="text-muted"></div>
+                            </td>
+
+                        </tr>
+                        <tr>
+                            <td class="text-left">数据库端口：</td>
+                            <td colspan="2">
+                                <input type="text" name="dbport" id="dbport" value="{{$dbPort}}" class="form-control col-md-6 col-sm-9">
+                                <div id="js-install-tip-dbport">
+                                    <span class="text-muted">默认 MySQL 端口一般为 3306，若你的服务器使用了自定义端口请在这里填写。</span>
+                                </div>
                             </td>
 
                         </tr>
@@ -95,7 +124,7 @@
                         <tr>
                             <td class="text-left">网站名称：</td>
                             <td colspan="2">
-                                <input type="text" name="website_name" value="{{$cms_name}}" class="form-control col-md-6 col-sm-9">
+                                <input type="text" name="website_name" value="{{old('website_name', $cms_name)}}" class="form-control col-md-6 col-sm-9">
                                 <div id="js-install-tip-website_name" class="text-muted"></div>
                             </td>
 
@@ -124,7 +153,7 @@
                         <tr>
                             <td class="text-left">管理员帐号：</td>
                             <td colspan="2">
-                                <input type="text" name="manager" value="admin" class="form-control col-md-6 col-sm-9">
+                                <input type="text" name="manager" value="{{old('manager', $defaults['manager'] ?? 'admin')}}" class="form-control col-md-6 col-sm-9">
                                 <div id="js-install-tip-manager" class="text-muted"></div>
                             </td>
 
@@ -132,9 +161,18 @@
                         <tr>
                             <td class="text-left">登录密码：</td>
                             <td colspan="2">
-                                <input type="password" name="manager_pwd" id="js-manager-pwd" class="form-control col-md-6 col-sm-9"
-                                       autoComplete="off">
-                                <div id="js-install-tip-manager_pwd " class="text-muted">
+                                <div class="input-group col-md-6 col-sm-9 p-0">
+                                    <input type="password" name="manager_pwd" id="js-manager-pwd" class="form-control"
+                                           value="{{$defaultManagerPassword}}" autoComplete="off">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-secondary" type="button" onclick="generateManagerPassword()">重新生成</button>
+                                        <button class="btn btn-outline-secondary" type="button" onclick="toggleManagerPassword()">显示</button>
+                                    </div>
+                                </div>
+                                <div class="small text-muted mt-2">
+                                    当前随机密码：<code class="js-generated-password">{{$defaultManagerPassword}}</code>
+                                </div>
+                                <div id="js-install-tip-manager_pwd" class="text-muted">
                                  <span class="text-muted">
                                     密码长度不低于6位,不高于32位。
                                  </span>
@@ -145,7 +183,7 @@
                         <tr>
                             <td class="text-left">重复密码：</td>
                             <td colspan="2">
-                                <input type="password" name="manager_ckpwd" class="form-control col-md-6 col-sm-9" autoComplete="off">
+                                <input type="password" name="manager_ckpwd" id="js-manager-ckpwd" value="{{old('manager_ckpwd', $defaultManagerPassword)}}" class="form-control col-md-6 col-sm-9" autoComplete="off">
                                 <div id="js-install-tip-manager_ckpwd" class="text-muted"></div>
                             </td>
 
@@ -153,21 +191,59 @@
                         <tr>
                             <td class="text-left">Email：</td>
                             <td colspan="2">
-                                <input type="text" name="manager_email" class="form-control col-md-6 col-sm-9" value="">
+                                <input type="text" name="manager_email" class="form-control col-md-6 col-sm-9" value="{{old('manager_email', $defaults['manager_email'] ?? '')}}">
                                 <div id="js-install-tip-manager_email" class="text-muted"></div>
                             </td>
 
                         </tr>
-                    </table>
-                    <div id="js-response-tips" style="display: none;"></div>
+                            </table>
+                            <div id="js-response-tips" style="display: none;"></div>
+                        </div>
+                        <div class="install-bottom-actions justify-content-start">
+                            <a href="{{url('/install?install=2')}}" class="btn btn-outline-primary">返回环境检测</a>
+                            <button type="button" class="btn btn-outline-secondary" onclick="saveDBInfo()">保存数据库信息</button>
+                            <button type="submit" class="btn btn-primary">开始创建数据</button>
+                        </div>
+                    </form>
                 </div>
-                <div class="bottom text-center">
-                    <a href="{{url('/install?install=2')}}" class="btn btn-primary">上一步</a>
-                    <button type="button" class="btn btn-primary" onclick="saveDBInfo()">保存数据库信息</button>
-                    <button type="submit" class="btn btn-primary">创建数据</button>
-                </div>
-            </form>
 
+                <div>
+                    <div class="install-side-card">
+                        <h6>安装前确认</h6>
+                        <ul class="install-meta-list">
+                            <li>
+                                <span class="install-meta-list__label">隐藏后台入口</span>
+                                <span class="install-meta-list__value"><code id="js-hidden-admin-url">{{$adminLoginUrl}}</code></span>
+                            </li>
+                            <li>
+                                <span class="install-meta-list__label">创始人账号</span>
+                                <span class="install-meta-list__value">{{old('manager', $defaults['manager'] ?? 'admin')}}</span>
+                            </li>
+                            <li>
+                                <span class="install-meta-list__label">初始密码</span>
+                                <span class="install-meta-list__value"><code class="js-generated-password">{{$defaultManagerPassword}}</code></span>
+                            </li>
+                            <li>
+                                <span class="install-meta-list__label">数据库编码</span>
+                                <span class="install-meta-list__value"><span id="js-current-charset">utf8mb4</span></span>
+                            </li>
+                        </ul>
+                        <div class="mt-3">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="copyTextById('js-hidden-admin-url', '已复制隐藏后台入口，请妥善保存。')">复制隐藏后台入口</button>
+                        </div>
+                    </div>
+
+                    <div class="install-side-card mt-3">
+                        <h6>交互建议</h6>
+                        <ul class="small pl-3 mb-0 install-muted">
+                            <li class="mb-2">先点击“保存数据库信息”，确认数据库账号可连通。</li>
+                            <li class="mb-2">创始人密码建议保留随机值，首次登录后再立即修改。</li>
+                            <li class="mb-2">隐藏后台入口只会在安装结束页再次集中展示，请务必保存。</li>
+                            <li>如使用远程数据库或非默认端口，请同步确认主机、端口和防火墙策略。</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </section>
@@ -190,6 +266,62 @@
 <script src="{{INSTALL_ASSET}}/assets/js/validate.js"></script>
 <script src="{{INSTALL_ASSET}}/assets/js/ajaxForm.js"></script>
 <script>
+    function randomString(length) {
+        var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
+        var result = '';
+        for (var i = 0; i < length; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result;
+    }
+
+    function generateManagerPassword() {
+        var password = randomString(12);
+        $('#js-manager-pwd').val(password);
+        $('#js-manager-ckpwd').val(password);
+        $('.js-generated-password').text(password);
+        $('#js-install-tip-manager_pwd').html('<span class="text-success">已生成新的随机密码，请妥善保存。</span>');
+        $('#js-install-tip-manager_ckpwd').html('<span class="text-success">重复密码已自动同步。</span>');
+    }
+
+    function toggleManagerPassword() {
+        var currentType = $('#js-manager-pwd').attr('type');
+        var nextType = currentType === 'password' ? 'text' : 'password';
+        $('#js-manager-pwd').attr('type', nextType);
+        $('#js-manager-ckpwd').attr('type', nextType);
+    }
+
+    function copyTextById(elementId, successMessage) {
+        var text = $('#' + elementId).text().trim();
+        if (!text) {
+            $('.toast-body').html('没有可复制的内容');
+            $('.toast').toast('show');
+            return;
+        }
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(function () {
+                $('.toast-body').html(successMessage);
+                $('.toast').toast('show');
+            }).catch(function () {
+                fallbackCopyText(text, successMessage);
+            });
+            return;
+        }
+
+        fallbackCopyText(text, successMessage);
+    }
+
+    function fallbackCopyText(text, successMessage) {
+        var tempInput = $('<input>');
+        $('body').append(tempInput);
+        tempInput.val(text).trigger('select');
+        document.execCommand('copy');
+        tempInput.remove();
+        $('.toast-body').html(successMessage);
+        $('.toast').toast('show');
+    }
+
     function checkDbPwd() {
         var dbHost = $('#dbhost').val();
         var dbUser = $('#dbuser').val();
@@ -281,6 +413,11 @@
     }
 
     $(function () {
+        $('#js-current-charset').text($('#dbcharset').val());
+        $('#dbcharset').on('change', function () {
+            $('#js-current-charset').text($(this).val());
+        });
+
         //聚焦时默认提示
         var focus_tips = {
             dbhost: '数据库服务器地址，一般为127.0.0.1或localhost',
@@ -309,7 +446,7 @@
             errorPlacement: function (error, element) {
                 //错误提示容器
                 $('#js-install-tip-' + element[0].name).html(error);
-                $('.toast-body').html(error);
+                $('.toast-body').html(error.text());
                 $('.toast').toast('show')
             },
             errorElement: 'span',

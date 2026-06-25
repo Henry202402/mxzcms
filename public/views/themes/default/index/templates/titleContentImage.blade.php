@@ -5,43 +5,31 @@
          style='background-image: url({{GetUrlByPath($home_config['home_page_bg_img'])}});background-repeat: no-repeat'
     @endif >
     <div class="container">
-        <div class="row ">
-            <div class="col-md-12">
-                <div class="promo-title-wrapper ">
-                    <h3 class="promo-title" style="
-                    @if($home_config['home_page_title_size']) font-size:{{$home_config['home_page_title_size']}} @endif
-                    @if($home_config['home_page_title_color']) color:{{$home_config['home_page_title_color']}} @endif
-                    ">
-                        {{$home_config['home_page_title']?:$data->name}}
-                    </h3>
-                    <p class="promo-description" style="
-                    @if($home_config['home_page_describe_size']) font-size:{{$home_config['home_page_title_size']}} @endif
-                    @if($home_config['home_page_describe_color']) color:{{$home_config['home_page_title_color']}} @endif
-                    ">
-                        {{$home_config['home_page_describe']}}
-                    </p>
-                </div>
-                <div class="row">
-                    @foreach(getListByModel($data,$data->home_page_num) as $d)
-                        <a href="{{url("detail/".$data->access_identification."/".toArray($d)["id"])}}" class="text-none-decoration">
-                            <div class="col-md-3">
-                                <div class="box box-image">
-                                    <img src="{{ GetUrlByPath(toArray($d)['cover'])}}" class="image" alt="box image">
-                                    <h4 class="box-title text-none-decoration" style="text-overflow:ellipsis; overflow:hidden;white-space: nowrap;">{{toArray($d)["title"]}}</h4>
-                                    <p class="box-description text-none-decoration">{{mb_substr(strip_tags(toArray($d)["content"]), 0, 100 - 3) . '...'}}</p>
-                                </div>
-                            </div>
-                        </a>
-                    @endforeach
-                </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="helper center">
-                            <a href="{{url("list/".$data->access_identification)}}" class="faq-grid-show-more">查看更多 <i class="fa fa-angle-right"></i></a>
-                        </div>
+        @include('themes.default.public.homeSectionHeader', [
+            'sectionData' => $data,
+            'sectionConfig' => $home_config,
+            'sectionMoreUrl' => url('list/' . $data->access_identification),
+        ])
+
+        <div class="mx-home-feature-list">
+            @forelse(getListByModel($data,$data->home_page_num) as $d)
+                @php($item = toArray($d))
+                <a href="{{url('detail/'.$data->access_identification.'/'.$item['id'])}}" class="mx-home-feature text-none-decoration">
+                    <div class="mx-home-feature__thumb">
+                        @if(!empty($item['cover']))
+                            <img src="{{ GetUrlByPath($item['cover'])}}" class="image" alt="{{ $item['title'] ?? 'box image' }}">
+                        @else
+                            <div class="mx-home-card__thumb-placeholder">{{ mb_substr($item['title'] ?? $data->name, 0, 1) }}</div>
+                        @endif
                     </div>
-                </div>
-            </div>
+                    <div class="mx-home-feature__body">
+                        <h3 class="mx-home-feature__title">{{ $item['title'] ?? '未命名内容' }}</h3>
+                        <p class="mx-home-feature__desc">{{ \Illuminate\Support\Str::limit(trim(strip_tags($item['content'] ?? '')), 140) ?: '点击查看完整内容。' }}</p>
+                    </div>
+                </a>
+            @empty
+                <div class="mx-empty">当前模型还没有可展示的图文数据，请先在后台新增内容。</div>
+            @endforelse
         </div>
     </div>
 </div>

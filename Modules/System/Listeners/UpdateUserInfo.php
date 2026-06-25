@@ -14,7 +14,7 @@ class UpdateUserInfo {
         $all = $event->data;
 
         //文件上传
-        if ($_FILES['avatar']['size'] > 0) {
+        if (isset($_FILES['avatar']) && $_FILES['avatar']['size'] > 0) {
             try {
                 $all['avatar'] = UploadFile(\Request(), "avatar", "avatar/" . date("Y/m/d/") . uniqid(), ALLOWEXT, __E("upload_driver"));
                 $this->resizeImg($all['avatar'], 50, 100, 100);

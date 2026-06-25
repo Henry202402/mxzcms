@@ -12,7 +12,7 @@
 
         <ul id="respMenu" class="ace-responsive-menu" data-menu-style="horizontal">
             <li>
-                <a href="{{url("admin/theme/setting?m=".$_GET['m'])}}"> <i class="fa fa-arrow-circle-left"></i>返回主题预览</a>
+                <a href="{{url("admin/theme/setting?m=".$_GET['m'])}}"> <i class="fa fa-arrow-circle-left"></i>{{getTranslateByKey("return_theme_preview")}}</a>
             </li>
         </ul>
     </nav>

@@ -2,10 +2,10 @@
 
 namespace Modules\Main\Http\Controllers\Admin;
 
+use App\Support\Telemetry\StatisticReporter;
 use Modules\Formtools\Http\Controllers\Admin\FormTool;
 use Modules\ModulesController;
 use function back;
-use function base_path;
 use function getURIByRoute;
 use function url;
 
@@ -18,7 +18,7 @@ class PluginController extends ModulesController {
             return redirect(url("admin/plugin"));
         }
         $identification = $all['identification'];
-        $path = base_path("Plugins/{$identification}/Config/config.php");
+        $path = module_path($identification, "Config/config.php", "plugin");
         $configArr = include $path;
         $config = $configArr['config'] ?: [];
         if ($this->request->isMethod('POST')) {
@@ -58,6 +58,9 @@ class PluginController extends ModulesController {
         }
 
         $pageData = $create->getData();
+        StatisticReporter::reportSuccess('Usage', $identification, \Modules\Main\Models\Modules::Plugin, [
+            'entry' => 'admin_plugin_config',
+        ]);
 
         return view('admin/func/plugin-config', compact('pageData'));
 //        return $create->view();

@@ -19,6 +19,9 @@ Route::middleware([CheckInstall::class, CheckHome::class])->group(function () {
     Route::get('/page/{model}', [ModelController::class, 'list']);
     Route::get('/list/{model}', [ModelController::class, 'list']);
     Route::get('/detail/{model}/{id}', [ModelController::class, 'detail']);
+    Route::post('/detail/{model}/{id}/good', [ModelController::class, 'good']);
+    Route::get('/detail/{model}/{id}/download/{field}/{index?}', [ModelController::class, 'download']);
+    Route::get('/handle/{model}', [ModelController::class, 'handle']);
     Route::post('/handle/{model}', [ModelController::class, 'handle']);
     Route::post('/asynCall', [\Modules\Main\Http\Controllers\Api\AsynController::class, 'asynCall']);
     Route::post('/anyCall', [\Modules\Main\Http\Controllers\Api\AnyCallController::class, 'anyCall']);

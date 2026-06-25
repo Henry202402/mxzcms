@@ -11,6 +11,7 @@ class GetFormToolsMenu {
         $moduleName = ucfirst($data['moduleName']);
         $lowerModuleName = strtolower($moduleName);
         $moduleConfig = config('modules.' . $lowerModuleName);
+        $topModel = [];
         /*$menu = [];
         if ($moduleConfig['addmodel'] == 1 || $lowerModuleName == 'formtools') {
             $allmodels = FormModel::query()
@@ -52,6 +53,7 @@ class GetFormToolsMenu {
             foreach ($topModel as $key => &$value) {
                 $value['title'] = $value['menuname'];
                 $value['model'] = $value['identification'];
+                $value['icon'] = $value['icon'] ?: 'icon-stack-text';
                 $value['controller'] = "Model";
                 $value['action'] = "#";
                 $value['url'] = '#';
@@ -63,6 +65,7 @@ class GetFormToolsMenu {
                     ->get()->toArray();
                 foreach ($submenu as &$val) {
                     $val['title'] = $val['name'];
+                    $val['icon'] = $val['icon'] ?: 'icon-file-text2';
                     $val['controller'] = 'Model';
                     $val['action'] = "model?action=List&model={$val['identification']}";
                     $val['url'] = "admin/formtools/model?moduleName={$moduleName}&action=List&model={$val['identification']}";

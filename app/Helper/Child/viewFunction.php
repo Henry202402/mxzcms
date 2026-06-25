@@ -75,6 +75,15 @@ function moduleAdminResource($moduleName = '') {
     return $str;
 }
 
+//公共静态资源路径
+function commonAsset($path = '') {
+    $path = trim($path, '/');
+    if ($path === '') {
+        return COMMON_ASSET;
+    }
+    return COMMON_ASSET . $path;
+}
+
 
 //模块后台跳转链接简化
 function moduleAdminJump($moduleName, $path) {
@@ -127,7 +136,29 @@ function HomeView($viewPath, $data = []) {
     return view("themes." . $theme . "." . $viewPath, $data);
 }
 
-function ModelView($viewPath, $data = []) {
+function currentHomeLang($default = \App\Support\I18n\ThemeTranslator::DEFAULT_LOCALE) {
+    return \App\Support\I18n\ThemeTranslator::currentLocale() ?: $default;
+}
+
+function themeTrans($key, $replace = [], $theme = null, $lang = null) {
+    return \App\Support\I18n\ThemeTranslator::translate($key, $replace, $theme, $lang);
+}
+
+function frontendRecordData($value): array {
+    if ($value instanceof \Illuminate\Contracts\Support\Arrayable) {
+        return $value->toArray();
+    }
+    if (is_array($value)) {
+        return $value;
+    }
+    if (is_object($value)) {
+        return get_object_vars($value);
+    }
+
+    return [];
+}
+
+function ModelView($viewPath, $data = [], $fallback = \Modules\Formtools\Support\FormTemplateResolver::DEFAULT_LIST_TEMPLATE) {
     //获取当前主题
     if (cache()->has('theme')) {
         $theme = cache()->get('theme');
@@ -135,11 +166,10 @@ function ModelView($viewPath, $data = []) {
         $theme = \Illuminate\Support\Facades\DB::table('themes')->where('status', '1')->value('identification');
         cache()->forever('theme', $theme);
     }
-    if (file_exists(public_path('views/themes/' . $theme . '/model/overwrite/' . $viewPath . '.blade.php'))) {
-        $data['template'] = "themes.{$theme}.model.overwrite.{$viewPath}";
-    } else {
-        $data['template'] = "model.{$viewPath}";
-    }
+    $resolved = \Modules\Formtools\Support\FormTemplateResolver::resolveFrontendTemplate($theme, $viewPath, $fallback);
+    $data['template'] = $resolved['template'];
+    $data['template_name'] = $resolved['name'];
+    $data['template_source'] = $resolved['source'];
     return view("themes.{$theme}.model.LoadTemplate", $data);
 }
 
@@ -148,16 +178,16 @@ function getListByModel($model, $limit = 1, $orderby = "desc") {
     if (!is_array($model)) {
         $model = (array)$model->toarray();
     }
-
-    if ($model["data_source"] == "api") {
-        $data_source_field_mapping = explode('\n', $model['data_source_field_mapping']);
+    $model['other_config'] = json_decode($model['other_config'], true);
+    if ($model['other_config']["data_source"] == "api") {
+        $data_source_field_mapping = explode('\n', $model['other_config']['data_source_field_mapping']);
         $data_source_field_mappings = [];
         foreach ($data_source_field_mapping as $v) {
             $temp = explode("=>", $v);
             if (count($temp) == 2) $data_source_field_mappings[$temp[0]] = $temp[1];
         }
 
-        $curldatas = json_decode(curl_request($model["data_source_api_url"]), true);
+        $curldatas = json_decode(curl_request($model['other_config']["data_source_api_url"]), true);
         $data = [];
         foreach ($curldatas['data'] as $key => $value) {
             if ($key >= $limit) {
@@ -172,7 +202,11 @@ function getListByModel($model, $limit = 1, $orderby = "desc") {
         return $data;
     }
 
-    $data = \Illuminate\Support\Facades\DB::table("module_formtools_" . $model['identification']);
+    $tableName = "module_formtools_" . $model['identification'];
+    $data = \Illuminate\Support\Facades\DB::table($tableName);
+    if (\Illuminate\Support\Facades\Schema::hasColumn($tableName, 'status')) {
+        $data->where('status', 1);
+    }
 
     $data = $data->orderBy("id", $orderby);
     if ($limit) {

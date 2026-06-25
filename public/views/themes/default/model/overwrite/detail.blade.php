@@ -1,27 +1,28 @@
+@php
+    $record = frontendRecordData($detailRecord ?? $data ?? []);
+    $detailFields = $model['frontend_schema']['detail'] ?? [];
+    $title = $record['title'] ?? ($record['name'] ?? ($model['name'] ?? '详情内容'));
+@endphp
+
 <div id="content">
     <div class="container">
-        <div class="layout with-right-sidebar js-layout">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="main-content">
-                        <!-- Article -->
-                        <article class="article">
-                            <h2 class="article-title">
-                                {{$data['title']?:$data['name']}}
-                            </h2>
-                            <ul class="article-meta">
-                                <li>
-                                    <span class="article-meta-date article-meta-item">{{$data['created_at']}}</span>
-                                </li>
-                            </ul>
-                            <div class="article-content" style="min-height: 345px;">
-                                {!! $data['content'] !!}
-                            </div>
-                            @include("themes.default.public.articleNavigation")
-                        </article>
-                    </div>
-                </div>
-            </div>
+        <div class="mx-detail-shell">
+            @include('themes.default.public.detailHero', [
+                'model' => $model,
+                'data' => $data,
+                'detailRecord' => $record,
+                'detailTitle' => $title,
+            ])
+
+            <article class="mx-detail-main">
+                @include('themes.default.public.detailContent', [
+                    'detailRecord' => $record,
+                    'detailFields' => $detailFields,
+                    'model' => $model,
+                ])
+
+                @include("themes.default.public.articleNavigation")
+            </article>
         </div>
     </div>
 </div>

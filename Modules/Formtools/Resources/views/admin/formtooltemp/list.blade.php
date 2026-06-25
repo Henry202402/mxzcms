@@ -1,12 +1,18 @@
 @include(moduleAdminTemplate($pageData['moduleName'])."public.header")
 <body>
-@include(moduleAdminTemplate($pageData['moduleName'])."public.nav")
+@if(!$pageData['popup'])
+    @include(moduleAdminTemplate($pageData['moduleName'])."public.nav")
+@endif
 <div class="page-container">
     <div class="page-content">
-        @include(moduleAdminTemplate($pageData['moduleName'])."public.left")
+        @if(!$pageData['popup'])
+            @include(moduleAdminTemplate($pageData['moduleName'])."public.left")
+        @endif
         <div class="content-wrapper">
             <div class="content" style="margin-top: 1rem;">
-                @include(moduleAdminTemplate($pageData['moduleName'])."public.page",['breadcrumb'=>[$pageData['title'],$pageData['subtitle']]])
+                @if(!$pageData['popup'])
+                    @include(moduleAdminTemplate($pageData['moduleName'])."public.page",['breadcrumb'=>[$pageData['title'],$pageData['subtitle']]])
+                @endif
                 @if($pageData['searchFields'])
                     <form class="bs-example form-horizontal" method="get">
                         <div class="form-group">
@@ -42,22 +48,32 @@
                     <div class="table-responsive panel panel-default">
                         <div class="panel-heading">
                             @foreach($pageData['listActions'] as $act)
-                                <a class="label  pull-right m-t-xs"
-                                   style="margin-top: -9px"
-                                   href="{{rtrim($act['actionUrl'].'?'.http_build_query(array_merge($act['param']?:[],[$f['actionby']=>toArray($d)[$f['actionby']]])),"?")}}">
-                                    <button type="button" class="btn {{$act['cssClass']}}">
-                                        {{$act['actionName']}}
-                                    </button>
+                                @php($topActionUrl = rtrim($act['actionUrl'].'?'.http_build_query($act['param'] ?? []), "?"))
+                                <a class="label {{$act['cssClass']}} pull-right m-t-xs"
+                                   style="margin-right: 10px;padding: 3px 8px;font-size: 12px;"
+                                   @if($act['popup'])
+                                       onclick="popupPage('{{$topActionUrl}}')"
+                                   @else
+                                       href="{{$topActionUrl}}"
+                                   @endif
+                                   @if(!empty($act['target'])) target="{{$act['target']}}" @endif>
+                                    {{$act['actionName']}}
                                 </a>
                             @endforeach
                             @if($pageData['leftListActions'])
                                 @foreach($pageData['leftListActions'] as $leftListActions)
                                     @foreach($leftListActions as $left)
+                                        @php($leftActionUrl = rtrim($left['actionUrl'].'?'.http_build_query($left['param'] ?? []), "?"))
                                         <a class="label  {{$left['cssClass']}} m-t-xs"
                                            style="margin-right: 10px;padding: 3px 8px;font-size: 12px;"
-                                           onclick="clickOperate('{{$left['actionUrl']}}','{{$left['confirm']}}','{{$left['isMoreSelect']}}')"
+                                           @if($left['popup'])
+                                           onclick="popupPage('{{$leftActionUrl}}')"
+                                           @else
+                                           onclick="clickOperate('{{$left['actionUrl']}}','{{$left['confirm']}}','{{$left['isMoreSelect']}}','{{$left['noNeedId']}}')"
+                                           @endif
+                                           @if(!empty($left['target'])) target="{{$left['target']}}" @endif
                                         >
-                                            {{$left['actionName']}}-------
+                                            {{$left['actionName']}}
                                         </a>
                                     @endforeach
                                     <br>
@@ -76,7 +92,7 @@
                                     </th>
                                 @endif
                                 @foreach($pageData['fields'] as $f)
-                                    <th>{{$f['name']}}</th>
+                                    <th style="min-width: 110px;">{{$f['name']}}</th>
                                 @endforeach
                             </tr>
                             </thead>
@@ -151,18 +167,47 @@
                                                     @foreach($f['datas'] as $act)
                                                         @if(!$act["show"] || ($act["show"] && toArray($d)[$act["show"]['field']] == $act["show"]['value']))
                                                             @if(!in_array(toArray($d)[$f['actionby']],$act['notIdArray']?:[]))
-                                                                <a
-                                                                        @if($act['confirm'])
-                                                                        onclick="confirm('{{$act['actionUrl']}}?{{http_build_query(array_merge($act['param']?:[],[$f['actionby']=>toArray($d)[$f['actionby']]]))}}')"
-                                                                        @else
-                                                                        href="{{$act['actionUrl']}}?{{http_build_query(array_merge($act['param']?:[],[$f['actionby']=>toArray($d)[$f['actionby']]]))}}">
-                                                                    @endif
+                                                                @if($act['actionType']=="modal")
+                                                                    <button type="button"  class="btn {{$act['cssClass']}} btn-sm" data-toggle="modal" data-target="#modal_default_{{toArray($d)['id']}}">{{$act['actionName']}}</button>
+                                                                    <!-- Basic modal -->
+                                                                    <div id="modal_default_{{toArray($d)['id']}}" class="modal fade">
+                                                                        <div class="modal-dialog">
+                                                                            <div class="modal-content">
+                                                                                <div class="modal-header">
+                                                                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                                                                    <h5 class="modal-title">{{toArray($d)[$act['titleField']]?:$act['titleField']}}的详情</h5>
+                                                                                </div>
 
-                                                                    <button type="button"
-                                                                            class="h-button-edit btn {{$act['cssClass']}} btn-xs">
-                                                                        {{$act['actionName']}}
-                                                                    </button>
-                                                                </a>
+                                                                                <div class="modal-body" id="modal_default_content_{{toArray($d)['id']}}" style="height: 600px;overflow: auto">
+                                                                                    {!! toArray($d)[$act['field']] !!}
+                                                                                </div>
+
+                                                                                <div class="modal-footer">
+                                                                                    <button type="button" class="btn btn-link" data-dismiss="modal">关闭</button>
+                                                                                    <button type="button" class="btn btn-info" onclick="exportImg('modal_default_content_{{toArray($d)['id']}}')">导出为图片</button>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <!-- /basic modal -->
+                                                                @else
+                                                                    <a
+                                                                            @if($act['popup'])
+                                                                            onclick="popupPage('{{rtrim($act['actionUrl'].'?'.http_build_query(array_merge($act['param']?:[],[$f['actionby']=>toArray($d)[$f['actionby']]])),"?")}}')"
+                                                                            @elseif($act['confirm'])
+                                                                            onclick="formtoolConfirmNavigate('{{$act['actionUrl']}}?{{http_build_query(array_merge($act['param']?:[],[$f['actionby']=>toArray($d)[$f['actionby']]]))}}')"
+                                                                            @else
+                                                                            href="{{$act['actionUrl']}}?{{http_build_query(array_merge($act['param']?:[],[$f['actionby']=>toArray($d)[$f['actionby']]]))}}">
+                                                                        @endif
+                                                                        @if(!empty($act['target'])) target="{{$act['target']}}" @endif
+
+                                                                        <button type="button"
+                                                                                class="h-button-edit btn {{$act['cssClass']}} btn-xs">
+                                                                            {{$act['actionName']}}
+                                                                        </button>
+                                                                    </a>
+                                                                @endif
+
                                                             @endif
                                                         @endif
                                                     @endforeach
@@ -180,6 +225,7 @@
                             @endforelse
                             </tbody>
                         </table>
+
                     </div>
                 </div>
                 <div class="col-sm-12 text-right text-center-xs">
@@ -190,8 +236,37 @@
         </div>
     </div>
     @include(moduleAdminTemplate($pageData['moduleName'])."public.js")
+{{--    <script type="text/javascript" src="{{asset("assets/module")}}/js/pages/components_modals.js"></script>--}}
+    <!-- html2canvas：截图用 -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <script>
-        function confirm(url) {
+        function exportImg(id) {
+            const element = document.getElementById(id);
+
+            // 保存原始样式
+            const originalStyle = {
+                height: element.style.height,
+                overflow: element.style.overflow,
+            };
+
+            // 展开内容，移除滚动条
+            element.style.height = 'auto';
+            element.style.overflow = 'visible';
+            // 延迟一点，等待样式生效
+            setTimeout(() => {
+                html2canvas(element, { scale: 2 }).then(canvas => {
+                    // 还原样式
+                    element.style.height = originalStyle.height;
+                    element.style.overflow = originalStyle.overflow;
+                    // 下载图片
+                    const link = document.createElement('a');
+                    link.download = 'export.png';
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                });
+            }, 200);
+        }
+        function formtoolConfirmNavigate(url) {
             layer.confirm('确定要操作吗？', {
                 title: "操作提示",
                 btn: ['确定', '取消'] //可以无限个按钮
@@ -239,25 +314,47 @@
             }).get();
         }
 
-        function clickOperate(url, confirm, isMoreSelect) {
+        function clickOperate(url, confirm, isMoreSelect, noNeedId) {
+            if (noNeedId) return window.location.href = url;
             if (allSelectId.length <= 0) return layer.msg('请选择记录');
             if (!isMoreSelect && allSelectId.length > 1) return layer.msg('只能选择一条记录');
             var allSelectIdStr = allSelectId.join(',');
+            var separator = url.indexOf('?') === -1 ? '?' : '&';
+            var targetUrl = url + separator + "id=" + allSelectIdStr;
             if (confirm) {
                 layer.confirm('确定要操作吗？', {
                     title: "操作提示",
                     btn: ['确定', '取消'] //可以无限个按钮
                 }, function (index, layero) {
                     //按钮【按钮一】的回调
-                    window.location.href = url + "?id=" + allSelectIdStr;
+                    return window.location.href = targetUrl;
                 }, function (index) {
                     //按钮【按钮二】的回调
                 });
             } else {
-                window.location = url + "?id=" + allSelectIdStr;
+                return window.location = targetUrl;
             }
         }
 
+        function popupPage(url) {
+            var popupPageOpen = layer.open({
+                title: '',
+                type: 2,
+                content: url,
+                closeBtn: 1,
+                area:['50%','65%'],
+            });
+            /*layer.full(popupPageOpen);*/
+            $('.layui-layer-iframe').css({
+                'transform': 'translateZ(10000px)',
+                'scrollbar-width': 'none',
+            });
+        }
     </script>
+@foreach(($pageData['inlineScripts'] ?? []) as $inlineScript)
+    <script>
+{!! $inlineScript !!}
+    </script>
+@endforeach
 </body>
 </html>

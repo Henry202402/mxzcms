@@ -86,15 +86,40 @@ function curl_request($url, $post = '', $cookie = '', $returnCookie = 0, $json =
 
 //获取本地翻译语言
 function getTranslateByKey($key, $type = "admin") {
-    $temp['moduleName'] = explode('\\', \request()->route()->getAction()['namespace'])[1];
+    $route = request()->route();
+    $namespace = $route ? ($route->getAction()['namespace'] ?? '') : '';
+    $moduleName = 'system';
+    if ($namespace) {
+        $namespaceParts = explode('\\', $namespace);
+        if (isset($namespaceParts[1]) && $namespaceParts[1]) {
+            $moduleName = strtolower($namespaceParts[1]);
+        }
+    }
+
+    $currentLanguage = session("admin_current_language")["shortcode"] ?? 'zh-CN';
     $loader = App()->make("translation.loader");
-    if ($loader->load($type, session("admin_current_language")["shortcode"], strtolower($temp["moduleName"]))) {
-        return $loader->load($type, session("admin_current_language")["shortcode"], strtolower($temp["moduleName"]))[$key];
+    $candidates = [
+        [$type, $currentLanguage, $moduleName],
+    ];
+
+    if ($currentLanguage !== 'zh-CN') {
+        $candidates[] = [$type, 'zh-CN', $moduleName];
     }
-    $temp["moduleName"] = "system";
-    if ($loader->load($type, session("admin_current_language")["shortcode"], strtolower($temp["moduleName"]))) {
-        return $loader->load($type, session("admin_current_language")["shortcode"], strtolower($temp["moduleName"]))[$key];
+
+    $candidates[] = [$type, $currentLanguage, 'system'];
+
+    if ($currentLanguage !== 'zh-CN') {
+        $candidates[] = [$type, 'zh-CN', 'system'];
     }
+
+    foreach ($candidates as $candidate) {
+        [$group, $locale, $namespaceHint] = $candidate;
+        $translations = $loader->load($group, $locale, $namespaceHint);
+        if (is_array($translations) && array_key_exists($key, $translations)) {
+            return $translations[$key];
+        }
+    }
+
     return $key;
 }
 

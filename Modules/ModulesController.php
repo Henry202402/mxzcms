@@ -29,7 +29,7 @@ class ModulesController extends BaseController {
         //模块名称存在
         if ($module_name) {
             //查找对应模块下方的Home里的Home控制器文件是否存在
-            $path = base_path("Modules/" . $module_name->identification . "/Http/Controllers/Home/HomeController.php");
+            $path = module_path($module_name->identification, "Http/Controllers/Home/HomeController.php");
             if (file_exists($path)) {
                 //查找对应模块下方的Home里的Home控制器
                 $class_filename = '\Modules\\' . $module_name->identification . '\Http\Controllers\Home\HomeController';
@@ -44,14 +44,18 @@ class ModulesController extends BaseController {
         // Store the session data...
         $time = microtime(true) - LARAVEL_START;
         $msg = "当前运行时间:" . substr($time, 0, 4) . 's,内存使用:' . (memory_get_usage(true) / 1024 / 1024) . 'M';
-        $array = ['statusCode' => 200, 'code' => '程序运行超时', 'message' => $msg, 'path' => url()->full()];
+        $array = ['statusCode' => 200, 'code' => '程序运行超时', 'message' => $msg, 'path' => url()->full(), 'duration_ms' => intval($time * 1000), 'memory_usage' => round(memory_get_usage(true) / 1024 / 1024, 2) . 'M'];
         if ($time > 5) {
             $module = getURIByRoute($this->request)['moduleName'];
             hook("Loger", [
                 'module' => $module,
                 'type' => "system",
                 'two_type' => 'slow',
-                'params' => $array,
+                'params' => \Plugins\Logger\Lib\Logger::normalizeSystemContext('slow', $array, [
+                    'module' => $module,
+                    'requestid' => $this->request->requestid ?? '',
+                    'path' => $array['path'],
+                ]),
                 'remark' => $array['code'],
                 'unique_id' => "",
                 'requestid' => $this->request->requestid

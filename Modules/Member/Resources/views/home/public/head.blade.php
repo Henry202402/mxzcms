@@ -9,11 +9,16 @@
     <!-- Favicon  -->
     <link rel="icon" type="image/png" href="{{GetLocalFileByPath(cacheGlobalSettingsByKey('webicon'))}}">
     <!-- Bootstrap Css -->
-    <link href="{{asset("assets/member")}}/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <link href="{{commonAsset('lib/bootstrap/member/css/bootstrap.min.css')}}" rel="stylesheet" type="text/css">
     <!-- Icons Css -->
     <link href="{{asset("assets/member")}}/css/icons.min.css" rel="stylesheet" type="text/css">
     <!-- App Css-->
     <link href="{{asset("assets/member")}}/css/app.min.css" rel="stylesheet" type="text/css">
+    @php
+        $memberUpgradeCssPath = public_path('assets/member/css/member-upgrade.css');
+        $memberUpgradeCssVersion = file_exists($memberUpgradeCssPath) ? filemtime($memberUpgradeCssPath) : time();
+    @endphp
+    <link href="{{ asset('assets/member/css/member-upgrade.css') }}?v={{ $memberUpgradeCssVersion }}" rel="stylesheet" type="text/css">
     <script>
         var domainPre = "{{url('/')}}/";
     </script>

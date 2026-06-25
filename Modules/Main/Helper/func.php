@@ -2,6 +2,7 @@
 
 namespace Modules\Main\Helper;
 
+use App\Support\I18n\ThemeTranslator;
 use Illuminate\Support\Facades\Cache;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -22,24 +23,29 @@ trait Func {
         }
     }
 
-    public static function theme_lang_pack($theme,$langkey,$lang = "zh") {
-        /**
-         内置多语言
-         模板自定义多语言
-        ***/
-        if(request()->get("lang") && request()->get("lang") != session()->get('homelang')){
-            session()->put('homelang',request()->get("lang"));
-            Cache::put("homelangList",null);
+    public static function theme_lang_pack($theme, $langkey, $lang = "zh") {
+        return ThemeTranslator::translate($langkey, [], $theme, $lang);
+    }
+
+
+    //获取历史入口
+    public static function getHistoricalEntry() {
+        $key = 'MainHistoricalEntryList';
+        $data = Cache::get($key) ?: [];
+        array_multisort(array_column($data, 'timestamp'), SORT_DESC, $data);
+        return $data;
+    }
+
+    //保存历史入口 1=单储存 2=整个储存
+    public static function saveHistoricalEntry($type = 1, $array = []) {
+        $key = 'MainHistoricalEntryList';
+        if ($type == 2) {
+            $list = $array;
+        } else {
+            $list = Cache::get($key) ?: [];
+            $array['timestamp'] = time();
+            $list[$array['module']] = $array;
         }
-        if(session()->get('homelang')){
-            $lang = session()->get('homelang');
-        }
-        if(Cache::get("homelangList")){
-            $langList = Cache::get("homelangList");
-        }else{
-            $langList = file_get_contents(public_path('views/themes/'.$theme.'/lang/'.$lang.'/lang.json'));
-            Cache::put("homelangList",json_decode($langList,true));
-        }
-        return isset($langList[$langkey]) ? $langList[$langkey] : $langkey;
+        Cache::put($key, $list, 60 * 24 * 365);
     }
 }

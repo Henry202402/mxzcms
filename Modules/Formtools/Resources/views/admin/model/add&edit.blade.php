@@ -30,6 +30,14 @@
             <!-- Content area -->
             <div class="content">
                 @include(moduleAdminTemplate($moduleName)."public.crumb",['breadcrumb'=>[$pageData['title'],$pageData['subtitle']]])
+                <div class="alert alert-info alert-styled-left">
+                    <span>当前内容会按模型字段渲染，详情 SEO 会优先使用这里填写的内容级 SEO；若留空，则回退到模型级 SEO 与默认字段。</span>
+                    @if(!empty($pageData['access_identification']))
+                        <br>
+                        <span>前台列表：</span><code>{{url("list/".$pageData['access_identification'])}}</code>
+                        <span style="margin-left: 12px;">前台详情：</span><code>{{url("detail/".$pageData['access_identification']."/{id}")}}</code>
+                    @endif
+                </div>
                 <div class="panel panel-flat">
                     <div class="panel-heading">
 
@@ -144,6 +152,11 @@
                                         <button type="submit" class="btn btn-sm btn-info" id="post_button">
                                             提交
                                         </button>
+                                        @if(!empty($pageData['access_identification']))
+                                            <a href="{{url("list/".$pageData['access_identification'])}}" target="_blank" type="button" class="btn btn-sm btn-default">
+                                                前台预览
+                                            </a>
+                                        @endif
                                         <a href="{{url("admin/".$moduleName."/model?moduleName={$pageData['moduleName']}&action=List&model=".$pageData['model']."&page=".$pageData['page'])}}" type="button" class="btn btn-sm btn-danger" >
                                             返回
                                         </a>

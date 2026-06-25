@@ -14,6 +14,31 @@ class SettingController extends CommonController {
         parent::__construct($request);
     }
 
+    protected function normalizeDomainList(string $value): array {
+        $domains = preg_split('/[\r\n,，;；]+/', $value) ?: [];
+        $normalized = [];
+
+        foreach ($domains as $domain) {
+            $domain = strtolower(trim($domain));
+            if ($domain === '') {
+                continue;
+            }
+
+            $domain = preg_replace('#^https?://#i', '', $domain);
+            $domain = explode('/', $domain)[0] ?? $domain;
+            $domain = explode(':', $domain)[0] ?? $domain;
+            $domain = trim($domain, ". \t\n\r\0\x0B");
+            if ($domain !== '') {
+                $normalized[] = $domain;
+            }
+        }
+
+        $normalized = array_values(array_unique($normalized));
+        sort($normalized);
+
+        return $normalized;
+    }
+
 
     public function moduleBindDomain(Request $request) {
         $pageData = [
@@ -39,15 +64,12 @@ class SettingController extends CommonController {
 
         $findRecord = \Modules\System\Services\ServiceModel::apiGetOne(ModuleBindDomain::TABLE_NAME, ['module_id' => $all['module_id']]);
 
-        //手机列表
-        $domain = str_replace(' ', '', $all['domain']);
-        $domain = explode("\n", $domain);
-        $domain = array_filter($domain);
-        $domain = array_unique($domain);
+        $domain = $this->normalizeDomainList((string) ($all['domain'] ?? ''));
 
         $up = [
             'domain' => implode(',', $domain),
             'num' => count($domain),
+            'updated_at' => getDay(),
         ];
 
         if ($findRecord) {
@@ -56,7 +78,6 @@ class SettingController extends CommonController {
             $up['module_id'] = $all['module_id'];
             $up['module'] = $findModule['identification'];
             $up['created_at'] = getDay();
-            $up['updated_at'] = getDay();
             $res = \Modules\System\Services\ServiceModel::add(ModuleBindDomain::TABLE_NAME, $up);
         }
 

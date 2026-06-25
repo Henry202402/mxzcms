@@ -1,111 +1,123 @@
 @include("member::home.public.head")
 
 <body data-layout="detached" data-topbar="colored">
-
-<!-- <body data-layout="horizontal" data-topbar="dark"> -->
-
 <div class="container-fluid">
-    <!-- Begin page -->
     <div id="layout-wrapper">
+        @include("member::home.public.header")
+        @include("member::home.public.leftnav")
 
-    @include("member::home.public.header")
-
-    <!-- ========== Left Sidebar Start ========== -->
-    @include("member::home.public.leftnav")
-    <!-- Left Sidebar End -->
-
-        <!-- ============================================================== -->
-        <!-- Start right Content here -->
-        <!-- ============================================================== -->
         <div class="main-content">
-
             <div class="page-content">
+                @include("member::home.public.topnav")
 
-                <!-- start page title -->
                 <div class="row">
-                    <div class="col-12">
-                        <div class="page-title-box d-flex align-items-center justify-content-between">
-                            <h4 class="page-title mb-0 font-size-18">修改资料</h4>
-
-                            <div class="page-title-right">
-                                <ol class="breadcrumb m-0">
-                                    <li class="breadcrumb-item"><a href="{{url("member")}}">会员中心</a></li>
-                                    <li class="breadcrumb-item active">个人资料</li>
-                                </ol>
+                    <div class="col-xl-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <div class="mx-member-profile-card">
+                                    <img src="{{ GetUrlByPath($user['avatar']) }}" alt="avatar" class="mx-member-profile-card__avatar">
+                                    <h4>{{ $user['nickname'] ?: $user['username'] }}</h4>
+                                    <p>{{ $user['email'] ?: ($user['phone'] ?: '建议补充常用联系方式') }}</p>
+                                    <div class="mx-member-profile-card__meta">
+                                        <div>
+                                            <span>资料完整度</span>
+                                            <strong>{{ $overview['profile_completion'] }}%</strong>
+                                        </div>
+                                        <div>
+                                            <span>实名认证</span>
+                                            <strong>{{ $overview['auth_status'] }}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mx-member-side-panel">
+                                    <h5>资料建议</h5>
+                                    <ul class="mx-member-tips">
+                                        <li>昵称尽量使用便于识别的公开名称。</li>
+                                        <li>邮箱建议填写常用邮箱，便于通知与找回密码。</li>
+                                        <li>签名建议简短明确，展示个人特色即可。</li>
+                                    </ul>
+                                    <div class="mx-member-safe-actions">
+                                        <a href="{{ url('member/password') }}" class="btn btn-outline-primary waves-effect">修改密码</a>
+                                        <a href="{{ url('member/myRealName') }}" class="btn btn-outline-secondary waves-effect">查看实名</a>
+                                    </div>
+                                </div>
                             </div>
-
                         </div>
                     </div>
-                </div>
-                <!-- end page title -->
-
-                <div class="row">
-                    <div class="col-12">
+                    <div class="col-xl-8">
                         <div class="card">
                             <div class="card-body">
-                                <form method="post" autocomplete="off" id="myForm">
+                                <div class="mx-member-section-head">
+                                    <div>
+                                        <h4 class="card-title mb-1">编辑个人资料</h4>
+                                        <p class="card-title-desc mb-0">修改后的资料会立即同步到会员中心展示。</p>
+                                    </div>
+                                </div>
 
-
+                                <form method="post" autocomplete="off" id="myForm" class="mx-member-form">
                                     {{csrf_field()}}
-                                    <h4 class="card-title">注意：</h4>
-                                    <p class="card-title-desc">
-                                        1、修改资料内容请注意<code>敏感词</code><br>
-                                        2、邮箱请填写真实邮箱，方便后续接收通知
-                                    </p>
 
-                                    <div class="mb-3">
-                                        <label class="form-label">用户名</label>
-                                        <input type="text" class="form-control" value="{{$user['username']}}" disabled>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">昵称</label>
-                                        <input type="text" class="form-control" name="nickname" value="{{$user['nickname']}}">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">邮箱</label>
-                                        <input type="text" class="form-control" name="email" value="{{$user['email']}}">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">个性签名</label>
-                                        <input type="text" class="form-control" name="signature" value="{{$user['signature']}}">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">头像</label>
-                                        <div class="input-group">
-                                            <img src="{{GetUrlByPath($user['avatar'])}}"
-                                                 style="width: 38px;margin-right: 5px;">
-                                            <input type="file" class="form-control" id="inputGroupFile02" name="avatar">
-                                            <label class="input-group-text" for="inputGroupFile02">Upload</label>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">用户名</label>
+                                                <input type="text" class="form-control" value="{{ $user['username'] }}" disabled>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">昵称</label>
+                                                <input type="text" class="form-control" name="nickname" value="{{ $user['nickname'] }}">
+                                            </div>
                                         </div>
                                     </div>
 
-                                    <div class="mb-3 ">
-                                        <button type="button" class="btn btn-info col-md-1 h-sub">确认</button>
-                                        <button type="button" class="btn btn-danger col-md-1">返回</button>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">邮箱</label>
+                                                <input type="text" class="form-control" name="email" value="{{ $user['email'] }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">手机号码</label>
+                                                <input type="text" class="form-control" value="{{ $user['phone'] }}" disabled>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">个性签名</label>
+                                        <input type="text" class="form-control" name="signature" value="{{ $user['signature'] }}" placeholder="介绍一下你自己，最多一句话即可">
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label class="form-label">头像</label>
+                                        <div class="mx-member-avatar-upload">
+                                            <img src="{{ GetUrlByPath($user['avatar']) }}" alt="avatar preview">
+                                            <div class="input-group">
+                                                <input type="file" class="form-control" id="inputGroupFile02" name="avatar">
+                                                <label class="input-group-text" for="inputGroupFile02">上传头像</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mx-member-form-actions">
+                                        <button type="button" class="btn btn-info waves-effect waves-light h-sub">保存资料</button>
+                                        <a href="{{ url('member') }}" class="btn btn-light waves-effect">返回首页</a>
                                     </div>
                                 </form>
                             </div>
                         </div>
                     </div>
-                    <!-- end col -->
                 </div>
-                <!-- end row -->
-
-
             </div>
-            <!-- End Page-content -->
 
             @include("member::home.public.footer")
         </div>
-        <!-- end main content-->
-
     </div>
-    <!-- END layout-wrapper -->
-
 </div>
-<!-- end container-fluid -->
-
-<!-- Right bar overlay-->
 <div class="rightbar-overlay"></div>
 
 @include("member::home.public.js")

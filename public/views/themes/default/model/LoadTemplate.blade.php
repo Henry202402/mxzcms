@@ -11,6 +11,7 @@
     @include("themes.default.public.header")
     @include($template)
     <footer class="js-footer-is-fixed">
+        @include("themes.default.public.bottomMenu")
         <div class="footer">
             @include("themes.default.public.footerMenu")
         </div>

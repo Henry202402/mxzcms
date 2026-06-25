@@ -4746,7 +4746,7 @@ figure {
 
   .main-content {
     margin-left: 0px;
-    padding-top: 80px; }
+    padding-top: 0px; }
 
   .main-sidebar-nav {
     margin-left: -240px;
@@ -4874,3 +4874,12 @@ figure {
   white-space: nowrap;
 }
 
+.his-bg{
+    background: #DDE3E9 !important;
+    padding: 5px 8px;
+    border-radius: 5%;
+    -webkit-border-radius: 5%;
+}
+.his-cl{
+    color: #000 !important;
+}

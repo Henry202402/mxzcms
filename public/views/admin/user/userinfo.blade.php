@@ -198,7 +198,7 @@
 
         $("#userinfo_button").click(function () {
 
-            popup({type:'load',msg:"正在请求",delay:800,callBack:function(){
+            popup({type:'load',msg:"{{getTranslateByKey('requesting')}}",delay:800,callBack:function(){
                     $.ajax({
                         "method":"post",
                         "url":"{{url('admin/myinfo')}}",

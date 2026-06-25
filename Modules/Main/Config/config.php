@@ -4,5 +4,6 @@
                 "version" => "1.0.0",
                 "description" => "主程序",
                 "identification" => "Main",
+                "directory" => "Main",
                 "type" => "system"
             );

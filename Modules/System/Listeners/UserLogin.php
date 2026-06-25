@@ -15,11 +15,12 @@ class UserLogin {
         $moduleName = ucfirst($event->data['moduleName']);
         //参数
         $all = $event->data['all'];
+        $apiLogin = !empty($event->data['api_login']);
         //登录注册配置
         $loginRegister = $event->data['loginRegister'];
         if (!$loginRegister['open_login']) return returnArr(0, "未开放登录");
 
-        if (!$event->data['api_login'] && $loginRegister['open_code_verify']) {
+        if (!$apiLogin && $loginRegister['open_code_verify']) {
             $verify = hook('GetSendCode', ['moduleName' => 'System', 'object_type' => 'captcha', 'operate_type' => 'verify', 'captcha' => $all['captcha']])[0];
             if ($verify['status'] != 200) return $verify;
         }
@@ -36,7 +37,7 @@ class UserLogin {
         $data = $check;
         $data['avatar'] = GetUrlByPath($data['avatar']);
 
-        if ($event->data['api_login']) {
+        if ($apiLogin) {
             $token = JWTAuth::fromUser($data);
             $data['token'] = $token;
         }

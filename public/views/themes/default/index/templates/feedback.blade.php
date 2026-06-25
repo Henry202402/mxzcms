@@ -1,60 +1,37 @@
-{{--<div class="{{$cssClass}}">--}}
-{{--    <div class="container">--}}
-{{--        <div class="row">--}}
-{{--            <div class="col-md-12">--}}
-{{--                <!-- Contacts -->--}}
-{{--                <div class="contacts">--}}
-{{--                    <div class="promo-title-wrapper ">--}}
-{{--                        <h3 class="promo-title">--}}
-{{--                            {{$data->name}}--}}
-{{--                        </h3>--}}
-{{--                        <p class="promo-description">--}}
-{{--                            {{$data->home_page_describe}}--}}
-{{--                        </p>--}}
-{{--                    </div>--}}
-{{--                    <!-- Success Modal -->--}}
-{{--                    <div class="contacts-success js-contacts-success"><i class="pe-7s-check"></i>Your message was sent successfully. <br>Thank you!</div>--}}
-{{--                    <!-- End of Success Modal -->--}}
-{{--                    <form action="php/contact.php" id="js-contact-form">--}}
-{{--                        <ul class="contacts-inputs">--}}
-{{--                            <li class="contacts-item">--}}
-{{--                                <label for="full-name" class="contacts-label">Full Name</label>--}}
-{{--                                <!-- This input is required -->--}}
-{{--                                <input type="text" name="full-name" id="full-name" class="contacts-input form-control" data-validation="required">--}}
-{{--                            </li>--}}
-{{--                            <li class="contacts-item">--}}
-{{--                                <label for="email" class="contacts-label">Email</label>--}}
-{{--                                <!-- This input should be filled with a valid email and it's required -->--}}
-{{--                                <input type="text" name="email" id="email" class="contacts-input form-control" data-validation="required email">--}}
-{{--                            </li>--}}
-{{--                            <li class="contacts-item">--}}
-{{--                                <label for="company" class="contacts-label">Company</label>--}}
-{{--                                <!-- This input if optional -->--}}
-{{--                                <input type="text" name="company" id="company" class="contacts-input form-control">--}}
-{{--                            </li>--}}
-{{--                            <li class="contacts-item">--}}
-{{--                                <label for="website" class="contacts-label">Website</label>--}}
-{{--                                <!-- This input should be filled with a valid URL and it's optional -->--}}
-{{--                                <input type="text" name="website" id="website" class="contacts-input form-control" data-validation="url" data-validation-optional="true">--}}
-{{--                            </li>--}}
-{{--                            <li class="contacts-item">--}}
-{{--                                <label for="country" class="contacts-label">Country</label>--}}
-{{--                                <!-- This input is optional -->--}}
-{{--                                <input type="text" name="country" id="country" class="contacts-input form-control">--}}
-{{--                            </li>--}}
-{{--                            <li class="contacts-item">--}}
-{{--                                <label for="message" class="contacts-label">Message</label>--}}
-{{--                                <!-- This input is required -->--}}
-{{--                                <textarea id="message" name="message" class="contacts-input form-control" data-validation="required"></textarea>--}}
-{{--                            </li>--}}
-{{--                        </ul>--}}
-{{--                        <button class="button blue full">Send Message</button>--}}
-{{--                    </form>--}}
-{{--                </div>--}}
-{{--                <!-- End of Contacts -->--}}
+@php $home_config = json_decode($data->home_config,true); @endphp
+<div @if($home_config['show_home_type']=="color" && $home_config['home_page_bg_color'])
+         style='background-color:{{$home_config['home_page_bg_color']}} !important'
+     @elseif($home_config['show_home_type']=="img" && $home_config['home_page_bg_img'])
+         style='background-image: url({{GetUrlByPath($home_config['home_page_bg_img'])}});background-repeat: no-repeat'
+     @endif>
+    <div class="container">
+        @include('themes.default.public.homeSectionHeader', [
+            'sectionData' => $data,
+            'sectionConfig' => $home_config,
+            'sectionMoreUrl' => url('list/' . $data->access_identification),
+            'sectionMoreText' => '立即留言',
+        ])
 
-{{--            </div>--}}
-{{--        </div>--}}
-{{--    </div>--}}
-{{--</div>--}}
-
+        <div class="mx-home-grid">
+            @forelse(getListByModel($data, $data->home_page_num) as $d)
+                <article class="mx-home-card mx-home-card--feedback">
+                    <div class="mx-home-card__body">
+                        <div class="mx-home-feedback-meta">
+                            <strong>{{ $d->full_name ?: '匿名访客' }}</strong>
+                            <span>{{ $d->company ?: '访客留言' }}</span>
+                        </div>
+                        <h3 class="mx-home-card__title">{{ $d->title ?? '一条新的留言' }}</h3>
+                        <p class="mx-home-card__desc">{{ \Illuminate\Support\Str::limit(trim((string) ($d->content ?? '')), 120) }}</p>
+                        <div class="mx-home-card__meta">
+                            @if(!empty($d->created_at))
+                                <span><i class="fa fa-clock-o"></i> {{ $d->created_at }}</span>
+                            @endif
+                        </div>
+                    </div>
+                </article>
+            @empty
+                <div class="mx-empty" style="grid-column:1 / -1;">当前还没有首页留言展示数据，你可以先从前台或后台新增几条留言。</div>
+            @endforelse
+        </div>
+    </div>
+</div>

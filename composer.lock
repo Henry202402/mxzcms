@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9c79fdfb3fbde5bc0fad2ec1e180e1f2",
+    "content-hash": "c7f0045da97182c3c835b87aec12d325",
     "packages": [
         {
             "name": "brick/math",
@@ -1614,16 +1614,16 @@
         },
         {
             "name": "henry202402/mxzcms-modules",
-            "version": "1.0.3",
+            "version": "1.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Henry202402/mxzcms-modules.git",
-                "reference": "c8510522f726693eae98f10a40dc29154ad34913"
+                "reference": "83dfeec23ff193265fb2dbc89a68bb15c79292e0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Henry202402/mxzcms-modules/zipball/c8510522f726693eae98f10a40dc29154ad34913",
-                "reference": "c8510522f726693eae98f10a40dc29154ad34913",
+                "url": "https://api.github.com/repos/Henry202402/mxzcms-modules/zipball/83dfeec23ff193265fb2dbc89a68bb15c79292e0",
+                "reference": "83dfeec23ff193265fb2dbc89a68bb15c79292e0",
                 "shasum": ""
             },
             "type": "library",
@@ -1653,16 +1653,17 @@
                 }
             ],
             "description": "梦小记CMS 模块化 管理包",
+            "homepage": "https://www.mxzcms.com",
             "keywords": [
                 "cms",
                 "laravel",
                 "梦小记"
             ],
             "support": {
-                "issues": "https://github.com/Henry202402/mxzcms-modules/issues",
-                "source": "https://github.com/Henry202402/mxzcms-modules/tree/1.0.3"
+                "issues": "https://www.mxzcms.com",
+                "source": "https://www.mxzcms.com"
             },
-            "time": "2025-03-13T09:42:08+00:00"
+            "time": "2026-06-24T11:52:43+00:00"
         },
         {
             "name": "intervention/image",
@@ -9707,7 +9708,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
@@ -9715,6 +9716,6 @@
         "ext-curl": "*",
         "ext-json": "*"
     },
-    "platform-dev": [],
+    "platform-dev": {},
     "plugin-api-version": "2.6.0"
 }

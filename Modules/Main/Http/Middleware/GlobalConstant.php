@@ -30,7 +30,7 @@ class GlobalConstant
 
 
         //模块路径
-        define("MODULE_PATH",base_path("Modules/"));
+        define("MODULE_PATH", modules_base_path());
         define("MODULE_VIEW","views/modules/");
         define("MODULE_ADMIN_VIEW","views/modules/");
 
@@ -45,6 +45,7 @@ class GlobalConstant
         //admin 路径
         define("ADMIN_SKIN_PATH", "views/admin/");
         define("ADMIN_ASSET",asset("assets/admin").'/');
+        define("COMMON_ASSET", asset("assets/common").'/');
 
         //安装路径
         define("INSTALL_ASSET",asset(INSTALL_SKIN_PATH).'/');
@@ -57,7 +58,7 @@ class GlobalConstant
         define("IGNOREAUTH",array("","logout"));
 
         //插件路径
-        define("PLUGIN_PATH",base_path("Plugins/"));
+        define("PLUGIN_PATH", plugins_base_path());
 
 
 

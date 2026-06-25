@@ -2,7 +2,9 @@
 
 namespace Modules\Main\Http\Controllers\Admin;
 
+use App\Support\Telemetry\StatisticReporter;
 use Illuminate\Support\Facades\Cache;
+use Modules\Main\Models\Modules;
 use Modules\Main\Services\ServiceModel;
 use Modules\ModulesController;
 use Modules\System\Models\Setting;
@@ -34,6 +36,10 @@ class ThemeController extends ModulesController {
         $pageData = getURIByRoute($this->request);
         $pageData['title'] = "开发者助手，快速创建本地应用";
         $pageData['subtitle'] = "开发者助手，子标题";
+        $themeIdentification = $this->request->query('m', Cache::get('theme', 'default'));
+        StatisticReporter::reportSuccess('Usage', $themeIdentification, Modules::Theme, [
+            'entry' => 'admin_theme_diy',
+        ]);
 
         return view("admin.func.diy",[
             "pageData" =>$pageData

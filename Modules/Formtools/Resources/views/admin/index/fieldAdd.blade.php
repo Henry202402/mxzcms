@@ -60,7 +60,7 @@
                                         <input type="text" id="identification" name="identification"
                                                class="form-control"
                                                placeholder="字段标识" required>
-                                        <span class="help-block">字段名称</span>
+                                        <span class="help-block">建议使用英文或下划线，方便后续识别和使用。</span>
                                     </div>
                                 </div>
 
@@ -124,7 +124,7 @@
                                 </div>
 
                                 <legend class="text-bold cursor-pointer" onclick="clickOpen('more-setting-content')">
-                                    更多设置（点击设置）
+                                    更多设置（点击展开）
                                 </legend>
 
                                 <div id="more-setting-content" style="display:none;">
@@ -220,7 +220,7 @@
                                 </div>
 
                                 <legend class="text-bold cursor-pointer" onclick="clickOpen('admin-setting-content')">
-                                    后台（点击设置）
+                                    后台设置（点击展开）
                                 </legend>
                                 <div id="admin-setting-content" style="display:none;">
                                     <div class="form-group">
@@ -262,7 +262,7 @@
                                 </div>
 
                                 <legend class="text-bold cursor-pointer" onclick="clickOpen('home-setting-content')">
-                                    前台（点击设置）
+                                    前台设置（点击展开）
                                 </legend>
                                 <div id="home-setting-content" style="display:none;">
                                     <div class="form-group">

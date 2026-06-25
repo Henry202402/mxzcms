@@ -8,7 +8,10 @@ class Statistic
 {
 
     public function handle( \Modules\System\Events\Statistic $event) {
-        call_user_func([new UPDATECMS(),"statistic"],$event->data);
+        try {
+            call_user_func([new UPDATECMS(), "statistic"], $event->data);
+        } catch (\Throwable $throwable) {
+        }
     }
 
 }

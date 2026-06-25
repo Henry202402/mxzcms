@@ -18,15 +18,15 @@
                 <a href="{{url("admin/module")}}"><i class="fa fa-puzzle-piece"></i> {{getTranslateByKey("functional_module")}}</a>
             </li>
             <li @if(request()->route()->uri=="admin/plugin") class="menu-active" @endif>
-                <a href="{{url("admin/plugin")}}"><i class="fa fa-plug"></i> 插件管理</a>
+                <a href="{{url("admin/plugin")}}"><i class="fa fa-plug"></i> {{getTranslateByKey("plugin_management")}}</a>
             </li>
             <li @if(request()->route()->uri=="admin/theme") class="menu-active" @endif>
-                <a href="{{url("admin/theme")}}"><i class="fa fa-pencil-square"></i> 主题配置</a>
+                <a href="{{url("admin/theme")}}"><i class="fa fa-pencil-square"></i> {{getTranslateByKey("theme_configuration")}}</a>
             </li>
 
             {{--@if(cacheGlobalSettingsByKey('Useofcloud') =='true')
                 <li>
-                    <a href="{{url('admin/cloud')}}"><i class="fa fa-cloud"></i> 云应用</a>
+                    <a href="{{url('admin/cloud')}}"><i class="fa fa-cloud"></i> {{getTranslateByKey("online_module")}}</a>
                 </li>
             @endif--}}
         </ul>

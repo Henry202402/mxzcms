@@ -19,10 +19,14 @@ class Seo
             $seoconfig = call_user_func([new SeoController(),"GetSeo"],array_merge($pageData?:[],$data));
         }
 
-        return '<title>'.$seoconfig['title'].'</title>
-    <meta name="keywords" content="'.$seoconfig['keywords'].'">
-    <meta name="description" content="'.$seoconfig['description'].'">';
+        $title = e((string) ($seoconfig['title'] ?? ''));
+        $keywords = e((string) ($seoconfig['keywords'] ?? ''));
+        $description = e((string) ($seoconfig['description'] ?? ''));
+
+        return '<title>'.$title.'</title>
+    <meta name="keywords" content="'.$keywords.'">
+    <meta name="description" content="'.$description.'">';
 
     }
-
 }
+

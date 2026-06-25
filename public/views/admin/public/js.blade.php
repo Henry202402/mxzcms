@@ -1,6 +1,6 @@
 
 <!-- Jquery UI -->
-<script src="{{ADMIN_ASSET}}lib/jquery-ui/jquery-ui.min.js"></script>
+<script src="{{commonAsset('lib/jquery-ui/jquery-ui.min.js')}}"></script>
 <script src="{{ADMIN_ASSET}}js/jquery.ui.custom.js"></script>
 
 <!--Sweet Alerts-->
@@ -11,7 +11,7 @@
 
 <script type="text/javascript" src="{{ADMIN_ASSET}}other/jqueryToast/js/toast.script.js"></script>
 
-<script type="text/javascript" src="{{ADMIN_ASSET}}layer/layer/layer.js"></script>
+<script type="text/javascript" src="{{commonAsset('lib/layer/layer/layer.js')}}"></script>
 <!---->
 @foreach($load as $value)
     @if($value)
@@ -34,7 +34,7 @@
     @endif
 
     if (toastMsg) {
-        $.Toast("温馨提示!", toastMsg, toastType, {
+        $.Toast(@json(getTranslateByKey('common_toast_title')), toastMsg, toastType, {
             // append to body
             appendTo: "body",
             // is stackable?

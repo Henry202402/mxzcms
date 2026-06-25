@@ -1,4 +1,7 @@
 @include(moduleAdminTemplate($moduleName)."public.header")
+@php
+    $currentType = $currentType ?? (int) request('type', 0);
+@endphp
 <style>
     input[type="radio"] {
         margin: 8px 10px 0px;
@@ -31,6 +34,187 @@
         margin-top: 11px;
         cursor: pointer;
     }
+
+    .system-config-hero {
+        margin-bottom: 20px;
+        padding: 22px 24px;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        box-shadow: 0 16px 40px rgba(15, 23, 42, 0.06);
+    }
+
+    .system-config-hero__title {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .system-config-hero__desc {
+        margin: 10px 0 0;
+        color: #64748b;
+        line-height: 1.8;
+    }
+
+    .system-config-overview {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 18px;
+    }
+
+    .system-config-overview__item {
+        padding: 16px 18px;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.92);
+    }
+
+    .system-config-overview__label {
+        margin: 0 0 8px;
+        color: #64748b;
+        font-size: 12px;
+    }
+
+    .system-config-overview__value {
+        margin: 0;
+        color: #0f172a;
+        font-size: 20px;
+        font-weight: 700;
+        line-height: 1.3;
+        word-break: break-word;
+    }
+
+    .system-config-overview__desc {
+        margin-top: 8px;
+        color: #94a3b8;
+        line-height: 1.7;
+    }
+
+    .system-config-panel {
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        box-shadow: 0 10px 32px rgba(15, 23, 42, 0.05);
+        overflow: hidden;
+    }
+
+    .system-config-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        border-bottom: 0;
+    }
+
+    .system-config-tabs > li {
+        float: none;
+        margin: 0;
+    }
+
+    .system-config-tabs > li > a {
+        display: block;
+        margin: 0;
+        min-width: 168px;
+        padding: 12px 14px;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        background: #fff;
+        color: #334155;
+    }
+
+    .system-config-tabs > li.active > a,
+    .system-config-tabs > li.active > a:hover,
+    .system-config-tabs > li.active > a:focus {
+        border-color: #bfdbfe;
+        background: #eff6ff;
+        color: #1d4ed8;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.08);
+    }
+
+    .system-config-tabs__title {
+        display: block;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .system-config-tabs__desc {
+        display: block;
+        margin-top: 4px;
+        color: #64748b;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
+    .system-config-tabs > li.active > a .system-config-tabs__desc {
+        color: #3b82f6;
+    }
+
+    .setting-driver-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 12px;
+    }
+
+    .setting-driver-option {
+        position: relative;
+        display: block;
+        padding: 16px;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        background: #fff;
+        cursor: pointer;
+        transition: all .2s ease;
+    }
+
+    .setting-driver-option:hover {
+        border-color: #bfdbfe;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.08);
+    }
+
+    .setting-driver-option input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+        margin: 0;
+    }
+
+    .setting-driver-option.is-active {
+        border-color: #bfdbfe;
+        background: #eff6ff;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.08);
+    }
+
+    .setting-driver-option__title {
+        display: block;
+        font-size: 15px;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .setting-driver-option__desc {
+        display: block;
+        margin-top: 6px;
+        color: #64748b;
+        line-height: 1.7;
+        white-space: normal;
+        word-break: break-word;
+    }
+
+    @media (max-width: 991px) {
+        .system-config-overview,
+        .setting-driver-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .system-config-tabs > li,
+        .system-config-tabs > li > a {
+            width: 100%;
+        }
+    }
 </style>
 <body>
 @include(moduleAdminTemplate($moduleName)."public.nav")
@@ -55,55 +239,35 @@
             <!-- Content area -->
             <div class="content" style="margin-top: 1rem;">
 
+                <div class="system-config-hero">
+                    <h3 class="system-config-hero__title">系统基础设置</h3>
+                    <p class="system-config-hero__desc">这里集中管理网站基础信息、登录注册、邮件短信、编辑器、支付和地图等系统级设置。先确认当前驱动来源，再按分类进入对应配置。</p>
+                    <div class="system-config-overview">
+                        @foreach($settingOverview as $overview)
+                            <div class="system-config-overview__item">
+                                <p class="system-config-overview__label">{{$overview['name']}}</p>
+                                <p class="system-config-overview__value">{{$overview['value']}}</p>
+                                <div class="system-config-overview__desc">{{$overview['desc']}}</div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
 
-                <div class="panel panel-flat">
+                <div class="panel panel-flat system-config-panel">
                     <div class="panel-heading">
 
 
                         {{csrf_field()}}
                         <fieldset class="content-group">
-                            <ul class="nav nav-tabs">
-                                <li @if($_GET['type']==0) class="active" @endif >
-                                    <a href data-toggle="tab" data-target="#web">
-                                        系统配置
-                                    </a>
-                                </li>
-                                <li @if($_GET['type']==1) class="active" @endif >
-                                    <a href data-toggle="tab" data-target="#captcha">
-                                        提交验证码
-                                    </a>
-                                </li>
-                                <li @if($_GET['type']==2) class="active" @endif >
-                                    <a href data-toggle="tab" data-target="#email">
-                                        SMTP邮箱设置
-                                    </a>
-                                </li>
-                                <li @if($_GET['type']==3) class="active" @endif >
-                                    <a href data-toggle="tab" data-target="#sms">
-                                        SMS短信配置
-                                    </a>
-                                </li>
-                                <li @if($_GET['type']==4) class="active" @endif >
-                                    <a href data-toggle="tab" data-target="#pay">
-                                        支付配置
-                                    </a>
-                                </li>
-
-                                <li @if($_GET['type']==5) class="active" @endif >
-                                    <a href data-toggle="tab" data-target="#login">
-                                        登录配置
-                                    </a>
-                                </li>
-                                <li @if($_GET['type']==6) class="active" @endif >
-                                    <a href data-toggle="tab" data-target="#editor">
-                                        富文本编辑器
-                                    </a>
-                                </li>
-                                <li @if($_GET['type']==7) class="active" @endif >
-                                    <a href data-toggle="tab" data-target="#map">
-                                        地图配置
-                                    </a>
-                                </li>
+                            <ul class="nav nav-tabs system-config-tabs">
+                                @foreach($settingTabs as $tab)
+                                    <li @if($currentType == $tab['type']) class="active" @endif>
+                                        <a href="{{moduleAdminJump($moduleName,'base/baseConfig?type=' . $tab['type'])}}">
+                                            <span class="system-config-tabs__title">{{$tab['name']}}</span>
+                                            <span class="system-config-tabs__desc">{{$tab['desc']}}</span>
+                                        </a>
+                                    </li>
+                                @endforeach
                                 {{--                                <li @if($_GET['type']==8) class="active" @endif >--}}
                                 {{--                                    <a href data-toggle="tab" data-target="#push">--}}
                                 {{--                                        消息推送配置--}}
@@ -111,7 +275,7 @@
                                 {{--                                </li>--}}
                             </ul>
                             <div class="tab-content">
-                                <div class="tab-pane @if($_GET['type']==0) active @endif " id="web">
+                                <div class="tab-pane @if($currentType==0) active @endif " id="web">
                                     <form id="web_form" class="h-mt20" role="form" method="post">
                                         {{csrf_field()}}
                                         <legend class="text-bold mt-20">网站基本配置</legend>
@@ -120,8 +284,8 @@
                                             <label>
                                                 网站名称
                                             </label>
-                                            <input type="text" class="form-control" name="website_name"
-                                                   value="{{cacheGlobalSettingsByKey('website_name')}}">
+                                            <input type="text" class="form-control" name="base_name"
+                                                   value="{{cacheGlobalSettingsByKey('base_name')}}">
                                         </div>
                                         <div class="col-md-4 mt-20">
                                             <label>
@@ -199,6 +363,13 @@
                                                 </div>
 
                                             </div>
+                                        </div>
+                                        <div class="col-md-12 mt-20">
+                                            <label>
+                                                SEO名称
+                                            </label>
+                                            <input type="text" class="form-control" name="website_name"
+                                                   value="{{cacheGlobalSettingsByKey('website_name')}}">
                                         </div>
                                         <div class="col-md-12 mt-20">
                                             <label>
@@ -295,21 +466,84 @@
                                             <span class="help-block">验证字段，都会发送对应的验证码，请确认配置是否完全</span>
                                         </div>
 
+                                        @php
+                                            $websiteRegFieldsRaw = trim((string) __E('website_reg_fields'));
+                                            $websiteRegRequiredRaw = trim((string) __E('website_reg_required'));
+                                            $websiteRegFields = $websiteRegFieldsRaw === '' ? [] : explode(",", $websiteRegFieldsRaw);
+                                            $websiteRegRequired = $websiteRegRequiredRaw === '' ? [] : explode(",", $websiteRegRequiredRaw);
+                                        @endphp
+
+                                        <div class="col-md-12 mt-20">
+                                            <label>
+                                                注册字段显示
+                                            </label>
+                                            <br>
+                                            <label class="checkbox-inline">
+                                                <input type="checkbox" class="styled h-radio"
+                                                       value="nickname" name="website_reg_fields[]"
+                                                       @if(in_array('nickname',$websiteRegFields)) checked @endif>
+                                                <span class="h-span-val">昵称</span>
+                                            </label>
+                                            <label class="checkbox-inline">
+                                                <input type="checkbox" class="styled h-radio"
+                                                       value="phone" name="website_reg_fields[]"
+                                                       @if(in_array('phone',$websiteRegFields)) checked @endif>
+                                                <span class="h-span-val">手机号码</span>
+                                            </label>
+                                            <label class="checkbox-inline">
+                                                <input type="checkbox" class="styled h-radio"
+                                                       value="email" name="website_reg_fields[]"
+                                                       @if(in_array('email',$websiteRegFields)) checked @endif>
+                                                <span class="h-span-val">电子邮件</span>
+                                            </label>
+                                            <span class="help-block">用户名、密码、确认密码固定显示；邮箱/手机如开启验证码，会自动在前台显示。</span>
+                                        </div>
+
+                                        <div class="col-md-12 mt-20">
+                                            <label>
+                                                注册字段必填
+                                            </label>
+                                            <br>
+                                            <label class="checkbox-inline">
+                                                <input type="checkbox" class="styled h-radio"
+                                                       value="nickname" name="website_reg_required[]"
+                                                       @if(in_array('nickname',$websiteRegRequired)) checked @endif>
+                                                <span class="h-span-val">昵称</span>
+                                            </label>
+                                            <label class="checkbox-inline">
+                                                <input type="checkbox" class="styled h-radio"
+                                                       value="phone" name="website_reg_required[]"
+                                                       @if(in_array('phone',$websiteRegRequired)) checked @endif>
+                                                <span class="h-span-val">手机号码</span>
+                                            </label>
+                                            <label class="checkbox-inline">
+                                                <input type="checkbox" class="styled h-radio"
+                                                       value="email" name="website_reg_required[]"
+                                                       @if(in_array('email',$websiteRegRequired)) checked @endif>
+                                                <span class="h-span-val">电子邮件</span>
+                                            </label>
+                                            <span class="help-block">如果启用了邮箱/手机验证码，对应字段会自动按必填处理。</span>
+                                        </div>
+
                                         <div class="col-md-12 mt-20">
                                             <label>
                                                 注册协议【<a target="_blank"
                                                         href="{{moduleAdminJump('Formtools','model?moduleName=Formtools&action=List&model=agreement')}}">协议列表</a>】
                                             </label>
                                             <br>
-                                            @foreach($agreementList as $agree)
-                                                <label class="checkbox-inline">
-                                                    <input type="checkbox" class="styled h-radio"
-                                                           value="{{$agree['id']}}" name="website_reg_agreement[]"
-                                                           @if(in_array($agree['id'],explode(",", cacheGlobalSettingsByKey('website_reg_agreement')))) checked @endif>
-                                                    <span class="h-span-val">{{$agree['name']}}</span>
-                                                </label>
-                                            @endforeach
-                                            <span class="help-block">用户注册，是否需要显示协议，请勾选相关协议</span>
+                                            @if(!empty($agreementList))
+                                                @foreach($agreementList as $agree)
+                                                    <label class="checkbox-inline">
+                                                        <input type="checkbox" class="styled h-radio"
+                                                               value="{{$agree['id']}}" name="website_reg_agreement[]"
+                                                               @if(in_array($agree['id'],explode(",", cacheGlobalSettingsByKey('website_reg_agreement')))) checked @endif>
+                                                        <span class="h-span-val">{{$agree['name']}}</span>
+                                                    </label>
+                                                @endforeach
+                                            @else
+                                                <span class="help-block">当前还没有可关联协议，请先到协议列表新增协议内容。</span>
+                                            @endif
+                                            <span class="help-block">勾选后会同步到前台注册页，用户必须勾选后才能完成注册，详情页地址来自协议模型。</span>
                                         </div>
 
                                         <div class="col-md-12 mt-20">
@@ -396,46 +630,67 @@
                                                 默认语言
                                             </label>
 
+                                            @php
+                                                $defaultLanguage = cacheGlobalSettingsByKey('default_language') ?: \App\Support\I18n\ThemeTranslator::DEFAULT_LOCALE;
+                                            @endphp
                                             <select name="default_language" class="form-control">
                                                 @foreach(\Modules\Main\Services\ServiceModel::getLangList() as $kl=>$vl)
-                                                    <option value="{{$kl}}"
-                                                            @if(session("admin_current_language")['shortcode'] == $kl)
-                                                            selected>{{$vl}}</option>
-                                                    @elseif(cacheGlobalSettingsByKey('default_language') == $kl)
-                                                        selected >{{$vl}}</option>
-                                                    @else
-                                                        >{{$vl}}</option>
-                                                    @endif
+                                                    <option value="{{$kl}}" @if($defaultLanguage === $kl) selected @endif>{{$vl}}</option>
                                                 @endforeach
                                             </select>
                                         </div>
 
 
-                                        <div class="col-md-12 mt-20">
-                                            <label>网站维护</label><br>
+                                        <div class="col-md-6 mt-20">
+                                            <label>PC端维护</label><br>
                                             <label class="radio-inline">
                                                 <input type="radio" class="styled h-radio"
-                                                       value="1" name="website_status"
-                                                       @if(cacheGlobalSettingsByKey('website_status')==1) checked @endif >
+                                                       value="1" name="website_pc_status"
+                                                       @if(($maintenanceConfig['pc_status'] ?? 1) == 1) checked @endif >
                                                 <span class="h-span-val">正常</span>
                                             </label>
 
                                             <label class="radio-inline">
                                                 <input type="radio" class="styled h-radio"
-                                                       value="0" name="website_status"
-                                                       @if(cacheGlobalSettingsByKey('website_status')==0) checked @endif >
+                                                       value="0" name="website_pc_status"
+                                                       @if(($maintenanceConfig['pc_status'] ?? 1) == 0) checked @endif >
                                                 <span class="h-span-val">维护中</span>
                                             </label>
-
+                                            <span class="help-block">作用于首页、列表、详情、登录、注册、找回密码等前台页面。</span>
                                         </div>
 
-
-                                        <div class="col-md-12 mt-20">
-                                            <label>
-                                                维护中显示的文字
+                                        <div class="col-md-6 mt-20">
+                                            <label>API端维护</label><br>
+                                            <label class="radio-inline">
+                                                <input type="radio" class="styled h-radio"
+                                                       value="1" name="website_api_status"
+                                                       @if(($maintenanceConfig['api_status'] ?? 1) == 1) checked @endif >
+                                                <span class="h-span-val">正常</span>
                                             </label>
-                                            <textarea class="form-control" name="website_status_when" rows="4"
-                                                      style="height: 100px;">{{cacheGlobalSettingsByKey('website_status_when')}}</textarea>
+
+                                            <label class="radio-inline">
+                                                <input type="radio" class="styled h-radio"
+                                                       value="0" name="website_api_status"
+                                                       @if(($maintenanceConfig['api_status'] ?? 1) == 0) checked @endif >
+                                                <span class="h-span-val">维护中</span>
+                                            </label>
+                                            <span class="help-block">作用于 `/api/page`、`/api/list`、`/api/detail`、`/api/handle`、`/api/anyCall` 等接口。</span>
+                                        </div>
+
+                                        <div class="col-md-6 mt-20">
+                                            <label>
+                                                PC端维护文案
+                                            </label>
+                                            <textarea class="form-control" name="website_pc_status_when" rows="4"
+                                                      style="height: 100px;">{{$maintenanceConfig['pc_message'] ?? ''}}</textarea>
+                                        </div>
+
+                                        <div class="col-md-6 mt-20">
+                                            <label>
+                                                API端维护返回信息
+                                            </label>
+                                            <textarea class="form-control" name="website_api_status_when" rows="4"
+                                                      style="height: 100px;">{{$maintenanceConfig['api_message'] ?? ''}}</textarea>
                                         </div>
 
 
@@ -641,25 +896,27 @@
 
                                     </form>
                                 </div>
-                                <div class="tab-pane @if($_GET['type']==1) active @endif " id="captcha">
+                                <div class="tab-pane @if($currentType==1) active @endif " id="captcha">
                                     <form id="captcha_form" class="h-mt20" role="form" method="post">
                                         {{csrf_field()}}
                                         <div class="col-md-12 mt-20">
                                             <label>提交验证码</label>
-                                            <br>
-                                            @if($plugin_captcha_list)
-                                                @foreach($plugin_captcha_list as $key => $captcha)
-                                                    @if($captcha)
-                                                        <label class="radio-inline">
-                                                            <input type="radio" class="styled h-radio"
-                                                                   value="{{$captcha['identification']}}"
-                                                                   name="captcha_driver"
-                                                                   @if(!empty(__E("captcha_driver")) && __E("captcha_driver")==$captcha['identification']) checked @endif >
-                                                            <span class="h-span-val">{{$captcha['name']}}</span>
-                                                        </label>
-                                                    @endif
-                                                @endforeach
-                                            @endif
+                                            <div class="setting-driver-grid" id="captchaDriverGrid">
+                                                @if($plugin_captcha_list)
+                                                    @foreach($plugin_captcha_list as $key => $captcha)
+                                                        @if($captcha)
+                                                            <label class="setting-driver-option @if(!empty(__E('captcha_driver')) && __E('captcha_driver') == $captcha['identification']) is-active @endif">
+                                                                <input type="radio"
+                                                                       value="{{$captcha['identification']}}"
+                                                                       name="captcha_driver"
+                                                                       @if(!empty(__E("captcha_driver")) && __E("captcha_driver")==$captcha['identification']) checked @endif >
+                                                                <span class="setting-driver-option__title">{{$captcha['name']}}</span>
+                                                                <span class="setting-driver-option__desc">当前验证码将使用这个插件来源处理表单提交校验。</span>
+                                                            </label>
+                                                        @endif
+                                                    @endforeach
+                                                @endif
+                                            </div>
 
                                         </div>
                                         <div class="h-clear-both"></div>
@@ -676,7 +933,7 @@
                                     </form>
 
                                 </div>
-                                <div class="tab-pane @if($_GET['type']==2) active @endif " id="email">
+                                <div class="tab-pane @if($currentType==2) active @endif " id="email">
                                     <form id="email_form" class="h-mt20" role="form" method="post">
                                         {{csrf_field()}}
                                         <div class="col-md-12 mt-20">
@@ -765,7 +1022,7 @@
                                     </form>
 
                                 </div>
-                                <div class="tab-pane @if($_GET['type']==3) active @endif " id="sms">
+                                <div class="tab-pane @if($currentType==3) active @endif " id="sms">
                                     <form id="sms_form" class="h-mt20" role="form" method="post">
                                         {{csrf_field()}}
                                         <div class="col-md-12 mt-20">
@@ -800,7 +1057,7 @@
                                     </form>
 
                                 </div>
-                                <div class="tab-pane @if($_GET['type']==4) active @endif " id="pay">
+                                <div class="tab-pane @if($currentType==4) active @endif " id="pay">
                                     <form id="pay_form" class="h-mt20" role="form" method="post">
                                         {{csrf_field()}}
                                         <div class="col-md-12 mt-20">
@@ -831,7 +1088,7 @@
                                     </form>
 
                                 </div>
-                                <div class="tab-pane @if($_GET['type']==5) active @endif " id="login">
+                                <div class="tab-pane @if($currentType==5) active @endif " id="login">
                                     <form id="login_form" class="h-mt20" role="form" method="post">
                                         {{csrf_field()}}
                                         <div class="col-md-12 mt-20">
@@ -862,7 +1119,7 @@
                                     </form>
 
                                 </div>
-                                <div class="tab-pane @if($_GET['type']==6) active @endif " id="editor">
+                                <div class="tab-pane @if($currentType==6) active @endif " id="editor">
                                     <form id="editor_form" class="h-mt20" role="form" method="post">
                                         {{csrf_field()}}
                                         <div class="col-md-12 mt-20">
@@ -897,7 +1154,7 @@
                                     </form>
 
                                 </div>
-                                <div class="tab-pane @if($_GET['type']==7) active @endif " id="map">
+                                <div class="tab-pane @if($currentType==7) active @endif " id="map">
                                     <form id="map_form" class="h-mt20" role="form" method="post">
                                         {{csrf_field()}}
                                         <div class="col-md-12 mt-20">
@@ -952,6 +1209,11 @@
 <!-- ============================================================== -->
 @include(moduleAdminTemplate($moduleName)."public.js")
 <script>
+    function syncCaptchaDriverCards() {
+        $('#captchaDriverGrid .setting-driver-option').removeClass('is-active');
+        $('#captchaDriverGrid input[name="captcha_driver"]:checked').closest('.setting-driver-option').addClass('is-active');
+    }
+
     function formSub(form, tig, type) {
         layer.load(1);
         $.ajax({
@@ -981,6 +1243,10 @@
         })
     }
 
+    $('#captchaDriverGrid input[name="captcha_driver"]').change(function () {
+        syncCaptchaDriverCards();
+    });
+
     //email 测试
     $("#email_test_button").click(function () {
         layer.load(1);
@@ -1008,7 +1274,11 @@
                 console.log(res);
             }
         })
-    })
+    });
+
+    $(function () {
+        syncCaptchaDriverCards();
+    });
 
 </script>
 </body>

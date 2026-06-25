@@ -3,6 +3,7 @@
 namespace Modules\Main\Services;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Modules\Main\Models\Common;
 use Modules\Main\Models\HomeMenu;
 use Modules\Main\Models\Member;
@@ -31,6 +32,23 @@ class ServiceModel {
         $add['created_at'] = date('Y-m-d H:i:s');
         $add['updated_at'] = date('Y-m-d H:i:s');
         return Common::query()->from($tableName)->insertGetId($add);
+    }
+
+    public static function memberHasColumn(string $column): bool
+    {
+        static $columns = null;
+        if ($columns === null) {
+            $columns = Schema::getColumnListing(Member::TABLE_NAME);
+        }
+
+        return in_array($column, $columns, true);
+    }
+
+    public static function filterMemberColumns(array $columns): array
+    {
+        return array_values(array_filter($columns, function ($column) {
+            return $column !== 'userid' || self::memberHasColumn('userid');
+        }));
     }
 
     public static function apiGetOne($tableName, $w, $notIdArr = []) {
@@ -81,43 +99,52 @@ class ServiceModel {
     //注册插入
     public static function InsertArr($arr) {
         if (!is_array($arr)) return returnArr(0, '用户数据不全');
+        $username = trim((string) ($arr['username'] ?? ''));
+        $password = (string) ($arr['password'] ?? '');
+        $confirmPassword = (string) ($arr['confirm_password'] ?? '');
+        $nickname = trim((string) ($arr['nickname'] ?? ''));
+        $phone = trim((string) ($arr['phone'] ?? ''));
+        $email = trim((string) ($arr['email'] ?? ''));
 
         //密码是否一致
-        if ($arr['password'] && $arr['password'] != $arr['confirm_password']) return returnArr(0, '两次密码不一致');
+        if ($password && $password != $confirmPassword) return returnArr(0, '两次密码不一致');
 
         //判断用户名是否重复
-        if (!$arr['username']) return returnArr(0, '用户名不能为空');
-        $res = ServiceModel::apiGetOne(Member::TABLE_NAME, ['username' => $arr['username']]);
+        if (!$username) return returnArr(0, '用户名不能为空');
+        $res = ServiceModel::apiGetOne(Member::TABLE_NAME, ['username' => $username]);
         if ($res) return returnArr(0, '用户名已存在');
 
         //判断手机是否重复
-        if (isset($arr['phone'])) {
-            $row = ServiceModel::apiGetOne(Member::TABLE_NAME, ['phone' => $arr['phone']]);
+        if ($phone !== '') {
+            $row = ServiceModel::apiGetOne(Member::TABLE_NAME, ['phone' => $phone]);
             if ($row) return returnArr(0, '手机号已存在');
-            $res1['c_code'] = $arr['phone_code'] ?: '86';
-            $res1['phone'] = $arr['phone'];
+            $res1['c_code'] = $arr['phone_code'] ?? '86';
+            $res1['phone'] = $phone;
             $res1['phone_active'] = 1;
         }
 
         //判断邮箱是否重复
-        if (isset($arr['email'])) {
-            $row = ServiceModel::apiGetOne(Member::TABLE_NAME, ['email' => $arr['email']]);
+        if ($email !== '') {
+            $row = ServiceModel::apiGetOne(Member::TABLE_NAME, ['email' => $email]);
             if ($row) return returnArr(0, '邮箱已存在');
-            $res1['email'] = $arr['email'];
+            $res1['email'] = $email;
             $res1['email_active'] = 1;
         }
 
         //用户表
-        $res1['avatar'] = $arr['avatar'] ?: 'avatar/avatar.jpg';
-        $res1['username'] = $arr['username'] ?: '';
-        $res1['nickname'] = $arr['nickname'] ?: $arr['username'];
-        $res1['password'] = $arr['password'] ? ServiceModel::getPassword($arr['password']) : '';
-        $res1['email'] = $arr['email'] ?: '';
+        $res1['avatar'] = $arr['avatar'] ?? 'avatar/avatar.jpg';
+        $res1['username'] = $username;
+        $res1['nickname'] = $nickname ?: $username;
+        $res1['password'] = $password ? ServiceModel::getPassword($password) : '';
+        $res1['email'] = $email;
         $res1['status'] = 1;
-        $res1['userid'] = self::getUserId();
-        $res1['pid'] = $arr['pid'] ?: 1;
-        $res1['pid_path'] = $arr['pid_path'] ?: 1;
-        $res1['male'] = in_array(trim($arr['male']), ['男', '女']) ? trim($arr['male']) : '';
+        if (self::memberHasColumn('userid')) {
+            $res1['userid'] = self::getUserId();
+        }
+        $res1['pid'] = $arr['pid'] ?? 1;
+        $res1['pid_path'] = $arr['pid_path'] ?? 1;
+        $male = trim((string) ($arr['male'] ?? ''));
+        $res1['male'] = in_array($male, ['男', '女']) ? $male : '';
         $uid = ServiceModel::add(Member::TABLE_NAME, $res1);
         if (!$uid) return returnArr(0, '注册失败');
         return returnArr(200, '注册成功');
@@ -143,6 +170,27 @@ class ServiceModel {
             'zh-TW' => '繁體中文',
             'en' => 'English',
         ];
+    }
+
+    public static function getMenuLangOptions(bool $withGlobal = true): array
+    {
+        $langList = self::getLangList();
+        if (!$withGlobal) {
+            return $langList;
+        }
+
+        return ['' => '全局共享'] + $langList;
+    }
+
+    public static function normalizeMenuLang($lang): string
+    {
+        $lang = trim((string) $lang);
+        if ($lang === '') {
+            return '';
+        }
+
+        $langList = self::getLangList();
+        return array_key_exists($lang, $langList) ? $lang : '';
     }
 
 
@@ -172,40 +220,106 @@ class ServiceModel {
     public static function getThemeMenuList() {
         return HomeMenu::query()
             ->orderByRaw(self::homeMenuSort)
+            ->orderByRaw("CASE WHEN lang IS NULL OR lang = '' THEN 0 ELSE 1 END")
+            ->orderBy('lang')
             ->orderByDesc('sort')
             ->get()->toArray();
     }
 
     //获取导航菜单上级
-    public static function getHomeMenu() {
-        return HomeMenu::query()
+    public static function getHomeMenu(array $filters = []) {
+        $position = trim((string) ($filters['position'] ?? ''));
+        $lang = array_key_exists('lang', $filters) ? self::normalizeMenuLang($filters['lang']) : null;
+
+        $query = HomeMenu::query()
             ->where('pid', 0)
-            ->with(['child'])
-//            ->orderByDesc('position')
+            ->with(['child' => function ($query) use ($lang) {
+                if ($lang !== null) {
+                    self::applyMenuLangScope($query, $lang);
+                }
+                $query->orderByDesc('sort')
+                    ->with(['child' => function ($subQuery) use ($lang) {
+                        if ($lang !== null) {
+                            self::applyMenuLangScope($subQuery, $lang);
+                        }
+                        $subQuery->orderByDesc('sort');
+                    }]);
+            }]);
+
+        if ($position !== '') {
+            $query->where('position', $position);
+        }
+        if ($lang !== null) {
+            self::applyMenuLangScope($query, $lang);
+        }
+
+        return $query
             ->orderByRaw(self::homeMenuSort)
+            ->orderByRaw("CASE WHEN lang IS NULL OR lang = '' THEN 0 ELSE 1 END")
+            ->orderBy('lang')
+            ->orderByDesc('sort')
             ->get()
             ->toArray();
     }
 
     //获取启用的导航菜单列表
     public static function getHomeMenuList($all) {
-        return HomeMenu::query()
+        $position = trim((string) ($all['position'] ?? 'top')) ?: 'top';
+        $currentLang = self::normalizeMenuLang($all['lang'] ?? '');
+        $activeLang = self::resolveMenuActiveLang($position, $currentLang);
+
+        $query = HomeMenu::query()
             ->where('status', 1)
             ->where('pid', 0)
-            ->where('position', $all['position'])
-            ->with(['child' => function ($q) {
-                $q->with(['child' => function ($qq) {
+            ->where('position', $position);
+
+        self::applyMenuLangScope($query, $activeLang);
+
+        return $query
+            ->with(['child' => function ($q) use ($activeLang) {
+                self::applyMenuLangScope($q, $activeLang);
+                $q->with(['child' => function ($qq) use ($activeLang) {
+                    self::applyMenuLangScope($qq, $activeLang);
                     $qq->where('status', 1)
                         ->orderByDesc('sort')
-                        ->select(['id', 'pid', 'name', 'url', 'icon', 'icon_character']);
+                        ->select(['id', 'pid', 'lang', 'name', 'url', 'target', 'icon', 'icon_character']);
                 }])->where('status', 1)
                     ->orderByDesc('sort')
-                    ->select(['id', 'pid', 'name', 'url', 'icon', 'icon_character']);
+                    ->select(['id', 'pid', 'lang', 'name', 'url', 'target', 'icon', 'icon_character']);
             }])
             ->orderByRaw(self::homeMenuSort)
             ->orderByDesc('sort')
-            ->get(['id', 'pid', 'name', 'url', 'icon', 'icon_character'])
+            ->get(['id', 'pid', 'lang', 'name', 'url', 'target', 'icon', 'icon_character'])
             ->toArray();
+    }
+
+    private static function resolveMenuActiveLang(string $position, string $lang): string
+    {
+        if ($lang === '') {
+            return '';
+        }
+
+        $exists = HomeMenu::query()
+            ->where('status', 1)
+            ->where('pid', 0)
+            ->where('position', $position)
+            ->where('lang', $lang)
+            ->exists();
+
+        return $exists ? $lang : '';
+    }
+
+    public static function applyMenuLangScope($query, string $lang): void
+    {
+        if ($lang === '') {
+            $query->where(function ($subQuery) {
+                $subQuery->whereNull('lang')
+                    ->orWhere('lang', '');
+            });
+            return;
+        }
+
+        $query->where('lang', $lang);
     }
 
     public static function SettingInsertOrUpdate($module, $type, $key, $value) {

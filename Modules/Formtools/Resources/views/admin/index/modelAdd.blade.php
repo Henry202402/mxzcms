@@ -34,7 +34,7 @@
                                     <div class="col-lg-11">
                                         <input type="text" name="menuname" class="form-control"
                                                placeholder="菜单名称，左边导航的名称" required>
-                                        <span class="help-block">左边导航一级菜单入口名称</span>
+                                        <span class="help-block">左侧菜单的大类名称。</span>
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -45,7 +45,7 @@
                                         <input type="text" name="name" class="form-control"
                                                placeholder="模型名称" required
                                                onkeyup="changeRemark(this)">
-                                        <span class="help-block">也作左边导航二级菜单入口名称</span>
+                                        <span class="help-block">会显示在左侧菜单和模型列表中。</span>
                                     </div>
                                 </div>
 
@@ -57,6 +57,7 @@
                                     <div class="col-lg-11">
                                         <input type="text" name="icon" class="form-control"
                                                placeholder="菜单图标" required>
+                                        <span class="help-block">可填写图标名称，保存后会显示在左侧菜单中。</span>
                                     </div>
                                 </div>
 
@@ -84,7 +85,7 @@
                                         <input type="text" id="identification" name="identification"
                                                class="form-control"
                                                placeholder="模型标识/表名" required>
-                                        <span class="help-block">表名后缀，例如 test_table，会自动生成 union_module_formtools_test_table 数据表</span>
+                                        <span class="help-block">建议使用英文或下划线，保存后会作为这个模型的数据标识。</span>
                                     </div>
                                 </div>
 
@@ -96,7 +97,7 @@
                                         <input type="text" name="access_identification"
                                                class="form-control"
                                                placeholder="访问标识" required>
-                                        <span class="help-block">访问标识，前台使用此标识即可访问到该表数据</span>
+                                        <span class="help-block">前台访问会使用这个名称，建议简短好记。</span>
                                     </div>
                                 </div>
 
@@ -107,7 +108,7 @@
                                     <div class="col-lg-11">
                                         <input type="text" name="remark" class="form-control"
                                                placeholder="模型备注" required>
-                                        <span class="help-block">表备注</span>
+                                        <span class="help-block">方便区分模型用途的说明。</span>
                                     </div>
                                 </div>
 
@@ -125,7 +126,7 @@
                                         </select>
                                     </div>
                                 </div>
-                                <legend class="text-bold cursor-pointer" onclick="clickOpen('admin-setting-content')">后台（点击设置）</legend>
+                                <legend class="text-bold cursor-pointer" onclick="clickOpen('admin-setting-content')">后台设置（点击展开）</legend>
                                 <div id="admin-setting-content" style="display: none">
                                     <div class="form-group">
                                         <label class="col-lg-1 control-label">
@@ -141,7 +142,7 @@
                                 </div>
 
 
-                                <legend class="text-bold cursor-pointer" onclick="clickOpen('home-setting-content')">前台（点击设置）</legend>
+                                <legend class="text-bold cursor-pointer" onclick="clickOpen('home-setting-content')">前台设置（点击展开）</legend>
                                 <div id="home-setting-content" style="display: none">
                                     <div class="form-group">
                                         <label class="col-lg-1 control-label">
@@ -160,7 +161,7 @@
                                             <input type="text" value="" name="home_config[custom_list_template]"
                                                    class="form-control"
                                                    placeholder="自定义模板名称">
-                                            <span class="help-block">自定义模板名称，例如 template.blade.php，只需要填写 template ，不需要后缀.blade.php</span>
+                                            <span class="help-block">如果你有专用列表样式，可以在这里填写模板名称。</span>
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -170,7 +171,7 @@
                                         <div class="col-lg-11">
                                             <input type="text" value="20" name="home_config[page_num]" class="form-control"
                                                    placeholder="分页数量" required>
-                                            <span class="help-block">分页数量，每页显示的条数，0代表全部</span>
+                                            <span class="help-block">填写每页显示数量，填 0 表示全部显示。</span>
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -203,7 +204,7 @@
                                             <input type="text" name="home_config[custom_detail_template]"
                                                    class="form-control"
                                                    placeholder="自定义详情模板名称">
-                                            <span class="help-block">自定义详情模板名称，例如 detail.blade.php，只需要填写 detail ，不需要后缀.blade.php</span>
+                                            <span class="help-block">如果你有专用详情页样式，可以在这里填写模板名称。</span>
                                         </div>
                                     </div>
 
@@ -420,7 +421,7 @@
 
                                 </div>
 
-                                <legend class="text-bold cursor-pointer" onclick="clickOpen('home-setting-seo')">SEO（点击设置）</legend>
+                                <legend class="text-bold cursor-pointer" onclick="clickOpen('home-setting-seo')">SEO 设置（点击展开）</legend>
                                 <div id="home-setting-seo" style="display: none">
 
                                     <h6>列表页SEO</h6>
@@ -487,7 +488,7 @@
                                 </div>
 
 
-                                <legend class="text-bold cursor-pointer" onclick="clickOpen('other-setting-content')">其他（点击设置）</legend>
+                                <legend class="text-bold cursor-pointer" onclick="clickOpen('other-setting-content')">其他设置（点击展开）</legend>
                                 <div id="other-setting-content" style="display: none">
                                     <div class="form-group">
                                         <label class="control-label col-lg-1">数据源</label>

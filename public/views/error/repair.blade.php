@@ -60,7 +60,7 @@
 <body>
 <div class="wrap">
     <div class="logo">
-        {!! cacheGlobalSettingsByKey('website_status_when') !!}
+        {!! $maintenanceMessage ?? cacheGlobalSettingsByKey('website_status_when') !!}
     </div>
 </div>
 </body>

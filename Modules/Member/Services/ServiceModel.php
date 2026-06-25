@@ -14,23 +14,34 @@ class ServiceModel {
     /********************************* Member ************************************/
     //用户列表
     public static function getAdminUserList($all, $type = []) {
+        $username = trim((string) ($all['username'] ?? ''));
+        $uid = (int) ($all['uid'] ?? 0);
+        $status = array_key_exists('status', $all) ? (string) $all['status'] : null;
+        $timeRang = $all['timeRang'] ?? [];
+
         return Member::query()
             ->from(Member::TABLE_NAME . ' as user')
-            ->where(function ($q) use ($all) {
-                if ($all['username']) $q->where('user.username', "LIKE", "{$all['username']}%")
-                    ->orWhere('user.phone', "LIKE", "{$all['username']}%")
-                    ->orWhere('user.nickname', "LIKE", "{$all['username']}%");
+            ->when($username !== '', function ($query) use ($username) {
+                $query->where(function ($searchQuery) use ($username) {
+                    $searchQuery->where('user.username', 'LIKE', "{$username}%")
+                        ->orWhere('user.phone', 'LIKE', "{$username}%")
+                        ->orWhere('user.nickname', 'LIKE', "{$username}%");
+                });
             })
-            ->where(function ($q) use ($all) {
-                if (isset($all['status'])) $q->where('user.status', $all['status']);
-                if ($all['uid'] > 0) $q->where('user.uid', $all['uid']);
-                if ($all['timeRang'] && count($all['timeRang']) > 0) $q->whereBetween('user.created_at', $all['timeRang']);
+            ->when($status !== null && $status !== '', function ($query) use ($status) {
+                $query->where('user.status', (int) $status);
             })
-            ->where(function ($q) use ($all) {
+            ->when($uid > 0, function ($query) use ($uid) {
+                $query->where('user.uid', $uid);
+            })
+            ->when(is_array($timeRang) && count($timeRang) === 2, function ($query) use ($timeRang) {
+                $query->whereBetween('user.created_at', $timeRang);
+            })
+            ->where(function ($q) {
 //                $q->where('group.type', null)->orWhere('group.type', '<>', 'admin');
             })
             ->leftJoin(Member::TABLE_NAME . ' as puser', 'puser.uid', '=', 'user.pid')
-            ->leftJoin(GroupUser::TABLE_NAME . ' as role', function ($q) use ($all) {
+            ->leftJoin(GroupUser::TABLE_NAME . ' as role', function ($q) {
                 $q->on('user.uid', '=', 'role.uid');
             })
             ->leftJoin(Group::TABLE_NAME . ' as group', 'group.group_id', '=', 'role.group_id')

@@ -1,49 +1,41 @@
 <div id="content">
     <div class="container">
-        <div class="layout with-right-sidebar js-layout">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="main-content">
-                        <!-- Blog Page -->
-                        <div class="blog">
-                            @foreach($data->chunk(3) as $li)
-                                <div class="row">
-                                    @foreach($li as $l)
-                                        <div class="col-md-4 col-sm-4">
-                                            <!-- Blog Grid -->
-                                            <div class="blog-grid">
-                                                @if($l['cover'])
-                                                    <div class="blog-grid-image">
-                                                        <a href="{{url("detail/{$param['model']}/{$l['id']}")}}">
-                                                            <span class="blog-grid-image-over"></span>
-                                                            <img src="{{GetUrlByPath($l['cover'])}}"
-                                                                 class=""
-                                                                 alt="article image">
-                                                        </a>
-                                                    </div>
-                                                @endif
-                                                <h3 class="blog-grid-title">
-                                                    <a href="{{url("detail/{$param['model']}/{$l['id']}")}}">{{$l['title']}}</a>
-                                                </h3>
-                                                <div style="font-size: 13px;color: #99a3b1;">
-                                                    <span class="blog-grid-date">{{$l['created_at']}}</span>
-                                                </div>
-                                            </div>
-                                            <!-- End of Blog Grid -->
-                                        </div>
-                                    @endforeach
-                                </div>
-                            @endforeach
-                        </div>
-                        <div class="col-md-12">
-                            @if ($model['page_num'] > 0)
-                                {{$data->appends($_GET)->links('themes.default.public.pagination',['data'=>['side_num'=>2,'page_position'=>$model['list_page_template']]])}}
+        @php
+            $pageNum = data_get($model, 'home_config.page_num', $model['page_num'] ?? 0);
+            $pagePosition = data_get($model, 'home_config.list_page_template', $model['list_page_template'] ?? 'center');
+        @endphp
+
+        <div class="mx-list-shell">
+            @include('themes.default.public.listHero', ['model' => $model, 'listContext' => $listContext ?? []])
+
+            <div class="mx-list-panel">
+                <div class="mx-list-grid">
+                    @forelse($data as $l)
+                        <article class="mx-card">
+                            @if(!empty($l['cover']))
+                                <a href="{{url("detail/{$param['model']}/{$l['id']}")}}" class="mx-card__thumb">
+                                    <img src="{{GetUrlByPath($l['cover'])}}" alt="{{$l['title'] ?? 'article image'}}">
+                                </a>
                             @endif
-                        </div>
-                        <!-- End of Blog Page -->
-                    </div>
+                            <h3 class="mx-card__title">
+                                <a href="{{url("detail/{$param['model']}/{$l['id']}")}}">{{$l['title'] ?? '未命名内容'}}</a>
+                            </h3>
+                            <p class="mx-card__desc">{{ \Illuminate\Support\Str::limit(trim(strip_tags($l['content'] ?? '')), 96) ?: '点击查看完整内容详情。' }}</p>
+                            <div class="mx-card__meta">
+                                @if(!empty($l['created_at']))
+                                    <span><i class="fa fa-clock-o"></i> {{$l['created_at']}}</span>
+                                @endif
+                            </div>
+                        </article>
+                    @empty
+                        <div class="mx-empty" style="grid-column:1 / -1;">当前模型还没有可展示的数据，请先在后台内容管理中新增内容。</div>
+                    @endforelse
                 </div>
             </div>
+
+            @if ($pageNum > 0)
+                {{$data->appends($_GET)->links('themes.default.public.pagination',['data'=>['side_num'=>2,'page_position'=>$pagePosition]])}}
+            @endif
         </div>
     </div>
 </div>

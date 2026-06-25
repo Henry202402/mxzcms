@@ -1,2 +1,1 @@
-<div style="clear: both;"></div>
-<legend class="text-bold">{{$f['name']}}</legend>
+@include('formtools::admin.formtooltemplates.groupHeading', compact('f'))

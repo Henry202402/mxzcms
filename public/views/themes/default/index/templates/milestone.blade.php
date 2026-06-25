@@ -5,41 +5,29 @@
          style='background-image: url({{GetUrlByPath($home_config['home_page_bg_img'])}});background-repeat: no-repeat'
     @endif >
     <div class="container">
-        <div class="row">
-            <div class="promo-title-wrapper ">
-                <h3 class="promo-title" style="
-                    @if($home_config['home_page_title_size']) font-size:{{$home_config['home_page_title_size']}} @endif
-                    @if($home_config['home_page_title_color']) color:{{$home_config['home_page_title_color']}} @endif
-                    ">
-                    {{$home_config['home_page_title']?:$data->name}}
-                </h3>
-                <p class="promo-description" style="
-                    @if($home_config['home_page_describe_size']) font-size:{{$home_config['home_page_title_size']}} @endif
-                    @if($home_config['home_page_describe_color']) color:{{$home_config['home_page_title_color']}} @endif
-                    ">
-                    {{$home_config['home_page_describe']}}
-                </p>
-            </div>
-            <div class="col-md-12">
-                <div class="changelog-wrapper js-changelog" style="width: 960px ">
-                    <div class="changelog-items">
-                        @foreach(getListByModel($data,$data->home_page_num) as $d)
-                            <div id="{{toArray($d)["title"]}}" class="changelog-item js-changelog-item">
-                                <header class="changelog-header">
-                                    <h3 class="changelog-version">
-                                        <a href="#{{toArray($d)["title"]}}">{{toArray($d)["title"]}}</a>
-                                        <span class="pull-right">{{toArray($d)["date"]}}</span>
-                                    </h3>
-                                </header>
-                                <div class="changelog-update-descriptions changelog-update-description " style="padding-left: 0px;">
-                                    {!! toArray($d)["content"] !!}
-                                </div>
-                                <div class="changelog-link"></div>
-                            </div>
-                        @endforeach
+        @include('themes.default.public.homeSectionHeader', [
+            'sectionData' => $data,
+            'sectionConfig' => $home_config,
+        ])
+
+        <div class="mx-home-timeline">
+            @foreach(getListByModel($data,$data->home_page_num) as $d)
+                @php($item = toArray($d))
+                <article id="{{ $item['title'] }}" class="mx-home-timeline__item">
+                    <div class="mx-home-timeline__dot"></div>
+                    <div class="mx-home-timeline__card">
+                        <header class="mx-home-timeline__header">
+                            <h3 class="mx-home-timeline__title">{{ $item['title'] }}</h3>
+                            @if(!empty($item['date']))
+                                <span class="mx-home-timeline__date">{{ $item['date'] }}</span>
+                            @endif
+                        </header>
+                        <div class="mx-home-timeline__content">
+                            {!! $item['content'] !!}
+                        </div>
                     </div>
-                </div>
-            </div>
+                </article>
+            @endforeach
         </div>
     </div>
 </div>

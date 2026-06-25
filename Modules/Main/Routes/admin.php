@@ -51,6 +51,7 @@ Route::middleware([AdminLanguage::class, CheckAdmin::class, CheckIpBlacklist::cl
         Route::any('/theme/install', ["uses" => "FuncController@themeInstall", "permissions" => "theme/install"]);
         Route::any('/theme/uninstall', ["uses" => "FuncController@themeUninstall", "permissions" => "theme/uninstall"]);
         Route::any('/theme/changeStatus', ["uses" => "FuncController@changeThemeStatus", "permissions" => "theme/changeStatus"]);
+        Route::any('/theme/changeTop', ["uses" => "FuncController@changeThemeTop", "permissions" => "theme/changeStatus"]);
         Route::any('/theme/setting', ["uses" => "FuncController@setting", "permissions" => "theme/setting"]);
         Route::any('/theme/preview', ["uses" => "FuncController@preview", "permissions" => "theme/preview"]);
 
@@ -59,7 +60,9 @@ Route::middleware([AdminLanguage::class, CheckAdmin::class, CheckIpBlacklist::cl
         Route::any('/theme/themeMenuEdit', ["uses" => "MenuController@themeMenuEdit", "permissions" => "theme/themeMenuEdit"]);
         Route::any('/theme/themeMenuDelete', ["uses" => "MenuController@themeMenuDelete", "permissions" => "theme/themeMenuDelete"]);
         Route::any('/theme/themeMenuChangeStatus', ["uses" => "MenuController@themeMenuChangeStatus", "permissions" => "theme/themeMenuChangeStatus"]);
+        Route::any('/theme/themeMenuMove', ["uses" => "MenuController@themeMenuMove", "permissions" => "theme/themeMenuEdit"]);
         Route::any('/theme/themeMenuSearchModuleMenu', ["uses" => "MenuController@themeMenuSearchModuleMenu", "permissions" => "theme/themeMenuSearchModuleMenu"]);
+        Route::any('/theme/themeMenuGeneratePreset', ["uses" => "MenuController@themeMenuGeneratePreset", "permissions" => "theme/themeMenuAdd"]);
         Route::any('/theme/diy', ["uses" => "ThemeController@diy", "permissions" => "theme/diy"]);
 
 
@@ -76,6 +79,7 @@ Route::middleware([AdminLanguage::class, CheckAdmin::class, CheckIpBlacklist::cl
         //设为首页
         Route::any('/module/changeIndex', ["uses" => "FuncController@changeIndex", "permissions" => ""]);
         Route::any('/module/changeBack', ["uses" => "FuncController@changeBack", "permissions" => ""]);
+        Route::any('/module/changeTop', ["uses" => "FuncController@changeTop", "permissions" => ""]);
 
         //插件配置
         Route::group(["prefix" => "plugin"], function () {

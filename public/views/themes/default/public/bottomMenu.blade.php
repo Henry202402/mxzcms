@@ -1,25 +1,17 @@
 @if($homeMenu['bottomMenu'])
-<div class="footer-extended">
+<div class="footer-extended mx-footer-top">
     <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="footer-extended-container">
-                    <div class="row">
-                        @foreach($homeMenu['bottomMenu'] as $menu)
-                            <div class="col-md-2 col-sm-2 col-xs-4">
-                                <div class="footer-extended-menu">
-                                    <h5 class="footer-extended-menu-title text-primary">{{$menu['name']}}</h5>
-                                    <ul class="footer-extended-menu-list">
-                                        @foreach($menu['child'] as $child)
-                                            <li><a href="{{$child['url']}}">{{$child['name']}}</a></li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            </div>
+        <div class="mx-footer-top__grid">
+            @foreach($homeMenu['bottomMenu'] as $menu)
+                <div class="mx-footer-column">
+                    <h5 class="mx-footer-column__title">{{$menu['name']}}</h5>
+                    <ul class="mx-footer-column__list">
+                        @foreach($menu['child'] as $child)
+                            <li><a href="{{$child['url']}}" target="{{$child['target'] ?? '_self'}}" @if(($child['target'] ?? '_self') === '_blank') rel="noopener noreferrer" @endif>{{$child['name']}}</a></li>
                         @endforeach
-                    </div>
+                    </ul>
                 </div>
-            </div>
+            @endforeach
         </div>
     </div>
 </div>

@@ -1,10 +1,15 @@
 <!-- Main navbar -->
+@php
+    $moduleConfig = config()->get('modules')[$moduleName] ?? config()->get('modules')[strtolower($moduleName)] ?? null;
+    $moduleInfo = collect($moduleArray ?? [])->firstWhere('identification', strtolower($moduleName));
+    $moduleDisplayName = $moduleConfig['name'] ?? ($moduleInfo['name'] ?? $moduleName);
+@endphp
 <div class="navbar navbar-default header-highlight">
     <div class="navbar-header">
         <a class="navbar-brand" href="{{url('admin/module')}}" style="color: #fff;">
             {{--<img src="{{GetUrlByPath(cacheGlobalSettingsByKey('weblogo'))}}" alt="">--}}
             <span class="h-self-module">
-                {{config()->get('modules')[$moduleName]['name']}}
+                {{$moduleDisplayName}}
             </span>
         </a>
 

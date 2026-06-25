@@ -5,13 +5,25 @@
 use Illuminate\Support\Facades\Cache;
 use Modules\System\Models\Setting;
 
+function mxz_should_load_global_settings(): bool {
+    if (!function_exists('public_path') || !is_file(public_path('install.lock'))) {
+        return false;
+    }
+
+    return true;
+}
+
 function cacheGlobalSettings($type = 1) {
+    if (!mxz_should_load_global_settings()) {
+        return [];
+    }
 
     if ($type == 1 && Cache::has('settings')) {
-        return Cache::get('settings');
+        return Cache::get('settings') ?: [];
     }
 
     $settings = Setting::all();
+    $all_setting = [];
 
     if ($settings) {
         $settings = $settings->toArray();
@@ -21,19 +33,19 @@ function cacheGlobalSettings($type = 1) {
         Cache::put('settings', $all_setting);
     }
 
-    return Cache::get('settings');
+    return Cache::get('settings') ?: $all_setting;
 
 
 }
 
 //获取全局settings缓存通过key
 function cacheGlobalSettingsByKey($key,$module="Main", $field = "value") {
-    return cacheGlobalSettings(1)[$module][$key][$field];
+    return cacheGlobalSettings(1)[$module][$key][$field] ?? '';
 }
 
 //获取全局settings缓存通过key
 function __E($key,$module="Main", $field = "value") {
-    $cache = Cache::get('settings')[$module][$key];
+    $cache = cacheGlobalSettings(1)[$module][$key] ?? [];
     return empty($cache[$field]) ? '' : $cache[$field];
 }
 
@@ -91,8 +103,9 @@ function getModuleLang($module, $lang_name, $key = '', $reset = 1) {
 function permissions($path) {
     $route = explode('/', ltrim($_SERVER['REQUEST_URI'], '/'));
     $moduleName = $route[1];
-    $config = include module_path(ucfirst($moduleName), 'Config/config.php');
-    if ($config['auth'] != 'y') return '';
+    $config = \App\Support\PackageManifest\PackageManifest::load(ucfirst($moduleName), \App\Support\PackageManifest\PackageManifest::PACKAGE_MODULE) ?: [];
+    $requireAuth = $config['ui']['auth'] ?? ($config['auth'] ?? 'n');
+    if ($requireAuth != 'y') return '';
     $url = "$route[0]/$route[1]/$path";
     $roleArray = session(\Modules\System\Http\Controllers\Common\SessionKey::CurrentUserPermissionGroupInfo);
     $roleModule = $roleArray['role_array'][ucfirst($moduleName)];

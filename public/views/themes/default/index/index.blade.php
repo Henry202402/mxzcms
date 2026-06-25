@@ -4,41 +4,24 @@
 <div class="page js-page ">
     @include("themes.default.public.topMenu",['model'=>['home_page_title'=>true]])
 
-    @foreach(hook("ShowAD",['moduleName'=>"AD",'pageData'=>['identification'=>'homepage','adtype'=>'banner']]) as $item)
-        @foreach($item as $item2)
-            <div class="header-back header-back-default header-back-full-page js-full-page"
-             style="background-image: url({{GetUrlByPath($item2->image)}});background-repeat: no-repeat;background-size: cover;background-position: center;">
-                <div class="header-back-container">
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="page-info helper center">
-                                    @foreach(json_decode($item2->other_param,true) as $key=>$item3)
-                                         @if($key===0)
-                                                <h1 class="page-title">{{$item3['name']}}</h1>
-                                         @else
-                                                <h2 class="page-description">{{$item3['name']}}</h2>
-                                         @endif
-                                    @endforeach
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endforeach
-    @endforeach
+    @include('themes.default.public.themeBanner', ['identification' => 'homepage', 'displayMode' => 'single'])
+    @include('themes.default.public.themeAdvert', ['identification' => 'homepage_notice', 'displayMode' => 'single', 'columns' => 1])
 
-    <div class="">
+    <div class="mx-home-sections">
         @foreach($models as $index=>$model)
-            @if($model->home_config)
-                @include("themes.default.index.templates.".json_decode($model->home_config,true)['list_template'],[
-                    "data"=>$model
+            @php($homeConfig = json_decode($model->home_config, true) ?: [])
+            @if($homeConfig)
+                <section class="mx-home-section">
+                    @includeIf("themes.default.index.templates." . ($homeConfig['list_template'] ?? 'list'), [
+                        "data" => $model
                     ])
+                </section>
             @endif
         @endforeach
     </div>
-    <footer class="js-footer-is-fixed">
+    @include('themes.default.public.themeBanner', ['identification' => 'homepage_grid', 'displayMode' => 'multiple', 'limit' => 3])
+    @include('themes.default.public.themeAdvert', ['identification' => 'homepage_cards', 'displayMode' => 'multiple', 'columns' => 3, 'limit' => 3])
+    <footer>
             @include("themes.default.public.bottomMenu")
         <div class="footer">
             @include("themes.default.public.footerMenu")

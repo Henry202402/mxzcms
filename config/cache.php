@@ -2,6 +2,12 @@
 
 use Illuminate\Support\Str;
 
+$installed = is_file(base_path('public/install.lock'));
+$defaultStore = (string) env('CACHE_DRIVER', 'file');
+if (!$installed) {
+    $defaultStore = 'file';
+}
+
 return [
 
     /*
@@ -15,7 +21,7 @@ return [
     |
     */
 
-    'default' => env('CACHE_DRIVER', 'file'),
+    'default' => $defaultStore,
 
     /*
     |--------------------------------------------------------------------------

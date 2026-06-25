@@ -32,9 +32,14 @@ class LoginController extends ModulesController {
             }
             return redirect("/admin")->with("errormsg", getTranslateByKey('already_logged_in'));
         }
-        $entrance = cacheGlobalSettingsByKey('admin_login_entrance');
-        $arr = explode('/', $request->getPathInfo()) ?: [];
-        if ($arr[3] != $entrance) {
+        $entrance = (string) cacheGlobalSettingsByKey('admin_login_entrance');
+        $pathSegments = explode('/', trim($request->getPathInfo(), '/')) ?: [];
+        $currentEntrance = $pathSegments[2] ?? '';
+        if ($entrance !== '') {
+            if ($currentEntrance !== $entrance) {
+                abort(404, '页面不存在');
+            }
+        } elseif ($currentEntrance !== '') {
             abort(404, '页面不存在');
         }
 
@@ -136,6 +141,7 @@ class LoginController extends ModulesController {
     public function logout() {
         session()->flush();
         session()->regenerate();
-        return redirect('admin/login/' . cacheGlobalSettingsByKey('admin_login_entrance'));
+        $entrance = (string) cacheGlobalSettingsByKey('admin_login_entrance');
+        return redirect($entrance !== '' ? 'admin/login/' . $entrance : 'admin/login');
     }
 }

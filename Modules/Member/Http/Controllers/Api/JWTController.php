@@ -28,11 +28,11 @@ class JWTController extends CommonController {
         $user = Member::query()
             ->where(['username' => $request->username])
             ->orWhere(['phone' => $request->username])
-            ->select([
+            ->select(ServiceModel::filterMemberColumns([
                 'uid', 'userid', 'avatar', 'phone', 'email',
                 'username', 'nickname', 'password', 'status', 'male', 'birthday',
                 'signature', 'created_at',
-            ])
+            ]))
             ->first();
         if (!$user) return returnArr(0, '账号不存在');
         if ($user['password'] != ServiceModel::getPassword($request->password)) return returnArr(0, '密码不正确');
@@ -104,11 +104,11 @@ class JWTController extends CommonController {
 
         $user = Member::query()
             ->where(['phone' => $phone])
-            ->select([
+            ->select(ServiceModel::filterMemberColumns([
                 'uid', 'userid', 'avatar', 'phone', 'email',
                 'username', 'nickname', 'password', 'status', 'male', 'birthday',
                 'signature', 'created_at',
-            ])
+            ]))
             ->first();
 
         if ($request->register_type == 1) {
@@ -130,8 +130,7 @@ class JWTController extends CommonController {
         if (!$user) {
             if ($request->register_type == 1 && !$request->password) return returnArr(0, '密码不能为空');
             DB::beginTransaction();
-            $uid = Member::query()->insertGetId([
-                'userid' => ServiceModel::getUserId(),
+            $payload = [
                 'avatar' => $all['avatar'] ?: 'avatar/avatar.jpg',
                 'phone' => $phone,
                 'username' => $phone,
@@ -143,7 +142,11 @@ class JWTController extends CommonController {
                 'phone_active' => 1,
                 'created_at' => getDay(),
                 'updated_at' => getDay(),
-            ]);
+            ];
+            if (ServiceModel::memberHasColumn('userid')) {
+                $payload['userid'] = ServiceModel::getUserId();
+            }
+            $uid = Member::query()->insertGetId($payload);
             if (!$uid) {
                 DB::rollBack();
                 return returnArr(0, '注册失败，请重试');
@@ -160,11 +163,11 @@ class JWTController extends CommonController {
             }
             DB::commit();
             $user = Member::query()
-                ->select([
+                ->select(ServiceModel::filterMemberColumns([
                     'uid', 'userid', 'avatar', 'phone', 'email',
                     'username', 'nickname', 'password', 'status', 'male', 'birthday',
                     'signature', 'created_at',
-                ])
+                ]))
                 ->find($uid);
             if (!$user) return returnArr(0, '注册失败');
             $msg = '注册成功';
@@ -188,11 +191,11 @@ class JWTController extends CommonController {
 
         $user = Member::query()
             ->where(['phone' => $request->phone])
-            ->select([
+            ->select(ServiceModel::filterMemberColumns([
                 'uid', 'userid', 'avatar', 'phone', 'email',
                 'username', 'nickname', 'password', 'status', 'male', 'birthday',
                 'signature', 'created_at',
-            ])
+            ]))
             ->first();
         if (!$user) return returnArr(0, '账号不存在');
         if ($user['password'] != ServiceModel::getPassword($request->password)) return returnArr(0, '密码不正确');

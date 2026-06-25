@@ -43,14 +43,195 @@
         *zoom: 1;
     }
 
+    .package-meta {
+        display: inline-block;
+        padding: 2px 8px;
+        margin-right: 6px;
+        margin-bottom: 6px;
+        border-radius: 12px;
+        background: #f3f5f7;
+        color: #59636e;
+        font-size: 12px;
+    }
+
+    .package-tip {
+        font-size: 12px;
+        color: #6c757d;
+        line-height: 1.6;
+    }
+
+    .action-disabled {
+        color: #adb5bd;
+        cursor: not-allowed;
+    }
+
+    .page-header {
+        margin-bottom: 20px;
+    }
+
+    .container-fluid {
+        padding-left: 28px !important;
+        padding-right: 28px !important;
+    }
+
+    .col-12.bg-light {
+        background: transparent !important;
+    }
+
+    .card-header.card-default {
+        padding: 20px 24px;
+        border: 0;
+        border-bottom: 1px solid #edf2f7;
+        background: #fff;
+    }
+
+    .card-body {
+        padding: 24px;
+        background: #fff;
+    }
+
+    .package-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px 14px;
+        font-size: 14px;
+        line-height: 1.7;
+    }
+
+    .package-toolbar .small {
+        font-size: 13px !important;
+    }
+
+    .package-toolbar .onlineModuleList,
+    .package-toolbar .float-right {
+        margin-left: auto;
+    }
+
+    .box {
+        height: 100%;
+        padding: 18px;
+        border: 1px solid #e7edf5;
+        border-radius: 16px;
+        background: #fff;
+        box-shadow: 0 12px 28px rgba(15, 23, 42, .06);
+    }
+
+    .bottomtitle h5,
+    .box h5 {
+        margin: 0;
+        color: #1f2937;
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 1.5;
+        word-break: break-word;
+    }
+
+    .bottomtitle p,
+    .box p.text-secondary.small {
+        margin: 0;
+        color: #64748b !important;
+        font-size: 13px !important;
+        line-height: 1.6;
+    }
+
+    .package-head {
+        margin: 12px 0;
+    }
+
+    .package-head-title {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 10px;
+    }
+
+    .package-head-title h5 {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .package-head-status {
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        margin-top: 1px;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    .package-head-meta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px 10px;
+    }
+
+    .package-head-meta p,
+    .package-head-meta .mb-2 {
+        display: inline-flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 6px 10px;
+        margin: 0 !important;
+    }
+
+    .package-tip {
+        display: inline-flex;
+        align-items: center;
+        max-width: 100%;
+        padding: 4px 10px;
+        margin: 8px 10px 0 0;
+        border-radius: 999px;
+        background: #f8fafc;
+        font-size: 12px;
+        color: #64748b;
+        line-height: 1.6;
+        vertical-align: top;
+        word-break: break-word;
+    }
+
+    .package-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px 16px;
+        margin-top: 14px;
+    }
+
+    .package-actions .d-inline-block,
+    .package-actions a,
+    .package-actions span,
+    .package-actions div {
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .scroll-container {
+        height: 88px !important;
+        padding-right: 4px;
+    }
+
+    @media (max-width: 768px) {
+        .container-fluid {
+            padding-left: 16px !important;
+            padding-right: 16px !important;
+        }
+
+        .card-header.card-default,
+        .card-body {
+            padding: 18px;
+        }
+    }
+
 </style>
 <div class="row page-header">
     <div class="col-lg-6 align-self-center ">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{url("admin/index")}}">{{getTranslateByKey("common_home_page")}}</a>
             </li>
-            <li class="breadcrumb-item"><a href="{{url("admin/plugin")}}">插件管理</a></li>
-            <li class="breadcrumb-item active">插件列表</li>
+            <li class="breadcrumb-item"><a href="{{url("admin/plugin")}}">{{getTranslateByKey("plugin_management")}}</a></li>
+            <li class="breadcrumb-item active">{{getTranslateByKey("plugin_list")}}</li>
         </ol>
     </div>
 </div>
@@ -63,13 +244,13 @@
             <div class="">
                 <div class="card-header card-default">
                     <div class="row">
-                        <div class="col-md-12 col-12">
-                            已安装插件
-                            <a href="#" onclick="clearCache();" class="small">清空缓存</a>
+                        <div class="col-md-12 col-12 package-toolbar">
+                            {{getTranslateByKey('plugin_installed')}}
+                            <a href="#" onclick="clearCache();" class="small">{{getTranslateByKey('clear_cache')}}</a>
                             @if(cacheGlobalSettingsByKey('use_of_cloud')==1)
                                 <a href="{{url('admin/cloud?cloud_type='.\Modules\Main\Models\Modules::Plugin)}}"
                                    class="text-right float-right onlineModuleList">
-                                    在线插件 <i class="fa fa-arrow-circle-o-right"></i>
+                                    {{getTranslateByKey('online_plugin')}} <i class="fa fa-arrow-circle-o-right"></i>
                                 </a>
                             @endif
                         </div>
@@ -83,27 +264,27 @@
                                 <div class="col-lg-2 col-md-3 col-sm-4 mb-4" style="min-width: 260px">
                                     <div class="box">
                                         <div class="">
-                                            <div class="bottomtitle clearfix mt-3">
-                                                <h5>
-                                                    {{$install_data['name']}}
+                                            <div class="package-head">
+                                                <div class="package-head-title">
+                                                    <h5>{{$install_data['name']}}</h5>
                                                     @if($install_data['status']==1)
-                                                        <span class="float-right text-success small">
-                                                            启用中
-                                                        </span>
+                                                        <span class="package-head-status text-success">{{getTranslateByKey('status_enabled')}}</span>
                                                     @else
-                                                        <span class="float-right text-danger small">
-                                                            禁用中
-                                                        </span>
+                                                        <span class="package-head-status text-danger">{{getTranslateByKey('status_disabled')}}</span>
                                                     @endif
-                                                </h5>
-                                                <p class="text-secondary small">
-                                                    V{{$install_data['version']}}
-
-                                                    <span class="float-right text-secondary">
-                                                            {{$install_data['author']}}
-                                                    </span>
-
-                                                </p>
+                                                </div>
+                                                <div class="package-head-meta">
+                                                    <p class="text-secondary small">
+                                                        <span>{{$install_data['author']}}</span>
+                                                        <span>V{{$install_data['version']}}</span>
+                                                    </p>
+                                                    <div class="mb-2">
+                                                        <span class="package-meta">{{$install_data['level_label']}}</span>
+                                                        @if($install_data['compatibility_summary'])
+                                                            <span class="package-meta">{{$install_data['compatibility_summary']}}</span>
+                                                        @endif
+                                                    </div>
+                                                </div>
                                             </div>
 
                                             <div class="clearfix scroll-container" style="height: 80px;overflow: auto">
@@ -111,47 +292,97 @@
                                                     {{$install_data['description']}}
                                                 </p>
                                             </div>
-                                            @if($install_data['config'])
-                                                <div class="d-inline-block">
-                                                    <a href="{{url('admin/plugin/config?identification='.$install_data['identification'])}}">
-                                                        <span class="fa fa-cog"></span> 设置
-                                                    </a>
-                                                </div>
-                                            @else
-                                                <div class="d-inline-block text-secondary">
-                                                    <span class="fa fa-cog"></span> 设置
+                                            @if($install_data['dependency_names'])
+                                                <div class="package-tip mb-2">
+                                                    {{getTranslateByKey('dependency_label')}}：{{implode('、', $install_data['dependency_names'])}}
                                                 </div>
                                             @endif
-
-                                            <div class="d-inline-block module-update-{{$install_data['identification']}} text-danger"
-                                                 style="cursor: pointer;visibility: hidden;"
-                                                 onclick="updateVersion('{{$install_data['identification']}}','plugin','{{session()->get("plugin_".$install_data["identification"])}}')"
-                                            >
-                                                &nbsp;&nbsp;
-                                                更新版本
-                                            </div>
-
-                                            <br/>
-
-                                            @if($install_data['status'] == 0)
-                                                <div class="d-inline-block cursor text-success"
-                                                     onclick="changeStatusQuestion(1, '{{url('admin/module/changeStatus?m='.$install_data['identification'].'&status=1&cloud_type='.\Modules\Main\Models\Modules::Plugin)}}')">
-                                                    <span class="fa fa-circle-o-notch"></span>
-                                                    {{getTranslateByKey('common_enable')}}
-                                                </div>
-
-                                            @else
-                                                <div class="d-inline-block text-danger cursor"
-                                                     onclick="changeStatusQuestion(0, '{{url('admin/module/changeStatus?m='.$install_data['identification'].'&status=0&cloud_type='.\Modules\Main\Models\Modules::Plugin)}}')">
-                                                    <span class="fa fa-ban"></span>
-                                                    {{getTranslateByKey('common_disable')}}
+                                            @if($install_data['dependents'])
+                                                <div class="package-tip mb-2 text-danger">
+                                                    {{getTranslateByKey('dependent_label')}}：{{implode('、', $install_data['dependents'])}}
                                                 </div>
                                             @endif
+                                            <div class="package-actions">
+                                                @if($install_data['config'])
+                                                    <div class="d-inline-block">
+                                                        <a href="{{url('admin/plugin/config?identification='.$install_data['identification'])}}">
+                                                            <span class="fa fa-cog"></span> {{getTranslateByKey('settings')}}
+                                                        </a>
+                                                    </div>
+                                                @else
+                                                    <div class="d-inline-block text-secondary">
+                                                        <span class="fa fa-cog"></span> {{getTranslateByKey('settings')}}
+                                                    </div>
+                                                @endif
 
-                                            <div class="d-inline-block text-secondary cursor"
-                                                 onclick="uninstallQuestion('{{url('admin/module/uninstall?m='.$install_data['identification'].'&cloud_type='.\Modules\Main\Models\Modules::Plugin)}}')">
-                                                <span class=" fa fa-trash-o"></span> 卸载
+                                                @if(intval($install_data['order'] ?? 0) >= 9999)
+                                                    <div class="d-inline-block">
+                                                        <div class="text-danger cursor"
+                                                             onclick="changeTopQuestion(0,'{{url('admin/module/changeTop?m='.$install_data['identification'].'&top=0&cloud_type='.\Modules\Main\Models\Modules::Plugin)}}')">
+                                                            <span class="fa fa-thumb-tack"></span>
+                                                            取消置顶
+                                                        </div>
+                                                    </div>
+                                                @else
+                                                    <div class="d-inline-block">
+                                                        <div class="cursor text-primary"
+                                                             onclick="changeTopQuestion(1,'{{url('admin/module/changeTop?m='.$install_data['identification'].'&top=1&cloud_type='.\Modules\Main\Models\Modules::Plugin)}}')">
+                                                            <span class="fa fa-thumb-tack"></span>
+                                                            置顶
+                                                        </div>
+                                                    </div>
+                                                @endif
+
+                                                <div class="d-inline-block module-update-{{$install_data['identification']}} text-danger"
+                                                     style="cursor: pointer;visibility: hidden;"
+                                                     onclick="updateVersion('{{$install_data['identification']}}','plugin','{{session()->get('versionLimit')["plugin_".$install_data["identification"]]}}')">
+                                                    {{getTranslateByKey('update_version')}}
+                                                </div>
+
+                                                @if($install_data['status'] == 0)
+                                                    <div class="d-inline-block cursor text-success"
+                                                         onclick="changeStatusQuestion(1, '{{url('admin/module/changeStatus?m='.$install_data['identification'].'&status=1&cloud_type='.\Modules\Main\Models\Modules::Plugin)}}')">
+                                                        <span class="fa fa-circle-o-notch"></span>
+                                                        {{getTranslateByKey('common_enable')}}
+                                                    </div>
+                                                @else
+                                                    @if($install_data['disable_allowed'])
+                                                        <div class="d-inline-block text-danger cursor"
+                                                             onclick="changeStatusQuestion(0, '{{url('admin/module/changeStatus?m='.$install_data['identification'].'&status=0&cloud_type='.\Modules\Main\Models\Modules::Plugin)}}')">
+                                                            <span class="fa fa-ban"></span>
+                                                            {{getTranslateByKey('common_disable')}}
+                                                        </div>
+                                                    @else
+                                                        <div class="d-inline-block action-disabled"
+                                                             title="{{$install_data['disable_reason']}}">
+                                                            <span class="fa fa-ban"></span>
+                                                            {{getTranslateByKey('common_disable')}}
+                                                        </div>
+                                                    @endif
+                                                @endif
+
+                                                @if($install_data['uninstall_allowed'])
+                                                    <div class="d-inline-block text-secondary cursor"
+                                                         onclick="uninstallQuestion('{{url('admin/module/uninstall?m='.$install_data['identification'].'&cloud_type='.\Modules\Main\Models\Modules::Plugin)}}')">
+                                                        <span class=" fa fa-trash-o"></span> {{getTranslateByKey('common_uninstall')}}
+                                                    </div>
+                                                @else
+                                                    <div class="d-inline-block action-disabled"
+                                                         title="{{$install_data['uninstall_reason']}}">
+                                                        <span class=" fa fa-trash-o"></span> {{getTranslateByKey('common_uninstall')}}
+                                                    </div>
+                                                @endif
                                             </div>
+                                            @if($install_data['disable_reason'])
+                                                <div class="package-tip mt-2 text-danger">
+                                                    {{getTranslateByKey('disable_limit')}}：{{$install_data['disable_reason']}}
+                                                </div>
+                                            @endif
+                                            @if($install_data['uninstall_reason'])
+                                                <div class="package-tip mt-1 text-danger">
+                                                    {{getTranslateByKey('uninstall_limit')}}：{{$install_data['uninstall_reason']}}
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
 
@@ -164,7 +395,7 @@
                             @endforeach
                         @else
                             <div class="col-lg-12 col-md-12 col-sm-12 mb-4 text-center mt-4" style="min-width: 260px">
-                                <div>尚未安装任何插件，<a href="{{url("admin/cloud?cloud_type=plugin")}}">去安装</a></div>
+                                <div>{{getTranslateByKey('no_installed_plugins')}}，<a href="{{url("admin/cloud?cloud_type=plugin")}}">{{getTranslateByKey('go_install')}}</a></div>
                             </div>
                         @endif
 
@@ -177,7 +408,7 @@
                     <div class="card-header card-default">
                         <div class="row">
                             <div class="col-md-6">
-                                未安装插件
+                                {{getTranslateByKey('plugin_not_installed')}}
                             </div>
                         </div>
                     </div>
@@ -190,23 +421,45 @@
                                 <div class="col-md-2 mb-3 " style="min-width: 260px">
                                     <div class="box">
                                         <div class="">
-                                            <h5>
-                                                {{$not_install_data['name']}}
-                                                <span class="float-right text-secondary small" style="font-size: 12px">
-                                                    {{$not_install_data['author']}}
-                                                </span>
-                                            </h5>
+                                            <div class="package-head">
+                                                <div class="package-head-title">
+                                                    <h5>{{$not_install_data['name']}}</h5>
+                                                </div>
+                                                <div class="package-head-meta">
+                                                    <p class="text-secondary small">
+                                                        <span>{{$not_install_data['author']}}</span>
+                                                        <span>V{{$not_install_data['version']}}</span>
+                                                    </p>
+                                                    <div class="mb-2">
+                                                        <span class="package-meta">{{$not_install_data['level_label']}}</span>
+                                                        @if($not_install_data['compatibility_summary'])
+                                                            <span class="package-meta">{{$not_install_data['compatibility_summary']}}</span>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
                                             <div class="">
-                                                <span class="glyphicon glyphicon-download"></span>{{$not_install_data['version']}}
-                                                <div class="d-inline-block float-right">
+                                                @if($not_install_data['dependency_names'])
+                                                    <div class="package-tip mt-2">
+                                                        {{getTranslateByKey('dependency_label')}}：{{implode('、', $not_install_data['dependency_names'])}}
+                                                    </div>
+                                                @endif
+                                                <div class="package-actions">
                                                         <span class="glyphicon glyphicon-cog">
-                                                               <a href="{{url('admin/module/install?m='
-                                                                    .$not_install_data['identification']
-                                                                    .'&form=local'
-                                                                    .'&cloud_type='.\Modules\Main\Models\Modules::Plugin)}}"
-                                                                  class="">
-                                                                   {{getTranslateByKey('install')}}
-                                                               </a>
+                                                               @if($not_install_data['install_allowed'])
+                                                                   <a href="{{url('admin/module/install?m='
+                                                                        .$not_install_data['identification']
+                                                                        .'&form=local'
+                                                                        .'&cloud_type='.\Modules\Main\Models\Modules::Plugin)}}"
+                                                                      class="">
+                                                                       {{getTranslateByKey('install')}}
+                                                                   </a>
+                                                               @else
+                                                                   <span class="action-disabled"
+                                                                         title="{{$not_install_data['install_reason']}}">
+                                                                       {{getTranslateByKey('install')}}
+                                                                   </span>
+                                                               @endif
                                                         </span>
 
                                                         <span class="glyphicon glyphicon-cog ">
@@ -215,10 +468,15 @@
                                                                     .'&form=local'
                                                                     .'&cloud_type='.\Modules\Main\Models\Modules::Plugin)}}')"
                                                                      class="text-danger" style="cursor: pointer;">
-                                                                   删除
+                                                                   {{getTranslateByKey('common_delete')}}
                                                                </span>
                                                         </span>
                                                 </div>
+                                                @if($not_install_data['install_reason'])
+                                                    <div class="package-tip mt-2 text-danger">
+                                                        {{getTranslateByKey('install_limit')}}：{{$not_install_data['install_reason']}}
+                                                    </div>
+                                                @endif
                                             </div>
 
                                         </div>
@@ -289,10 +547,31 @@
         });
     }
 
+    function changeTopQuestion(status, url) {
+        $.confirm({
+            title: '{{getTranslateByKey("common_tip")}}',
+            content: status == 1 ? '确定置顶该插件吗？' : '确定取消置顶该插件吗？',
+            type: 'default',
+            buttons: {
+                ok: {
+                    text: "{{getTranslateByKey('common_ensure')}}",
+                    btnClass: 'btn-primary',
+                    keys: ['enter'],
+                    action: function () {
+                        location.href = url
+                    }
+                },
+                cancel: {
+                    text: "{{getTranslateByKey('common_cancel')}}"
+                }
+            }
+        });
+    }
+
     function DelQuestion(url) {
         $.confirm({
             title: '<?php echo e(getTranslateByKey("common_tip")); ?>',
-            content: '确定要删除吗!',
+            content: '{{getTranslateByKey("common_delete_confirm")}}',
             type: 'default',
             buttons: {
                 ok: {
@@ -311,36 +590,36 @@
     }
 </script>
 <style>
-    /* 设置滚动条的宽度和高度 */
+    /* Scrollbar size */
     .scroll-container {
-        scrollbar-width: thin; /* 滚动条宽度 */
-        scrollbar-color: #888 #f1f1f1; /* 滑块颜色和轨道背景色 */
+        scrollbar-width: thin; /* Scrollbar width */
+        scrollbar-color: #888 #f1f1f1; /* Thumb and track colors */
     }
 
-    /* 设置滚动条的宽度和高度 */
+    /* Scrollbar size */
     .scroll-container::-webkit-scrollbar {
         width: 4px;
         height: 12px;
     }
 
-    /* 设置滚动条轨道的背景色 */
+    /* Track color */
     .scroll-container::-webkit-scrollbar-track {
         background: #f1f1f1;
     }
 
-    /* 设置滚动条滑块的颜色 */
+    /* Thumb color */
     .scroll-container::-webkit-scrollbar-thumb {
         background: #888;
     }
 
-    /* 设置鼠标悬停在滑块上时的颜色 */
+    /* Thumb color on hover */
     .scroll-container::-webkit-scrollbar-thumb:hover {
         background: #555;
     }
 
-    /* 设置鼠标悬停在滑块上时的颜色 */
+    /* Track color on hover */
     .scroll-container:hover {
-        scrollbar-color: #555 #f1f1f1; /* 悬停时的颜色 */
+        scrollbar-color: #555 #f1f1f1; /* Hover colors */
     }
 </style>
 </body>

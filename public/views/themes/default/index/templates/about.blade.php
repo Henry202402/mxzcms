@@ -5,30 +5,18 @@ style='background-color:{{$home_config['home_page_bg_color']}} !important'
 style='background-image: url({{GetUrlByPath($home_config['home_page_bg_img'])}});background-repeat: no-repeat'
 @endif >
     <div class="container">
-        <div class="row ">
-            <div class="col-md-12">
-                <div class="promo-title-wrapper ">
-                    <h3 class="promo-title" style="
-                    @if($home_config['home_page_title_size']) font-size:{{$home_config['home_page_title_size']}} @endif
-                    @if($home_config['home_page_title_color']) color:{{$home_config['home_page_title_color']}} @endif
-                    ">
-                        {{$home_config['home_page_title']?:$data->name}}
-                    </h3>
-                    <p class="promo-description" style="
-                    @if($home_config['home_page_describe_size']) font-size:{{$home_config['home_page_title_size']}} @endif
-                    @if($home_config['home_page_describe_color']) color:{{$home_config['home_page_title_color']}} @endif
-                    ">
-                        {{$home_config['home_page_describe']}}
-                    </p>
-                </div>
-                <div class="main-content">
-                    @foreach(getListByModel($data,$data->home_page_num) as $d)
-                        @foreach(json_decode($data->fields,true) as $field)
-                            {!! toArray($d)[$field['identification']] !!}
-                        @endforeach
-                    @endforeach
-                </div>
-            </div>
+        @include('themes.default.public.homeSectionHeader', [
+            'sectionData' => $data,
+            'sectionConfig' => $home_config,
+            'sectionMoreUrl' => url('list/' . $data->access_identification),
+        ])
+
+        <div class="mx-home-richtext">
+            @foreach(getListByModel($data,$data->home_page_num) as $d)
+                @foreach(json_decode($data->fields,true) as $field)
+                    {!! toArray($d)[$field['identification']] !!}
+                @endforeach
+            @endforeach
         </div>
     </div>
 </div>

@@ -2,11 +2,16 @@
 
 namespace Modules\System\Listeners;
 
-class GetCronJob {
+use Modules\System\Http\Controllers\Common\CronTaskController;
 
-    public function handle(\App\Events\GetCronJob $event) {
-        $data = \Modules\System\Services\ServiceModel::scheduledTasksList();
-        return ['System', $data];
+class GetCronJob
+{
+    public function handle(\App\Events\GetCronJob $event)
+    {
+        return ['System', [
+            [CronTaskController::class, 'updateSitemap', '自动更新 sitemap.xml、sitemap.xml.gz 和 urllist.txt'],
+            [CronTaskController::class, 'warmSystemSettingsCache', '预热系统设置缓存和多语言缓存'],
+        ]];
     }
-
 }
+
